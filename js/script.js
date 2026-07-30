@@ -7022,7 +7022,7 @@ const vehicleCatalog = [
           </label>
 
           <fieldset class="contact-method-field">
-            <legend>상담 방법</legend>
+            <legend>견적 받아볼 방법</legend>
             <div class="contact-method-options" role="radiogroup" aria-describedby="contactMethodError">
               ${["전화", "문자", "카톡"].map(method => `
                 <label class="contact-method-option">
