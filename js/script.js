@@ -6524,7 +6524,7 @@ const vehicleCatalog = [
 
   // Google Apps Script를 웹앱으로 배포한 뒤 아래 주소만 교체하세요.
   // 예: https://script.google.com/macros/s/AKfycb.../exec
-  const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyn-e-8alXP25C8rUrKvDcge8r0L8YPHjJ9ZU4tLH4khosBJ2GgVg5P7B2E0IyyTT-v/exec";
+  const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbN9KUT6PaeO9vvmGYcmLNAM7a6zu5_lDse_P_iilkBzKGOSauNSPcwBGMvgUYUaMP/exec";
 
   const trims = ["전체 모델", "2.5 가솔린", "3.5 가솔린", "3.5 가솔린 AWD"];
   const rateOptions = ["10%", "20%", "30%", "40%", "50%"];
