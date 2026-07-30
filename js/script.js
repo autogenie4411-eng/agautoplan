@@ -47,7 +47,7 @@
         landingLoader.remove();
         window.requestAnimationFrame(resetPageScroll);
       }, 400);
-    }, 2000);
+    }, 3000);
   }
 
 
@@ -6991,8 +6991,8 @@ const vehicleCatalog = [
       <div class="wizard-step">
         <div class="step-heading">
           <span>STEP 04</span>
-          <h2>상담 정보를 입력해 주세요.</h2>
-          <p>전담 매니저가 선택하신 조건을 확인한 뒤 연락드립니다.</p>
+          <h2>견적 받아볼 정보를 입력해주세요.</h2>
+          <p>선택한 조건으로 견적서를 보내드립니다.</p>
         </div>
 
         <div class="estimate-summary">
@@ -7095,7 +7095,7 @@ const vehicleCatalog = [
         </section>
 
         <div class="wizard-spacer wizard-spacer--complete" aria-hidden="true"></div>
-        <button type="button" id="restartButton">확인</button>
+        <button type="button" id="restartButton">견적신청완료</button>
       </div>
     `;
   }
