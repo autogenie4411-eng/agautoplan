@@ -6984,7 +6984,7 @@ const vehicleCatalog = [
       <div class="wizard-step">
         <div class="step-heading">
           <span>STEP 04</span>
-          <h2>견적 받아볼 정보를 입력해주세요.</h2>
+          <h2>견적을 받을 정보를 입력해 주세요.</h2>
           <p>선택한 조건으로 견적서를 보내드립니다.</p>
         </div>
 
