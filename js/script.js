@@ -7166,7 +7166,7 @@ const vehicleCatalog = [
     bindStepEvents();
   }
 
-  function scrollToNextSelection(selector) {
+  function scrollToNextSelection(selector, block = "center") {
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         const target = content.querySelector(selector) || document.querySelector(selector);
@@ -7174,7 +7174,7 @@ const vehicleCatalog = [
 
         target.scrollIntoView({
           behavior: "smooth",
-          block: "center"
+          block
         });
       });
     });
@@ -7354,7 +7354,7 @@ const vehicleCatalog = [
         }
 
         render();
-        scrollToNextSelection('[data-option-section="car"]');
+        scrollToNextSelection('[data-option-section="car"]', "start");
       });
     });
 
@@ -7597,25 +7597,6 @@ const vehicleCatalog = [
     if (event.target === vehicleSearchModal) vehicleSearchModal.close();
   });
 
-  function moveToConsultStep() {
-    if (state.step === 1 && !validateCurrentStep()) {
-      return;
-    }
-
-    if (!state.trim) state.trim = "상담 후 결정";
-    if (state.step <= 2) {
-      state.usage = "상담 후 결정";
-      state.initialCost = "상담 후 결정";
-      state.rate = "";
-      state.mileage = "상담 후 결정";
-    }
-
-    state.step = 4;
-    state.maxReachedStep = 4;
-    render();
-    scrollToEstimate();
-  }
-
   const privacyModal = document.getElementById("privacyModal");
     const privacyOpenButton = document.getElementById("privacyOpenButton");
 
@@ -7754,6 +7735,36 @@ const vehicleCatalog = [
     ];
 
     return !hasRepeatedBothGroups && !blockedNumbers.includes(subscriberNumber);
+  }
+
+  function moveToConsultStep() {
+    if (state.step === 1) {
+      if (!state.market) {
+        showValidation("차량 구분을 선택해 주세요.");
+        return;
+      }
+      if (!state.brandName) {
+        showValidation("브랜드를 선택해 주세요.");
+        return;
+      }
+      if (!state.carName) {
+        showValidation("차량을 선택해 주세요.");
+        return;
+      }
+    }
+
+    // 1·2단계의 미선택 항목은 상담 단계에서 결정하도록 기본값을 채웁니다.
+    if (!state.trim) state.trim = "상담 후 결정";
+    if (!state.subTrim) state.subTrim = "";
+    state.usage = "상담 후 결정";
+    state.initialCost = "상담 후 결정";
+    state.rate = "";
+    state.mileage = "상담 후 결정";
+
+    state.step = 4;
+    state.maxReachedStep = 4;
+    render();
+    scrollToEstimate();
   }
 
   function validateCurrentStep() {
