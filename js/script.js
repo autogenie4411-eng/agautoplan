@@ -6755,7 +6755,7 @@ const vehicleCatalog = [
         <div>
           <small>선택 차량</small>
           <strong>${brand.name} ${state.carName}</strong>
-          <span class="selected-vehicle-paint">${paint ? paint.name : "색상 미선택"}</span>
+          <span class="selected-vehicle-paint">${paint ? paint.name : "상담 후 결정"}</span>
           ${state.trim || state.subTrim ? `<span class="selected-vehicle-trim">${state.trim}${state.subTrim ? ` · ${state.subTrim}` : ""}</span>` : ""}
         </div>
       </div>
@@ -6984,14 +6984,14 @@ const vehicleCatalog = [
       <div class="wizard-step">
         <div class="step-heading">
           <span>STEP 04</span>
-          <h2>견적을 받을 정보를 입력해 주세요.</h2>
+          <h2>견적 받아볼 정보를 입력해주세요.</h2>
           <p>선택한 조건으로 견적서를 보내드립니다.</p>
         </div>
 
         <div class="estimate-summary">
           <h3>선택한 견적 조건</h3>
           <dl>
-            <div><dt>차량</dt><dd>${state.brandName} ${state.carName} · ${currentPaint()?.name || "상담 시 선택"}</dd></div>
+            <div><dt>차량</dt><dd>${state.brandName} ${state.carName} · ${currentPaint()?.name || "상담 후 결정"}</dd></div>
             <div><dt>세부모델</dt><dd>${state.trim || "상담 후 결정"}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
             <div><dt>이용조건</dt><dd>${state.usage || "상담 후 결정"} · ${state.initialCost || "상담 후 결정"}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
             <div><dt>주행거리</dt><dd>${state.mileage || "상담 후 결정"}</dd></div>
@@ -7074,7 +7074,7 @@ const vehicleCatalog = [
             <div>
               <small>선택 차량</small>
               <strong>${state.brandName} ${state.carName}</strong>
-              <span>${paint?.name || "색상 미선택"}</span>
+              <span>${paint?.name || "상담 후 결정"}</span>
             </div>
           </div>
 
@@ -7083,7 +7083,7 @@ const vehicleCatalog = [
             <dl class="completion-details">
               <div><dt>브랜드</dt><dd>${state.brandName}</dd></div>
               <div><dt>차량</dt><dd>${state.carName}</dd></div>
-              <div><dt>외장 색상</dt><dd>${paint?.name || "-"}</dd></div>
+              <div><dt>외장 색상</dt><dd>${paint?.name || "상담 후 결정"}</dd></div>
               <div><dt>세부 모델</dt><dd>${state.trim}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
               <div><dt>이용 방식</dt><dd>${state.usage}</dd></div>
               <div><dt>초기비용</dt><dd>${initialCostText}</dd></div>
