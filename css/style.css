@@ -5116,11 +5116,19 @@ body.loader-active {
 /* ==============================
    전기차 지역별 보조금
 ============================== */
+.subsidy-region-block {
+    margin-bottom: 26px;
+}
+
 .subsidy-region-block .option-helper {
-    margin: -4px 0 14px;
+    margin: -4px 0 6px;
     color: #667085;
     font-size: var(--font-14);
     line-height: 1.55;
+}
+
+.subsidy-region-block .wizard-select {
+    margin-top: 14px;
 }
 
 .subsidy-region-block .wizard-select select {
@@ -5130,7 +5138,7 @@ body.loader-active {
 
 .subsidy-notice {
     display: block;
-    margin-top: 10px;
+    margin: 0;
     color: #8a94a6;
     font-size: var(--font-13);
     line-height: 1.5;

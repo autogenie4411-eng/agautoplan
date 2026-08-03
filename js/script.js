@@ -6974,22 +6974,6 @@ const vehicleCatalog = [
           </div>
         </fieldset>
 
-        ${isElectricVehicle() ? `
-          <fieldset class="option-block subsidy-region-block" data-option-section="subsidy-region">
-            <legend><b>4</b> 지역별 보조금</legend>
-            <p class="option-helper">전기차 보조금 확인을 위해 차량 등록 예정 지역을 선택해 주세요.</p>
-            <div class="wizard-select">
-              <select id="subsidyRegionSelect" aria-label="전기차 보조금 지역 선택">
-                <option value="" selected disabled hidden>등록 지역을 선택해 주세요</option>
-                ${subsidyRegions.map(region => `
-                  <option value="${region}" ${state.subsidyRegion === region ? "selected" : ""}>${region}</option>
-                `).join("")}
-              </select>
-            </div>
-            <small class="subsidy-notice">실제 보조금은 차종·세부모델·지자체 예산에 따라 달라질 수 있습니다.</small>
-          </fieldset>
-        ` : ""}
-
         <p class="validation-message" id="validationMessage"></p>
       </div>
     `;
@@ -7012,9 +6996,25 @@ const vehicleCatalog = [
             <div><dt>이용조건</dt><dd>${state.usage || "상담 후 결정"} · ${state.initialCost || "상담 후 결정"}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
             <div><dt>주행거리</dt><dd>${state.mileage || "상담 후 결정"}</dd></div>
             <div><dt>할인율</dt><dd>최대 10%</dd></div>
-            ${isElectricVehicle() ? `<div><dt>보조금 지역</dt><dd>${state.subsidyRegion || "상담 시 확인"}</dd></div>` : ""}
+            ${isElectricVehicle() ? `<div><dt>보조금 지역</dt><dd data-summary-subsidy-region>${state.subsidyRegion || "선택 전"}</dd></div>` : ""}
           </dl>
         </div>
+
+        ${isElectricVehicle() ? `
+          <fieldset class="option-block subsidy-region-block" data-option-section="subsidy-region">
+            <legend>지역별 보조금</legend>
+            <p class="option-helper">전기차 보조금 확인을 위해 차량 등록 예정 지역을 선택해 주세요.</p>
+            <small class="subsidy-notice">실제 보조금은 차종·세부모델·지자체 예산에 따라 달라질 수 있습니다.</small>
+            <div class="wizard-select">
+              <select id="subsidyRegionSelect" aria-label="전기차 보조금 지역 선택">
+                <option value="" selected disabled hidden>등록 지역을 선택해 주세요</option>
+                ${subsidyRegions.map(region => `
+                  <option value="${region}" ${state.subsidyRegion === region ? "selected" : ""}>${region}</option>
+                `).join("")}
+              </select>
+            </div>
+          </fieldset>
+        ` : ""}
 
         <div class="customer-fields">
           <label>
@@ -7496,7 +7496,7 @@ const vehicleCatalog = [
         render();
 
         if (state.carName) {
-          scrollToNextSelection('[data-option-section="paint"]');
+          scrollToNextSelection('.wizard-car-card', "start", 76);
         }
       });
     });
@@ -7522,6 +7522,8 @@ const vehicleCatalog = [
     const subsidyRegionSelect = document.getElementById("subsidyRegionSelect");
     subsidyRegionSelect?.addEventListener("change", () => {
       state.subsidyRegion = subsidyRegionSelect.value;
+      const summaryValue = document.querySelector('[data-summary-subsidy-region]');
+      if (summaryValue) summaryValue.textContent = state.subsidyRegion;
       showValidation("");
     });
 
@@ -7679,10 +7681,7 @@ const vehicleCatalog = [
     vehicleSearchModal?.close();
     render();
     window.requestAnimationFrame(() => {
-      document.querySelector('[data-option-section="paint"]')?.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+      scrollToNextSelection('.wizard-car-card', "start", 76);
     });
   });
 
@@ -7910,11 +7909,6 @@ const vehicleCatalog = [
         showValidation("연간 주행거리를 선택해 주세요.");
         return false;
       }
-      if (isElectricVehicle() && !state.subsidyRegion) {
-        showValidation("전기차 보조금 확인 지역을 선택해 주세요.");
-        document.getElementById("subsidyRegionSelect")?.focus();
-        return false;
-      }
       return true;
     }
 
@@ -7928,6 +7922,12 @@ const vehicleCatalog = [
       const contactMethodError = document.getElementById("contactMethodError");
 
       clearCustomerErrors();
+
+      if (isElectricVehicle() && !state.subsidyRegion) {
+        showValidation("전기차 보조금 확인 지역을 선택해 주세요.");
+        document.getElementById("subsidyRegionSelect")?.focus();
+        return false;
+      }
 
       if (!isValidCustomerName(name.value)) {
         const message = "올바른 성함을 입력해 주세요.";
