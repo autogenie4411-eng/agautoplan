@@ -6613,6 +6613,7 @@ const vehicleCatalog = [
   const actions = document.getElementById("wizardActions");
   const spacer = document.querySelector(".wizard-spacer");
   const backButton = document.getElementById("backButton");
+  const consultButton = document.getElementById("consultButton");
   const nextButton = document.getElementById("nextButton");
   const form = document.getElementById("estimateForm");
 
@@ -6709,6 +6710,13 @@ const vehicleCatalog = [
     const paints = currentPaints();
     const selectedPaint = currentPaint();
     const imagePath = selectedPaint?.image || paints[0]?.image || fallbackImage;
+    return assetUrl(imagePath);
+  }
+
+  function getCarPreviewImage(brandName, carName) {
+    const brand = vehicleCatalog.find(item => item.name === brandName);
+    const car = brand?.cars.find(item => item.name === carName);
+    const imagePath = car?.paints?.[0]?.image || fallbackImage;
     return assetUrl(imagePath);
   }
 
@@ -6831,11 +6839,15 @@ const vehicleCatalog = [
         <fieldset class="option-block ${!state.brandName ? "is-disabled-block" : ""}" data-option-section="car">
           <legend><b>3</b> 차량</legend>
           ${brand ? `
-            <div class="wizard-select" id="carSelectWrap">
-              <select id="carSelect" aria-label="차량 선택">
-                <option value="">차량을 선택해 주세요</option>
-                ${brand.cars.map(car => `<option value="${car}" ${car === state.carName ? "selected" : ""}>${car}</option>`).join("")}
-              </select>
+            <div class="vehicle-card-list" id="carCardList">
+              ${brand.cars.map(car => `
+                <button class="vehicle-card-item ${car === state.carName ? "active" : ""}" type="button" data-car-card="${car}" data-brand="${state.brandName}" aria-pressed="${car === state.carName ? "true" : "false"}">
+                  <span class="vehicle-card-item__name">${car}</span>
+                  <span class="vehicle-card-item__thumb">
+                    <img src="${getCarPreviewImage(state.brandName, car)}" alt="${state.brandName} ${car}">
+                  </span>
+                </button>
+              `).join("")}
             </div>
           ` : `<p class="empty-selection-guide">브랜드를 먼저 선택해 주세요.</p>`}
         </fieldset>
@@ -6998,12 +7010,12 @@ const vehicleCatalog = [
         <div class="estimate-summary">
           <h3>선택한 견적 조건</h3>
           <dl>
-            <div><dt>차량</dt><dd>${state.brandName} ${state.carName} · ${currentPaint().name}</dd></div>
-            <div><dt>세부모델</dt><dd>${state.trim}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
-            <div><dt>이용조건</dt><dd>${state.usage} · ${state.initialCost}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
-            <div><dt>주행거리</dt><dd>${state.mileage}</dd></div>
+            <div><dt>차량</dt><dd>${state.brandName} ${state.carName} · ${currentPaint()?.name || "상담 시 선택"}</dd></div>
+            <div><dt>세부모델</dt><dd>${state.trim || "상담 후 결정"}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
+            <div><dt>이용조건</dt><dd>${state.usage || "상담 후 결정"} · ${state.initialCost || "상담 후 결정"}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
+            <div><dt>주행거리</dt><dd>${state.mileage || "상담 후 결정"}</dd></div>
             <div><dt>할인율</dt><dd>최대 10%</dd></div>
-            ${isElectricVehicle() ? `<div><dt>보조금 지역</dt><dd>${state.subsidyRegion}</dd></div>` : ""}
+            ${isElectricVehicle() ? `<div><dt>보조금 지역</dt><dd>${state.subsidyRegion || "상담 시 확인"}</dd></div>` : ""}
           </dl>
         </div>
 
@@ -7095,7 +7107,7 @@ const vehicleCatalog = [
         </section>
 
         <div class="wizard-spacer wizard-spacer--complete" aria-hidden="true"></div>
-        <button type="button" id="restartButton">확인</button>
+        <button type="button" id="restartButton">견적신청완료</button>
       </div>
     `;
   }
@@ -7142,7 +7154,11 @@ const vehicleCatalog = [
     });
     indicator.className = `step-indicator progress-${state.step}`;
 
+    const shouldShowConsultButton = state.step === 1 || state.step === 2;
+
     backButton.hidden = state.step === 1;
+    consultButton.hidden = !shouldShowConsultButton;
+    actions.classList.toggle("has-consult-button", shouldShowConsultButton);
     nextButton.innerHTML = state.step === 4
       ? `견적신청 ${arrowIcon()}`
       : `다음 단계 ${arrowIcon()}`;
@@ -7373,10 +7389,9 @@ const vehicleCatalog = [
       });
     });
 
-    const carSelect = document.getElementById("carSelect");
-    if (carSelect) {
-      carSelect.addEventListener("change", () => {
-        const nextCarName = carSelect.value;
+    content.querySelectorAll("[data-car-card]").forEach(button => {
+      button.addEventListener("click", () => {
+        const nextCarName = button.dataset.carCard;
         const carChanged = state.carName !== nextCarName;
         state.carName = nextCarName;
 
@@ -7391,7 +7406,7 @@ const vehicleCatalog = [
           scrollToNextSelection('[data-option-section="paint"]');
         }
       });
-    }
+    });
 
 
     content.querySelectorAll("[data-engine-model]").forEach(button => {
@@ -7581,6 +7596,25 @@ const vehicleCatalog = [
   vehicleSearchModal?.addEventListener("click", event => {
     if (event.target === vehicleSearchModal) vehicleSearchModal.close();
   });
+
+  function moveToConsultStep() {
+    if (state.step === 1 && !validateCurrentStep()) {
+      return;
+    }
+
+    if (!state.trim) state.trim = "상담 후 결정";
+    if (state.step <= 2) {
+      state.usage = "상담 후 결정";
+      state.initialCost = "상담 후 결정";
+      state.rate = "";
+      state.mileage = "상담 후 결정";
+    }
+
+    state.step = 4;
+    state.maxReachedStep = 4;
+    render();
+    scrollToEstimate();
+  }
 
   const privacyModal = document.getElementById("privacyModal");
     const privacyOpenButton = document.getElementById("privacyOpenButton");
@@ -7959,6 +7993,10 @@ const vehicleCatalog = [
       render();
       scrollToEstimate();
     }
+  });
+
+  consultButton?.addEventListener("click", () => {
+    moveToConsultStep();
   });
 
   nextButton.addEventListener("click", async () => {
