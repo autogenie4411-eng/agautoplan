@@ -5139,7 +5139,7 @@ body.loader-active {
 .subsidy-notice {
     display: block;
     margin: 0;
-    color: #c47a1b;
+    color: #8a94a6;
     font-size: var(--font-13);
     line-height: 1.5;
 }
@@ -5918,11 +5918,13 @@ body.loader-active {
     }
 }
 
+
 /* 동적 렌더링 시 브라우저가 이전 버튼 위치로 스크롤을 되돌리는 현상 방지 */
 #wizardContent,
 #wizardContent .option-block {
     overflow-anchor: none;
 }
+
 
 /* 차량 구분 선택 후 DOM 재구성 시 브라우저 자동 스크롤 앵커 방지 */
 #wizardContent {
