@@ -7004,7 +7004,7 @@ const vehicleCatalog = [
           <fieldset class="option-block subsidy-region-block" data-option-section="subsidy-region">
             <legend>지역별 보조금</legend>
             <p class="option-helper">전기차 보조금 확인을 위해 차량 등록 예정 지역을 선택해 주세요.</p>
-            <small class="subsidy-notice">실제 보조금은 차종·세부모델·지자체 예산에 따라 달라질 수 있습니다.</small>
+            <small class="subsidy-notice">*실제 보조금은 차종·세부모델·지자체 예산에 따라 달라질 수 있습니다.</small>
             <div class="wizard-select">
               <select id="subsidyRegionSelect" aria-label="전기차 보조금 지역 선택">
                 <option value="" selected disabled hidden>등록 지역을 선택해 주세요</option>
