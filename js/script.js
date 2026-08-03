@@ -7104,7 +7104,7 @@ const vehicleCatalog = [
         </section>
 
         <div class="wizard-spacer wizard-spacer--complete" aria-hidden="true"></div>
-        <button type="button" id="restartButton">견적신청완료</button>
+        <button type="button" id="restartButton">확인</button>
       </div>
     `;
   }
