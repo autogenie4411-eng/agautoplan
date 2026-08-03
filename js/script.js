@@ -11,10 +11,10 @@
     history.scrollRestoration = "manual";
   }
 
+  // 초기 진입 시에만 한 번 맨 위에서 시작합니다.
+  // load/pageshow 이후에는 사용자가 이미 선택하거나 스크롤했을 수 있으므로
+  // 스크롤 위치를 다시 0으로 변경하지 않습니다.
   resetPageScroll();
-  window.addEventListener("pageshow", resetPageScroll);
-  window.addEventListener("load", resetPageScroll);
-  window.addEventListener("beforeunload", resetPageScroll);
 
   // 프로젝트 폴더가 어느 경로로 이동해도 에셋을 script.js 위치 기준으로 찾습니다.
   const scriptElement = document.currentScript;
@@ -33,19 +33,16 @@
   }
   const landingLoader = document.getElementById("landingLoader");
   if (landingLoader) {
-    resetPageScroll();
     document.body.classList.add("loader-active");
 
     window.setTimeout(() => {
-      resetPageScroll();
       landingLoader.setAttribute("aria-hidden", "true");
 
-      // 로더의 페이드아웃이 끝난 뒤 스크롤 잠금을 해제해
-      // 스크롤바 생성으로 인한 화면 좌우 흔들림을 방지합니다.
+      // 로더가 사라진 뒤에는 현재 스크롤 위치를 건드리지 않습니다.
+      // 사용자가 빠르게 차량 구분을 선택한 경우에도 맨 위로 튀지 않습니다.
       window.setTimeout(() => {
         document.body.classList.remove("loader-active");
         landingLoader.remove();
-        window.requestAnimationFrame(resetPageScroll);
       }, 400);
     }, 3000);
   }
@@ -7120,7 +7117,17 @@ const vehicleCatalog = [
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>`;
   }
 
-  function render() {
+  function render(options = {}) {
+    const preserveScroll = options.preserveScroll === true;
+    const preservedScrollY = preserveScroll ? window.scrollY : 0;
+    const preservedContentHeight = preserveScroll ? content.offsetHeight : 0;
+
+    if (preserveScroll) {
+      // content.innerHTML 교체 순간 문서 높이가 잠시 줄면서
+      // 브라우저가 스크롤을 맨 위로 보정하는 현상을 막습니다.
+      content.style.minHeight = `${preservedContentHeight}px`;
+    }
+
     ensureSelection();
 
     if (state.submitted) {
@@ -7164,20 +7171,101 @@ const vehicleCatalog = [
       : `다음 단계 ${arrowIcon()}`;
 
     bindStepEvents();
-  }
 
-  function scrollToNextSelection(selector, block = "center") {
-    window.requestAnimationFrame(() => {
+    if (preserveScroll) {
+      // 새 DOM이 반영된 직후 기존 위치를 즉시 유지합니다.
+      // 이후 scrollToNextSelection()이 목표 영역까지 부드럽게 이동합니다.
+      window.scrollTo({
+        top: preservedScrollY,
+        left: 0,
+        behavior: "auto"
+      });
+
       window.requestAnimationFrame(() => {
-        const target = content.querySelector(selector) || document.querySelector(selector);
-        if (!target) return;
-
-        target.scrollIntoView({
-          behavior: "smooth",
-          block
+        window.scrollTo({
+          top: preservedScrollY,
+          left: 0,
+          behavior: "auto"
         });
       });
+    }
+  }
+
+  function scrollToNextSelection(selector, block = "start", viewportTop = null) {
+    const target = content.querySelector(selector) || document.querySelector(selector);
+    if (!target) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    let hasStarted = false;
+
+    const startSmoothScroll = () => {
+      if (hasStarted) return;
+      hasStarted = true;
+
+      // 렌더링 중 유지했던 높이를 실제 이동 직전에 해제합니다.
+      content.style.minHeight = "";
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          const header = document.querySelector(".site-header");
+          const headerHeight = header
+            ? header.getBoundingClientRect().height
+            : 0;
+
+          const rect = target.getBoundingClientRect();
+          const targetTop = window.scrollY + rect.top;
+          const viewportHeight = window.innerHeight;
+          const targetHeight = rect.height;
+
+          const destination = viewportTop !== null
+            ? targetTop - Math.min(
+                Number(viewportTop),
+                viewportHeight * 0.42
+              )
+            : block === "center"
+              ? targetTop - Math.max(
+                  headerHeight + 12,
+                  (viewportHeight - targetHeight) / 2
+                )
+              : targetTop - headerHeight - 12;
+
+          window.scrollTo({
+            top: Math.max(0, destination),
+            left: 0,
+            behavior: prefersReducedMotion ? "auto" : "smooth"
+          });
+        });
+      });
+    };
+
+    const loadingImages = [...target.querySelectorAll("img")]
+      .filter(image => !image.complete);
+
+    if (!loadingImages.length) {
+      startSmoothScroll();
+      return;
+    }
+
+    let remaining = loadingImages.length;
+
+    const finishImage = () => {
+      remaining -= 1;
+
+      if (remaining <= 0) {
+        startSmoothScroll();
+      }
+    };
+
+    loadingImages.forEach(image => {
+      image.addEventListener("load", finishImage, { once: true });
+      image.addEventListener("error", finishImage, { once: true });
     });
+
+    // 이미지 로딩이 지연되는 경우에도 한 번만 자연스럽게 이동합니다.
+    window.setTimeout(startSmoothScroll, 700);
   }
 
   function enablePaintDragScroll(scroller) {
@@ -7305,6 +7393,10 @@ const vehicleCatalog = [
         const value = button.dataset.value;
 
         if (key === "market") {
+          // 클릭된 버튼이 DOM 교체 과정에서 사라질 때 브라우저가
+          // 포커스 위치를 기준으로 위로 이동하지 않도록 먼저 해제합니다.
+          button.blur();
+
           const marketChanged = state.market !== value;
           state.market = value;
 
@@ -7323,10 +7415,10 @@ const vehicleCatalog = [
             state.rate = "10%";
           }
         }
-        render();
+        render({ preserveScroll: key === "market" });
 
         if (key === "market") {
-          scrollToNextSelection('[data-option-section="brand"]');
+          scrollToNextSelection('[data-option-section="brand"]', "start", 360);
         } else if (key === "usage") {
           scrollToNextSelection('[data-option-section="initialCost"]');
         } else if (key === "initialCost") {
@@ -7343,6 +7435,7 @@ const vehicleCatalog = [
 
     content.querySelectorAll(".wizard-brand-grid button[data-brand]").forEach(button => {
       button.addEventListener("click", () => {
+        button.blur();
         const nextBrandName = button.dataset.brand;
         const brandChanged = state.brandName !== nextBrandName;
         state.brandName = nextBrandName;

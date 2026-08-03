@@ -5909,3 +5909,16 @@ body.loader-active {
         max-height: 64px;
     }
 }
+
+
+/* 동적 렌더링 시 브라우저가 이전 버튼 위치로 스크롤을 되돌리는 현상 방지 */
+#wizardContent,
+#wizardContent .option-block {
+    overflow-anchor: none;
+}
+
+
+/* 차량 구분 선택 후 DOM 재구성 시 브라우저 자동 스크롤 앵커 방지 */
+#wizardContent {
+    overflow-anchor: none;
+}
