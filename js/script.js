@@ -7121,10 +7121,24 @@ const vehicleCatalog = [
     const preserveScroll = options.preserveScroll === true;
     const preservedScrollY = preserveScroll ? window.scrollY : 0;
     const preservedContentHeight = preserveScroll ? content.offsetHeight : 0;
+    const scrollRoot = document.documentElement;
+    const scrollBody = document.body;
+    const scroller = document.scrollingElement || scrollRoot;
+    const previousRootBehavior = scrollRoot.style.scrollBehavior;
+    const previousBodyBehavior = scrollBody.style.scrollBehavior;
+    const previousRootAnchor = scrollRoot.style.overflowAnchor;
+    const previousBodyAnchor = scrollBody.style.overflowAnchor;
+    const previousContentAnchor = content.style.overflowAnchor;
 
     if (preserveScroll) {
-      // content.innerHTML 교체 순간 문서 높이가 잠시 줄면서
-      // 브라우저가 스크롤을 맨 위로 보정하는 현상을 막습니다.
+      // innerHTML 교체 중에는 전역 scroll-behavior:smooth와 스크롤 앵커를
+      // 잠시 끕니다. 그렇지 않으면 기존 위치 복원이 또 하나의 스크롤
+      // 애니메이션이 되어 브랜드 선택 모션을 점프처럼 보이게 만듭니다.
+      scrollRoot.style.scrollBehavior = "auto";
+      scrollBody.style.scrollBehavior = "auto";
+      scrollRoot.style.overflowAnchor = "none";
+      scrollBody.style.overflowAnchor = "none";
+      content.style.overflowAnchor = "none";
       content.style.minHeight = `${preservedContentHeight}px`;
     }
 
@@ -7173,25 +7187,28 @@ const vehicleCatalog = [
     bindStepEvents();
 
     if (preserveScroll) {
-      // 새 DOM이 반영된 직후 기존 위치를 즉시 유지합니다.
-      // 이후 scrollToNextSelection()이 목표 영역까지 부드럽게 이동합니다.
-      window.scrollTo({
-        top: preservedScrollY,
-        left: 0,
-        behavior: "auto"
-      });
+      // CSS smooth를 끈 상태에서 실제 스크롤 컨테이너 값을 직접 고정합니다.
+      // 두 프레임 동안 유지해 DOM 높이 계산과 브라우저 앵커 보정이 끝난 뒤
+      // 원래 설정을 복원합니다.
+      scroller.scrollTop = preservedScrollY;
 
       window.requestAnimationFrame(() => {
-        window.scrollTo({
-          top: preservedScrollY,
-          left: 0,
-          behavior: "auto"
+        scroller.scrollTop = preservedScrollY;
+
+        window.requestAnimationFrame(() => {
+          scroller.scrollTop = preservedScrollY;
+          content.style.minHeight = "";
+          scrollRoot.style.scrollBehavior = previousRootBehavior;
+          scrollBody.style.scrollBehavior = previousBodyBehavior;
+          scrollRoot.style.overflowAnchor = previousRootAnchor;
+          scrollBody.style.overflowAnchor = previousBodyAnchor;
+          content.style.overflowAnchor = previousContentAnchor;
         });
       });
     }
   }
 
-  function scrollToNextSelection(selector, block = "start", viewportTop = null) {
+  function scrollToNextSelection(selector, block = "start", viewportTop = null, behavior = "smooth") {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
@@ -7216,7 +7233,7 @@ const vehicleCatalog = [
       window.scrollTo({
         top: Math.max(0, destination),
         left: 0,
-        behavior: prefersReducedMotion ? "auto" : "smooth"
+        behavior: prefersReducedMotion ? "auto" : behavior
       });
     };
 
@@ -7226,6 +7243,73 @@ const vehicleCatalog = [
 
     // 모바일 브라우저의 늦은 레이아웃 보정까지 반영합니다.
     window.setTimeout(moveToTarget, 120);
+  }
+
+  let vehicleScrollAnimationId = 0;
+  let vehicleScrollComplete = null;
+
+  function scrollToVehicleSectionTopSmooth(onComplete = null) {
+    const section = content.querySelector('[data-option-section="car"]');
+    if (!section) return false;
+
+    const title = section.querySelector('legend') || section;
+    const header = document.querySelector('.wizard-header') || document.querySelector('.site-header');
+    const headerRect = header ? header.getBoundingClientRect() : null;
+    const headerBottom = headerRect ? Math.max(0, headerRect.bottom) : 0;
+    const startScrollY = window.scrollY;
+    const titleTop = startScrollY + title.getBoundingClientRect().top;
+    const destination = Math.max(0, Math.round(titleTop - headerBottom - 12));
+
+    window.cancelAnimationFrame(vehicleScrollAnimationId);
+    vehicleScrollComplete = onComplete;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const scroller = document.scrollingElement || root;
+    const previousRootBehavior = root.style.scrollBehavior;
+    const previousBodyBehavior = body.style.scrollBehavior;
+
+    // 브랜드 선택에서는 반드시 모션이 보여야 하므로 CSS smooth나
+    // 운영체제의 reduced-motion 설정에 맡기지 않고 직접 애니메이션합니다.
+    root.style.scrollBehavior = 'auto';
+    body.style.scrollBehavior = 'auto';
+
+    const distance = destination - startScrollY;
+    const duration = Math.min(900, Math.max(620, Math.abs(distance) * 0.8));
+    const startedAt = performance.now();
+    const easeInOutCubic = progress => progress < 0.5
+      ? 4 * progress * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+    const finish = () => {
+      scroller.scrollTop = destination;
+      root.style.scrollBehavior = previousRootBehavior;
+      body.style.scrollBehavior = previousBodyBehavior;
+
+      const callback = vehicleScrollComplete;
+      vehicleScrollComplete = null;
+      if (typeof callback === 'function') callback(destination);
+    };
+
+    if (Math.abs(distance) < 2) {
+      finish();
+      return true;
+    }
+
+    const animate = now => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      scroller.scrollTop = Math.round(startScrollY + distance * easeInOutCubic(progress));
+
+      if (progress < 1) {
+        vehicleScrollAnimationId = window.requestAnimationFrame(animate);
+        return;
+      }
+
+      finish();
+    };
+
+    vehicleScrollAnimationId = window.requestAnimationFrame(animate);
+    return true;
   }
 
   function enablePaintDragScroll(scroller) {
@@ -7396,18 +7480,32 @@ const vehicleCatalog = [
     content.querySelectorAll(".wizard-brand-grid button[data-brand]").forEach(button => {
       button.addEventListener("click", () => {
         button.blur();
+
         const nextBrandName = button.dataset.brand;
-        const brandChanged = state.brandName !== nextBrandName;
-        state.brandName = nextBrandName;
 
-        if (brandChanged) {
-          state.carName = "";
-          state.paintId = "";
-          resetSelectionsAfterVehicleChange();
-        }
+        // 차량 목록을 다시 그리기 전에 현재 DOM에 이미 있는 3번 차량 제목까지
+        // 먼저 부드럽게 이동합니다. 렌더링을 이동보다 먼저 실행하면 브라우저가
+        // 레이아웃 변경을 보정하면서 목표 위치로 점프해 모션이 보이지 않습니다.
+        content.querySelectorAll(".wizard-brand-grid button[data-brand]").forEach(item => {
+          const isActive = item === button;
+          item.classList.toggle("active", isActive);
+          item.setAttribute("aria-pressed", String(isActive));
+        });
 
-        render();
-        scrollToNextSelection('[data-option-section="car"]', "start");
+        scrollToVehicleSectionTopSmooth(() => {
+          const brandChanged = state.brandName !== nextBrandName;
+          state.brandName = nextBrandName;
+
+          if (brandChanged) {
+            state.carName = "";
+            state.paintId = "";
+            resetSelectionsAfterVehicleChange();
+          }
+
+          // 목표 위치에 도착한 뒤 차량 아이템을 채우므로 DOM 높이 변경이
+          // 스크롤 애니메이션의 시작점이나 진행을 방해하지 않습니다.
+          render({ preserveScroll: true });
+        });
       });
     });
 
