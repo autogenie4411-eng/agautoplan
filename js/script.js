@@ -7482,30 +7482,20 @@ const vehicleCatalog = [
         button.blur();
 
         const nextBrandName = button.dataset.brand;
+        const brandChanged = state.brandName !== nextBrandName;
 
-        // 차량 목록을 다시 그리기 전에 현재 DOM에 이미 있는 3번 차량 제목까지
-        // 먼저 부드럽게 이동합니다. 렌더링을 이동보다 먼저 실행하면 브라우저가
-        // 레이아웃 변경을 보정하면서 목표 위치로 점프해 모션이 보이지 않습니다.
-        content.querySelectorAll(".wizard-brand-grid button[data-brand]").forEach(item => {
-          const isActive = item === button;
-          item.classList.toggle("active", isActive);
-          item.setAttribute("aria-pressed", String(isActive));
-        });
+        state.brandName = nextBrandName;
 
-        scrollToVehicleSectionTopSmooth(() => {
-          const brandChanged = state.brandName !== nextBrandName;
-          state.brandName = nextBrandName;
+        if (brandChanged) {
+          state.carName = "";
+          state.paintId = "";
+          resetSelectionsAfterVehicleChange();
+        }
 
-          if (brandChanged) {
-            state.carName = "";
-            state.paintId = "";
-            resetSelectionsAfterVehicleChange();
-          }
-
-          // 목표 위치에 도착한 뒤 차량 아이템을 채우므로 DOM 높이 변경이
-          // 스크롤 애니메이션의 시작점이나 진행을 방해하지 않습니다.
-          render({ preserveScroll: true });
-        });
+        // importcar와 동일하게 차량 아이템을 먼저 렌더링한 뒤,
+        // 새 레이아웃이 확정된 차량 제목 위치로 부드럽게 이동합니다.
+        render({ preserveScroll: true });
+        scrollToNextSelection('[data-option-section="car"]', "start");
       });
     });
 
