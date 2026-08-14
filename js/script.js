@@ -6482,7 +6482,7 @@ const vehicleCatalog = [
 
   const AUTOJINI_VISIT_LOGGED_KEY = "autogenie_integrated_visit_logged_v2";
   const AUTOJINI_VISIT_SESSION_ID_KEY = "autogenie_integrated_visit_session_id_v2";
-  const AUTOJINI_VISIT_HEARTBEAT_MS = 15000;
+  const AUTOJINI_VISIT_HEARTBEAT_MS = 10000;
 
   let autojiniVisitSessionId = "";
   let autojiniVisitActiveMs = 0;
