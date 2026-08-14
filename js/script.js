@@ -6616,11 +6616,12 @@ const vehicleCatalog = [
      실제 사이트 체류시간 측정
      - 화면에 실제로 보이는 시간만 누적
      - 다른 앱/탭, 홈 화면, 화면 잠금 시간은 제외
+     - 체류시간 갱신은 GET으로 전송해 CORS/sendBeacon 영향을 피합니다.
   ========================================================= */
   function startVisitDurationTracking() {
     const visitSessionId = getAutojiniVisitSessionId();
     const visitorId = getAutojiniVisitorId();
-    const HEARTBEAT_MS = 15000;
+    const HEARTBEAT_MS = 10000;
 
     let accumulatedActiveMs = 0;
     let activeStartedAt =
@@ -6655,11 +6656,42 @@ const vehicleCatalog = [
       return Math.max(0, Math.floor(totalMs / 1000));
     }
 
-    function sendDuration(preferBeacon) {
+    function buildDurationUrl(activeSeconds) {
+      const url = new URL(GOOGLE_APPS_SCRIPT_URL);
+
+      url.searchParams.set(
+        "requestType",
+        "page_visit_update"
+      );
+      url.searchParams.set(
+        "visitorId",
+        visitorId
+      );
+      url.searchParams.set(
+        "visitSessionId",
+        visitSessionId
+      );
+      url.searchParams.set(
+        "staySeconds",
+        String(activeSeconds)
+      );
+      url.searchParams.set(
+        "activeSeconds",
+        String(activeSeconds)
+      );
+      url.searchParams.set(
+        "_t",
+        String(Date.now())
+      );
+
+      return url.href;
+    }
+
+    function sendDuration(forceSend) {
       const activeSeconds = getActiveSeconds();
 
       if (
-        !preferBeacon &&
+        !forceSend &&
         activeSeconds === lastSentSeconds
       ) {
         return;
@@ -6667,38 +6699,19 @@ const vehicleCatalog = [
 
       lastSentSeconds = activeSeconds;
 
-      const body = new URLSearchParams({
-        requestType: "page_visit_update",
-        visitorId: visitorId,
-        visitSessionId: visitSessionId,
-        staySeconds: String(activeSeconds),
-        activeSeconds: String(activeSeconds)
-      });
+      const requestUrl =
+        buildDurationUrl(activeSeconds);
 
-      if (
-        preferBeacon &&
-        typeof navigator.sendBeacon === "function"
-      ) {
-        const sent = navigator.sendBeacon(
-          GOOGLE_APPS_SCRIPT_URL,
-          body
-        );
-
-        if (sent) {
-          return;
-        }
-      }
-
-      fetch(GOOGLE_APPS_SCRIPT_URL, {
-        method: "POST",
+      fetch(requestUrl, {
+        method: "GET",
         mode: "no-cors",
-        keepalive: true,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-        },
-        body: body.toString()
+        cache: "no-store",
+        keepalive: true
       }).catch(error => {
-        console.warn("체류시간 전송 실패:", error);
+        console.warn(
+          "체류시간 전송 실패:",
+          error
+        );
       });
     }
 
@@ -6735,6 +6748,11 @@ const vehicleCatalog = [
       { passive: true }
     );
 
+    // 첫 업데이트를 빠르게 보내 0초로 오래 남지 않게 합니다.
+    window.setTimeout(() => {
+      sendDuration(true);
+    }, 3000);
+
     window.setInterval(() => {
       if (document.visibilityState !== "visible") {
         return;
@@ -6744,12 +6762,13 @@ const vehicleCatalog = [
     }, HEARTBEAT_MS);
   }
 
+  // 체류시간 계산은 페이지가 실행되는 즉시 시작합니다.
+  startVisitDurationTracking();
+
+  // 방문로그 자체는 기존 방식 그대로 전송합니다.
   window.addEventListener(
     "load",
-    async () => {
-      await sendVisitLog();
-      startVisitDurationTracking();
-    },
+    sendVisitLog,
     { once: true }
   );
 
