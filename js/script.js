@@ -7668,7 +7668,10 @@ const vehicleCatalog = [
         state.trim = button.dataset.engineModel;
         state.subTrim = "";
         render();
-        scrollToNextSelection('[data-option-section="sub-trim"]');
+
+        // 2페이지에서는 세부모델 선택 후 다음 항목으로 내려가지 않고
+        // "1. 세부모델" 섹션 상단 위치를 유지합니다.
+        scrollToNextSelection('[data-option-section="engine-model"]', "start");
       });
     });
 
@@ -7676,7 +7679,10 @@ const vehicleCatalog = [
       button.addEventListener("click", () => {
         state.subTrim = button.dataset.subTrim;
         render();
-        scrollToNextSelection("#wizardActions");
+
+        // 하위 트림을 선택해도 하단 버튼으로 이동하지 않고
+        // 2페이지의 "1. 세부모델" 위치에 고정합니다.
+        scrollToNextSelection('[data-option-section="engine-model"]', "start");
       });
     });
 
