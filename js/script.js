@@ -6395,8 +6395,12 @@ const vehicleCatalog = [
 
   const AUTOJINI_VISITOR_ID_KEY = "autojiniVisitorId";
   const AUTOJINI_ENTRY_TIME_KEY = "autojiniEntryTime";
-  const AUTOJINI_VISIT_SESSION_ID_KEY = "autojiniVisitSessionId";
-  const AUTOJINI_ACTIVE_SECONDS_KEY = "autojiniVisitActiveSeconds";
+
+  // 페이지를 새로 열 때마다 새로운 방문 1건으로 구분합니다.
+  const AUTOJINI_CURRENT_VISIT_SESSION_ID =
+    window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID()
+      : `visit_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
 
   function getAutojiniVisitorId() {
     let visitorId = "";
@@ -6423,36 +6427,9 @@ const vehicleCatalog = [
   }
 
   function getAutojiniVisitSessionId() {
-    let visitSessionId = "";
-
-    try {
-      visitSessionId =
-        sessionStorage.getItem(
-          AUTOJINI_VISIT_SESSION_ID_KEY
-        ) || "";
-    } catch (error) {
-      console.warn("방문 세션 ID를 읽지 못했습니다.", error);
-    }
-
-    if (!visitSessionId) {
-      visitSessionId =
-        window.crypto &&
-        typeof window.crypto.randomUUID === "function"
-          ? window.crypto.randomUUID()
-          : `visit_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
-
-      try {
-        sessionStorage.setItem(
-          AUTOJINI_VISIT_SESSION_ID_KEY,
-          visitSessionId
-        );
-      } catch (error) {
-        console.warn("방문 세션 ID를 저장하지 못했습니다.", error);
-      }
-    }
-
-    return visitSessionId;
+    return AUTOJINI_CURRENT_VISIT_SESSION_ID;
   }
+
 
   function initializeAutojiniEntryTime() {
     try {
@@ -6603,27 +6580,6 @@ const vehicleCatalog = [
   }
 
   async function sendVisitLog() {
-    const sessionKey = "autogenie_visit_logged";
-
-    let alreadyLogged = false;
-    let existingVisitSessionId = "";
-
-    try {
-      alreadyLogged =
-        sessionStorage.getItem(sessionKey) === "true";
-
-      existingVisitSessionId =
-        sessionStorage.getItem(
-          AUTOJINI_VISIT_SESSION_ID_KEY
-        ) || "";
-    } catch (error) {
-      console.warn("방문 로그 저장 여부를 읽지 못했습니다.", error);
-    }
-
-    if (alreadyLogged && existingVisitSessionId) {
-      return;
-    }
-
     const referrer = document.referrer || "";
     const ipAddress = await getPublicIpAddress();
     const visitSessionId = getAutojiniVisitSessionId();
@@ -6651,95 +6607,96 @@ const vehicleCatalog = [
         body: body.toString(),
         keepalive: true
       });
-
-      try {
-        sessionStorage.setItem(sessionKey, "true");
-      } catch (error) {
-        console.warn("방문 로그 저장 여부를 기록하지 못했습니다.", error);
-      }
     } catch (error) {
       console.error("방문 로그 전송 실패:", error);
     }
   }
 
-  function readStoredActiveSeconds() {
-    try {
-      const value =
-        Number(
-          sessionStorage.getItem(
-            AUTOJINI_ACTIVE_SECONDS_KEY
-          )
-        );
-
-      return Number.isFinite(value) && value >= 0
-        ? value
-        : 0;
-    } catch (error) {
-      return 0;
-    }
-  }
-
-  function storeActiveSeconds(value) {
-    try {
-      sessionStorage.setItem(
-        AUTOJINI_ACTIVE_SECONDS_KEY,
-        String(Math.max(0, Math.floor(value)))
-      );
-    } catch (error) {
-      console.warn("체류시간을 저장하지 못했습니다.", error);
-    }
-  }
-
+  /* =========================================================
+     실제 사이트 체류시간 측정
+     - 화면에 실제로 보이는 시간만 누적
+     - 다른 앱/탭, 홈 화면, 화면 잠금 시간은 제외
+  ========================================================= */
   function startVisitDurationTracking() {
-    const visitSessionId =
-      getAutojiniVisitSessionId();
+    const visitSessionId = getAutojiniVisitSessionId();
+    const visitorId = getAutojiniVisitorId();
+    const HEARTBEAT_MS = 15000;
 
-    let activeSeconds =
-      readStoredActiveSeconds();
-
+    let accumulatedActiveMs = 0;
     let activeStartedAt =
       document.visibilityState === "visible"
-        ? Date.now()
+        ? performance.now()
         : null;
 
-    function collectVisibleTime() {
-      if (activeStartedAt === null) {
+    let lastSentSeconds = -1;
+
+    function resumeActiveTime() {
+      if (activeStartedAt !== null) return;
+      activeStartedAt = performance.now();
+    }
+
+    function pauseActiveTime() {
+      if (activeStartedAt === null) return;
+
+      accumulatedActiveMs +=
+        performance.now() - activeStartedAt;
+
+      activeStartedAt = null;
+    }
+
+    function getActiveSeconds() {
+      let totalMs = accumulatedActiveMs;
+
+      if (activeStartedAt !== null) {
+        totalMs +=
+          performance.now() - activeStartedAt;
+      }
+
+      return Math.max(0, Math.floor(totalMs / 1000));
+    }
+
+    function sendDuration(preferBeacon) {
+      const activeSeconds = getActiveSeconds();
+
+      if (
+        !preferBeacon &&
+        activeSeconds === lastSentSeconds
+      ) {
         return;
       }
 
-      const now = Date.now();
-
-      activeSeconds +=
-        Math.max(
-          0,
-          Math.floor(
-            (now - activeStartedAt) / 1000
-          )
-        );
-
-      activeStartedAt = now;
-      storeActiveSeconds(activeSeconds);
-    }
-
-    function sendDurationUpdate() {
-      if (document.visibilityState === "visible") {
-        collectVisibleTime();
-      }
+      lastSentSeconds = activeSeconds;
 
       const body = new URLSearchParams({
         requestType: "page_visit_update",
+        visitorId: visitorId,
         visitSessionId: visitSessionId,
+        staySeconds: String(activeSeconds),
         activeSeconds: String(activeSeconds)
       });
+
+      if (
+        preferBeacon &&
+        typeof navigator.sendBeacon === "function"
+      ) {
+        const sent = navigator.sendBeacon(
+          GOOGLE_APPS_SCRIPT_URL,
+          body
+        );
+
+        if (sent) {
+          return;
+        }
+      }
 
       fetch(GOOGLE_APPS_SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
+        keepalive: true,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
-        body: body.toString(),
-        keepalive: true
+        body: body.toString()
       }).catch(error => {
         console.warn("체류시간 전송 실패:", error);
       });
@@ -6749,32 +6706,42 @@ const vehicleCatalog = [
       "visibilitychange",
       () => {
         if (document.visibilityState === "hidden") {
-          collectVisibleTime();
-          activeStartedAt = null;
-          sendDurationUpdate();
+          pauseActiveTime();
+          sendDuration(true);
           return;
         }
 
-        activeStartedAt = Date.now();
-      }
+        resumeActiveTime();
+      },
+      { passive: true }
     );
 
     window.addEventListener(
       "pagehide",
       () => {
-        if (activeStartedAt !== null) {
-          collectVisibleTime();
-          activeStartedAt = null;
+        pauseActiveTime();
+        sendDuration(true);
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      "pageshow",
+      () => {
+        if (document.visibilityState === "visible") {
+          resumeActiveTime();
         }
+      },
+      { passive: true }
+    );
 
-        sendDurationUpdate();
+    window.setInterval(() => {
+      if (document.visibilityState !== "visible") {
+        return;
       }
-    );
 
-    window.setInterval(
-      sendDurationUpdate,
-      15000
-    );
+      sendDuration(false);
+    }, HEARTBEAT_MS);
   }
 
   window.addEventListener(
@@ -6783,9 +6750,7 @@ const vehicleCatalog = [
       await sendVisitLog();
       startVisitDurationTracking();
     },
-    {
-      once: true
-    }
+    { once: true }
   );
 
   const trims = ["전체 모델", "2.5 가솔린", "3.5 가솔린", "3.5 가솔린 AWD"];
