@@ -6471,8 +6471,53 @@ const vehicleCatalog = [
   const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbN9KUT6PaeO9vvmGYcmLNAM7a6zu5_lDse_P_iilkBzKGOSauNSPcwBGMvgUYUaMP/exec";
 
   /* =========================================================
-    방문 유입 로그 전송
+    방문 유입 로그 + 실제 사이트 체류시간 측정
+
+    - visitorId: 같은 브라우저 사용자를 구분하는 ID (기존 값 재사용)
+    - visitSessionId: 이번 사이트 방문 1회를 구분하는 ID
+    - 실제 화면에 사이트가 보이는 시간만 체류시간으로 누적
+    - 다른 앱/탭 이동, 홈 화면, 화면 잠금 시간은 제외
+    - 탭/사이트를 닫았다가 다시 접속하면 새 방문으로 기록
   ========================================================= */
+
+  const AUTOJINI_VISIT_LOGGED_KEY = "autogenie_integrated_visit_logged_v2";
+  const AUTOJINI_VISIT_SESSION_ID_KEY = "autogenie_integrated_visit_session_id_v2";
+  const AUTOJINI_VISIT_HEARTBEAT_MS = 15000;
+
+  let autojiniVisitSessionId = "";
+  let autojiniVisitActiveMs = 0;
+  let autojiniVisitActiveStartedAt = null;
+  let autojiniVisitLastSentSeconds = -1;
+  let autojiniVisitHeartbeatTimer = null;
+  let autojiniVisitReady = false;
+
+  function createAutojiniVisitSessionId() {
+    return window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID()
+      : `visit_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
+  }
+
+  function getOrCreateAutojiniVisitSessionId() {
+    try {
+      const savedId = sessionStorage.getItem(AUTOJINI_VISIT_SESSION_ID_KEY) || "";
+
+      if (savedId) {
+        return savedId;
+      }
+
+      const newId = createAutojiniVisitSessionId();
+      sessionStorage.setItem(AUTOJINI_VISIT_SESSION_ID_KEY, newId);
+
+      // 예전 코드에서 방문 완료 표시만 남아 있는 경우
+      // 새 세션 ID에 맞춰 방문로그를 다시 생성합니다.
+      sessionStorage.removeItem(AUTOJINI_VISIT_LOGGED_KEY);
+
+      return newId;
+    } catch (error) {
+      console.warn("방문 세션 ID를 저장하지 못했습니다.", error);
+      return createAutojiniVisitSessionId();
+    }
+  }
 
   function getReferrerDomain(referrer) {
     if (!referrer) {
@@ -6579,196 +6624,223 @@ const vehicleCatalog = [
     return "조회 실패";
   }
 
+  function postAutojiniVisitData(data, preferBeacon = false) {
+    if (!GOOGLE_APPS_SCRIPT_URL) {
+      return Promise.resolve(false);
+    }
+
+    const body = new URLSearchParams();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      body.append(key, String(value));
+    });
+
+    if (
+      preferBeacon &&
+      typeof navigator.sendBeacon === "function"
+    ) {
+      try {
+        const blob = new Blob(
+          [body.toString()],
+          { type: "application/x-www-form-urlencoded;charset=UTF-8" }
+        );
+
+        if (navigator.sendBeacon(GOOGLE_APPS_SCRIPT_URL, blob)) {
+          return Promise.resolve(true);
+        }
+      } catch (error) {
+        console.warn("체류시간 Beacon 전송 실패", error);
+      }
+    }
+
+    return fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body: body.toString(),
+      keepalive: true
+    })
+      .then(() => true)
+      .catch(error => {
+        console.error("방문 로그 전송 실패:", error);
+        return false;
+      });
+  }
+
   async function sendVisitLog() {
+    autojiniVisitSessionId = getOrCreateAutojiniVisitSessionId();
+
+    try {
+      if (sessionStorage.getItem(AUTOJINI_VISIT_LOGGED_KEY) === "true") {
+        return true;
+      }
+    } catch (error) {
+      console.warn("방문 로그 저장 여부를 읽지 못했습니다.", error);
+    }
+
     const referrer = document.referrer || "";
     const ipAddress = await getPublicIpAddress();
-    const visitSessionId = getAutojiniVisitSessionId();
 
-    const body = new URLSearchParams({
+    const success = await postAutojiniVisitData({
       requestType: "page_visit",
       visitedAt: new Date().toISOString(),
       customerName: "",
-      ipAddress: ipAddress,
+      ipAddress,
       referrerDomain: getReferrerDomain(referrer),
       referrerUrl: referrer || "직접 접속",
       visitorId: getAutojiniVisitorId(),
-      visitSessionId: visitSessionId,
+      visitSessionId: autojiniVisitSessionId,
       deviceType: getDeviceType(),
       browserName: getBrowserName()
     });
 
-    try {
-      await fetch(GOOGLE_APPS_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-        },
-        body: body.toString(),
-        keepalive: true
-      });
-    } catch (error) {
-      console.error("방문 로그 전송 실패:", error);
+    if (success) {
+      try {
+        sessionStorage.setItem(AUTOJINI_VISIT_LOGGED_KEY, "true");
+      } catch (error) {
+        console.warn("방문 로그 저장 여부를 기록하지 못했습니다.", error);
+      }
     }
+
+    return success;
   }
 
-  /* =========================================================
-     실제 사이트 체류시간 측정
-     - 화면에 실제로 보이는 시간만 누적
-     - 다른 앱/탭, 홈 화면, 화면 잠금 시간은 제외
-     - 체류시간 갱신은 GET으로 전송해 CORS/sendBeacon 영향을 피합니다.
-  ========================================================= */
-  function startVisitDurationTracking() {
-    const visitSessionId = getAutojiniVisitSessionId();
-    const visitorId = getAutojiniVisitorId();
-    const HEARTBEAT_MS = 10000;
-
-    let accumulatedActiveMs = 0;
-    let activeStartedAt =
-      document.visibilityState === "visible"
-        ? performance.now()
-        : null;
-
-    let lastSentSeconds = -1;
-
-    function resumeActiveTime() {
-      if (activeStartedAt !== null) return;
-      activeStartedAt = performance.now();
+  function resumeAutojiniVisitTime() {
+    if (
+      !autojiniVisitReady ||
+      document.visibilityState !== "visible" ||
+      autojiniVisitActiveStartedAt !== null
+    ) {
+      return;
     }
 
-    function pauseActiveTime() {
-      if (activeStartedAt === null) return;
+    autojiniVisitActiveStartedAt = performance.now();
+  }
 
-      accumulatedActiveMs +=
-        performance.now() - activeStartedAt;
-
-      activeStartedAt = null;
+  function pauseAutojiniVisitTime() {
+    if (autojiniVisitActiveStartedAt === null) {
+      return;
     }
 
-    function getActiveSeconds() {
-      let totalMs = accumulatedActiveMs;
+    autojiniVisitActiveMs +=
+      performance.now() - autojiniVisitActiveStartedAt;
 
-      if (activeStartedAt !== null) {
-        totalMs +=
-          performance.now() - activeStartedAt;
-      }
+    autojiniVisitActiveStartedAt = null;
+  }
 
-      return Math.max(0, Math.floor(totalMs / 1000));
+  function getAutojiniVisitActiveSeconds() {
+    let totalMs = autojiniVisitActiveMs;
+
+    if (autojiniVisitActiveStartedAt !== null) {
+      totalMs += performance.now() - autojiniVisitActiveStartedAt;
     }
 
-    function buildDurationUrl(activeSeconds) {
-      const url = new URL(GOOGLE_APPS_SCRIPT_URL);
+    return Math.max(0, Math.floor(totalMs / 1000));
+  }
 
-      url.searchParams.set(
-        "requestType",
-        "page_visit_update"
-      );
-      url.searchParams.set(
-        "visitorId",
-        visitorId
-      );
-      url.searchParams.set(
-        "visitSessionId",
-        visitSessionId
-      );
-      url.searchParams.set(
-        "staySeconds",
-        String(activeSeconds)
-      );
-      url.searchParams.set(
-        "activeSeconds",
-        String(activeSeconds)
-      );
-      url.searchParams.set(
-        "_t",
-        String(Date.now())
-      );
-
-      return url.href;
+  function sendAutojiniVisitDuration(preferBeacon = false) {
+    if (!autojiniVisitReady || !autojiniVisitSessionId) {
+      return;
     }
 
-    function sendDuration(forceSend) {
-      const activeSeconds = getActiveSeconds();
+    const activeSeconds = getAutojiniVisitActiveSeconds();
 
-      if (
-        !forceSend &&
-        activeSeconds === lastSentSeconds
-      ) {
-        return;
-      }
-
-      lastSentSeconds = activeSeconds;
-
-      const requestUrl =
-        buildDurationUrl(activeSeconds);
-
-      fetch(requestUrl, {
-        method: "GET",
-        mode: "no-cors",
-        cache: "no-store",
-        keepalive: true
-      }).catch(error => {
-        console.warn(
-          "체류시간 전송 실패:",
-          error
-        );
-      });
+    if (
+      !preferBeacon &&
+      activeSeconds === autojiniVisitLastSentSeconds
+    ) {
+      return;
     }
 
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        if (document.visibilityState === "hidden") {
-          pauseActiveTime();
-          sendDuration(true);
-          return;
-        }
+    autojiniVisitLastSentSeconds = activeSeconds;
 
-        resumeActiveTime();
+    postAutojiniVisitData(
+      {
+        requestType: "page_visit_update",
+        visitorId: getAutojiniVisitorId(),
+        visitSessionId: autojiniVisitSessionId,
+        activeSeconds
       },
-      { passive: true }
+      preferBeacon
     );
+  }
 
-    window.addEventListener(
-      "pagehide",
-      () => {
-        pauseActiveTime();
-        sendDuration(true);
-      },
-      { passive: true }
-    );
+  function startAutojiniVisitHeartbeat() {
+    if (autojiniVisitHeartbeatTimer) {
+      window.clearInterval(autojiniVisitHeartbeatTimer);
+    }
 
-    window.addEventListener(
-      "pageshow",
-      () => {
-        if (document.visibilityState === "visible") {
-          resumeActiveTime();
-        }
-      },
-      { passive: true }
-    );
-
-    // 첫 업데이트를 빠르게 보내 0초로 오래 남지 않게 합니다.
-    window.setTimeout(() => {
-      sendDuration(true);
-    }, 3000);
-
-    window.setInterval(() => {
+    autojiniVisitHeartbeatTimer = window.setInterval(() => {
       if (document.visibilityState !== "visible") {
         return;
       }
 
-      sendDuration(false);
-    }, HEARTBEAT_MS);
+      sendAutojiniVisitDuration(false);
+    }, AUTOJINI_VISIT_HEARTBEAT_MS);
   }
 
-  // 체류시간 계산은 페이지가 실행되는 즉시 시작합니다.
-  startVisitDurationTracking();
+  function handleAutojiniVisibilityChange() {
+    if (document.visibilityState === "hidden") {
+      pauseAutojiniVisitTime();
+      sendAutojiniVisitDuration(true);
+      return;
+    }
 
-  // 방문로그 자체는 기존 방식 그대로 전송합니다.
+    resumeAutojiniVisitTime();
+  }
+
+  function handleAutojiniPageHide() {
+    pauseAutojiniVisitTime();
+    sendAutojiniVisitDuration(true);
+  }
+
+  function handleAutojiniPageShow() {
+    resumeAutojiniVisitTime();
+  }
+
+  async function initializeAutojiniVisitTracking() {
+    const visitSaved = await sendVisitLog();
+
+    if (!visitSaved) {
+      return;
+    }
+
+    autojiniVisitReady = true;
+
+    if (document.visibilityState === "visible") {
+      autojiniVisitActiveStartedAt = performance.now();
+    }
+
+    startAutojiniVisitHeartbeat();
+  }
+
+  document.addEventListener(
+    "visibilitychange",
+    handleAutojiniVisibilityChange,
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "pagehide",
+    handleAutojiniPageHide,
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "pageshow",
+    handleAutojiniPageShow,
+    { passive: true }
+  );
+
   window.addEventListener(
     "load",
-    sendVisitLog,
+    initializeAutojiniVisitTracking,
     { once: true }
   );
 
