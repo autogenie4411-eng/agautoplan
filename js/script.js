@@ -2569,14 +2569,14 @@ const vehicleCatalog = [
           {
             "id": "paint-83",
             "name": "아이보리 매트 실버",
-            "hex": "#b9bec5",
+            "hex": "#a9a59f",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev3-아이보리 매트 실버.webp"
           },
           {
             "id": "paint-84",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#a9a59f",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev3-아이보리 실버.webp"
           },
@@ -2635,21 +2635,21 @@ const vehicleCatalog = [
           {
             "id": "paint-88",
             "name": "마그마 레드",
-            "hex": "#a92b31",
+            "hex": "#2e1216",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev4-마그마 레드.webp"
           },
           {
             "id": "paint-89",
             "name": "모닝 헤이즈",
-            "hex": "#9da5ae",
+            "hex": "#788b87",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev4-모닝 헤이즈.webp"
           },
           {
             "id": "paint-90",
             "name": "셰일 그레이",
-            "hex": "#7e858d",
+            "hex": "#474747",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev4-셰일 그레이.webp"
           },
@@ -2663,14 +2663,14 @@ const vehicleCatalog = [
           {
             "id": "paint-92",
             "name": "아이보리 매트 실버",
-            "hex": "#b9bec5",
+            "hex": "#c6c5bc",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev4-아이보리 매트 실버.webp"
           },
           {
             "id": "paint-93",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#c6c5bc",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev4-아이보리 실버.webp"
           },
@@ -2715,7 +2715,7 @@ const vehicleCatalog = [
           {
             "id": "paint-95",
             "name": "그래비티 그레이",
-            "hex": "#7e858d",
+            "hex": "#535353",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev5-그래비티 그레이.webp"
           },
@@ -2743,21 +2743,21 @@ const vehicleCatalog = [
           {
             "id": "paint-99",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#b4b1a9",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev5-아이보리 실버.webp"
           },
           {
             "id": "paint-100",
             "name": "아이스버그 그린",
-            "hex": "#476454",
+            "hex": "#7c8e92",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev5-아이스버그 그린.webp"
           },
           {
             "id": "paint-101",
             "name": "아이스버그 매트 그린",
-            "hex": "#476454",
+            "hex": "#7c8e92",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev5-아이스버그 매트 그린.webp"
           },
@@ -2811,7 +2811,7 @@ const vehicleCatalog = [
           {
             "id": "paint-104",
             "name": "글래시어",
-            "hex": "#9da5ae",
+            "hex": "#d5d6d1",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev6-글래시어.webp"
           },
@@ -2839,7 +2839,7 @@ const vehicleCatalog = [
           {
             "id": "paint-108",
             "name": "아이보리 매트 실버",
-            "hex": "#b9bec5",
+            "hex": "#b4b4b4",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev6-아이보리 매트 실버.webp"
           },
@@ -2860,7 +2860,7 @@ const vehicleCatalog = [
           {
             "id": "paint-111",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#606263",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev6-인터스텔라 그레이.webp"
           }
@@ -2913,7 +2913,7 @@ const vehicleCatalog = [
           {
             "id": "paint-114",
             "name": "아이스버그 그린",
-            "hex": "#476454",
+            "hex": "#7c9191",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev9-아이스버그 그린.webp"
           },
@@ -2934,14 +2934,14 @@ const vehicleCatalog = [
           {
             "id": "paint-117",
             "name": "판테라 메탈",
-            "hex": "#9da5ae",
+            "hex": "#45494e",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev9-판테라 메탈.webp"
           },
           {
             "id": "paint-118",
             "name": "페블 그레이",
-            "hex": "#7e858d",
+            "hex": "#91999f",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/ev9-페블 그레이.webp"
           }
@@ -2986,7 +2986,7 @@ const vehicleCatalog = [
           {
             "id": "paint-122",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#2a2e32",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k5-인터스텔라 그레이.webp"
           }
@@ -3030,7 +3030,7 @@ const vehicleCatalog = [
           {
             "id": "paint-481",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#2a2e32",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k5-인터스텔라 그레이.webp"
           }
@@ -3068,14 +3068,14 @@ const vehicleCatalog = [
           {
             "id": "paint-125",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#d6d6d6",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-스노우 화이트 펄.webp"
           },
           {
             "id": "paint-126",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#b1b2ad",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-아이보리 실버.webp"
           },
@@ -3089,7 +3089,7 @@ const vehicleCatalog = [
           {
             "id": "paint-482",
             "name": "인터스텔라 그레이",
-            "hex": "#6f747b",
+            "hex": "#1e2328",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-인터스텔라 그레이.webp"
           }
@@ -3127,14 +3127,14 @@ const vehicleCatalog = [
           {
             "id": "paint-485",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#d6d6d6",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-스노우 화이트 펄.webp"
           },
           {
             "id": "paint-486",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#b1b2ad",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-아이보리 실버.webp"
           },
@@ -3148,7 +3148,7 @@ const vehicleCatalog = [
           {
             "id": "paint-488",
             "name": "인터스텔라 그레이",
-            "hex": "#6f747b",
+            "hex": "#1e2328",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k8-인터스텔라 그레이.webp"
           }
@@ -3175,14 +3175,14 @@ const vehicleCatalog = [
           {
             "id": "paint-129",
             "name": "딥 크로마 블루",
-            "hex": "#315d88",
+            "hex": "#192334",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k9-딥 크로마 블루.webp"
           },
           {
             "id": "paint-130",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#f5f5f5",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k9-스노우 화이트 펄.webp"
           },
@@ -3196,7 +3196,7 @@ const vehicleCatalog = [
           {
             "id": "paint-132",
             "name": "판테라 메탈",
-            "hex": "#9da5ae",
+            "hex": "#2f3432",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/k9-판테라 메탈.webp"
           },
@@ -3243,7 +3243,7 @@ const vehicleCatalog = [
           {
             "id": "paint-136",
             "name": "클리어 화이트",
-            "hex": "#f3f2ed",
+            "hex": "#d3d3d3",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/PV5 카고-클리어 화이트.webp"
           }
@@ -3272,14 +3272,14 @@ const vehicleCatalog = [
           {
             "id": "paint-138",
             "name": "스틸 그레이",
-            "hex": "#7e858d",
+            "hex": "#494b4d",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-스틸 그레이.webp"
           },
           {
             "id": "paint-139",
             "name": "시티스케이프 그린",
-            "hex": "#476454",
+            "hex": "#38504f",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-시티스케이프 그린.webp"
           },
@@ -3293,7 +3293,7 @@ const vehicleCatalog = [
           {
             "id": "paint-141",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#2e3032",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-인터스텔라 그레이.webp"
           }
@@ -3321,14 +3321,14 @@ const vehicleCatalog = [
           {
             "id": "paint-490",
             "name": "스틸 그레이",
-            "hex": "#7e858d",
+            "hex": "#494b4d",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-스틸 그레이.webp"
           },
           {
             "id": "paint-491",
             "name": "시티스케이프 그린",
-            "hex": "#476454",
+            "hex": "#38504f",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-시티스케이프 그린.webp"
           },
@@ -3342,7 +3342,7 @@ const vehicleCatalog = [
           {
             "id": "paint-493",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#2e3032",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/니로-인터스텔라 그레이.webp"
           }
@@ -3381,7 +3381,7 @@ const vehicleCatalog = [
           {
             "id": "paint-142",
             "name": "밀키 베이지",
-            "hex": "#b8a88f",
+            "hex": "#a1a098",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이-밀키 베이지.webp"
           },
@@ -3395,14 +3395,14 @@ const vehicleCatalog = [
           {
             "id": "paint-144",
             "name": "아쿠아 민트",
-            "hex": "#9da5ae",
+            "hex": "#9bc2be",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이-아쿠아 민트.webp"
           },
           {
             "id": "paint-145",
             "name": "어드벤쳐러스 그린",
-            "hex": "#476454",
+            "hex": "#405253",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이-어드벤쳐러스 그린.webp"
           },
@@ -3451,7 +3451,7 @@ const vehicleCatalog = [
           {
             "id": "paint-148",
             "name": "밀키 베이지",
-            "hex": "#b8a88f",
+            "hex": "#a1a098",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이ev-밀키 베이지.webp"
           },
@@ -3465,14 +3465,14 @@ const vehicleCatalog = [
           {
             "id": "paint-150",
             "name": "아쿠아 민트",
-            "hex": "#9da5ae",
+            "hex": "#9bc2be",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이ev-아쿠아 민트.webp"
           },
           {
             "id": "paint-151",
             "name": "어드벤쳐러스 그린",
-            "hex": "#476454",
+            "hex": "#405253",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/레이ev-어드벤쳐러스 그린.webp"
           },
@@ -3516,7 +3516,7 @@ const vehicleCatalog = [
           {
             "id": "paint-154",
             "name": "밀키 베이지",
-            "hex": "#b8a88f",
+            "hex": "#b6b5ac",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/모닝-밀키 베이지.webp"
           },
@@ -3537,14 +3537,14 @@ const vehicleCatalog = [
           {
             "id": "paint-157",
             "name": "아스트로 그레이",
-            "hex": "#7e858d",
+            "hex": "#686868",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/모닝-아스트로 그레이.webp"
           },
           {
             "id": "paint-158",
             "name": "어드벤쳐러스 그린",
-            "hex": "#476454",
+            "hex": "#405253",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/모닝-어드벤쳐러스 그린.webp"
           },
@@ -3655,21 +3655,21 @@ const vehicleCatalog = [
           {
             "id": "paint-161",
             "name": "진감청",
-            "hex": "#234267",
+            "hex": "#284582",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/봉고3-진감청.webp"
           },
           {
             "id": "paint-162",
             "name": "클리어 화이트",
-            "hex": "#f3f2ed",
+            "hex": "#e1e2ed",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/봉고3-클리어 화이트.webp"
           },
           {
             "id": "paint-163",
             "name": "퓨어 베이지",
-            "hex": "#b8a88f",
+            "hex": "#b7b2a6",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/봉고3-퓨어 베이지.webp"
           }
@@ -3701,28 +3701,28 @@ const vehicleCatalog = [
           {
             "id": "paint-164",
             "name": "그래비티 그레이",
-            "hex": "#7e858d",
+            "hex": "#313538",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-그래비티 그레이.webp"
           },
           {
             "id": "paint-165",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#d4d6d6",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-스노우 화이트 펄.webp"
           },
           {
             "id": "paint-166",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#b8b7ae",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-아이보리 실버.webp"
           },
           {
             "id": "paint-167",
             "name": "아이스버그 그린",
-            "hex": "#476454",
+            "hex": "#536362",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-아이스버그 그린.webp"
           },
@@ -3759,28 +3759,28 @@ const vehicleCatalog = [
           {
             "id": "paint-494",
             "name": "그래비티 그레이",
-            "hex": "#7e858d",
+            "hex": "#313538",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-그래비티 그레이.webp"
           },
           {
             "id": "paint-495",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#d4d6d6",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-스노우 화이트 펄.webp"
           },
           {
             "id": "paint-496",
             "name": "아이보리 실버",
-            "hex": "#b9bec5",
+            "hex": "#b8b7ae",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-아이보리 실버.webp"
           },
           {
             "id": "paint-497",
             "name": "아이스버그 그린",
-            "hex": "#476454",
+            "hex": "#536362",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/셀토스-아이스버그 그린.webp"
           },
@@ -3826,21 +3826,21 @@ const vehicleCatalog = [
           {
             "id": "paint-170",
             "name": "그래비티 그레이",
-            "hex": "#7e858d",
+            "hex": "#454b4d",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-그래비티 그레이.webp"
           },
           {
             "id": "paint-171",
             "name": "베스타 블루",
-            "hex": "#315d88",
+            "hex": "#283c59",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-베스타 블루.webp"
           },
           {
             "id": "paint-172",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#f0f0ee",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-스노우 화이트 펄.webp"
           },
@@ -3861,7 +3861,7 @@ const vehicleCatalog = [
           {
             "id": "paint-175",
             "name": "헤리티지 블루",
-            "hex": "#315d88",
+            "hex": "#728fa2",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-헤리티지 블루.webp"
           }
@@ -3893,21 +3893,21 @@ const vehicleCatalog = [
           {
             "id": "paint-500",
             "name": "그래비티 그레이",
-            "hex": "#7e858d",
+            "hex": "#454b4d",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-그래비티 그레이.webp"
           },
           {
             "id": "paint-501",
             "name": "베스타 블루",
-            "hex": "#315d88",
+            "hex": "#283c59",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-베스타 블루.webp"
           },
           {
             "id": "paint-502",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#f0f0ee",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-스노우 화이트 펄.webp"
           },
@@ -3928,7 +3928,7 @@ const vehicleCatalog = [
           {
             "id": "paint-505",
             "name": "헤리티지 블루",
-            "hex": "#315d88",
+            "hex": "#728fa2",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/스포티지-헤리티지 블루.webp"
           }
@@ -3960,7 +3960,7 @@ const vehicleCatalog = [
           {
             "id": "paint-176",
             "name": "볼캐닉 샌드 브라운",
-            "hex": "#755548",
+            "hex": "#a7a5a3",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-볼캐닉 샌드 브라운.webp"
           },
@@ -3974,7 +3974,7 @@ const vehicleCatalog = [
           {
             "id": "paint-178",
             "name": "시티스케이프 그린",
-            "hex": "#476454",
+            "hex": "#5b6964",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-시티스케이프 그린.webp"
           },
@@ -3988,7 +3988,7 @@ const vehicleCatalog = [
           {
             "id": "paint-180",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#36383a",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-인터스텔라 그레이.webp"
           }
@@ -4020,7 +4020,7 @@ const vehicleCatalog = [
           {
             "id": "paint-506",
             "name": "볼캐닉 샌드 브라운",
-            "hex": "#755548",
+            "hex": "#a7a5a3",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-볼캐닉 샌드 브라운.webp"
           },
@@ -4034,7 +4034,7 @@ const vehicleCatalog = [
           {
             "id": "paint-508",
             "name": "시티스케이프 그린",
-            "hex": "#476454",
+            "hex": "#5b6964",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-시티스케이프 그린.webp"
           },
@@ -4048,7 +4048,7 @@ const vehicleCatalog = [
           {
             "id": "paint-510",
             "name": "인터스텔라 그레이",
-            "hex": "#7e858d",
+            "hex": "#36383a",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/쏘렌토-인터스텔라 그레이.webp"
           }
@@ -4101,7 +4101,7 @@ const vehicleCatalog = [
           {
             "id": "paint-184",
             "name": "판테라 메탈",
-            "hex": "#9da5ae",
+            "hex": "#505354",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/카니발-판테라 메탈.webp"
           }
@@ -4154,7 +4154,7 @@ const vehicleCatalog = [
           {
             "id": "paint-514",
             "name": "판테라 메탈",
-            "hex": "#9da5ae",
+            "hex": "#505354",
             "border": "#cfd5dc",
             "image": "images/vehicles/기아/카니발-판테라 메탈.webp"
           }
@@ -4191,14 +4191,14 @@ const vehicleCatalog = [
           {
             "id": "paint-20",
             "name": "그랜드 화이트",
-            "hex": "#f3f2ed",
+            "hex": "#fefefb",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/렉스턴 뉴 아레나-그랜드 화이트.webp"
           },
           {
             "id": "paint-21",
             "name": "마블 그레이",
-            "hex": "#7e858d",
+            "hex": "#3e4044",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/렉스턴 뉴 아레나-마블 그레이.webp"
           },
@@ -4212,7 +4212,7 @@ const vehicleCatalog = [
           {
             "id": "paint-23",
             "name": "실키 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#fefefb",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/렉스턴 뉴 아레나-실키 화이트 펄.webp"
           }
@@ -4257,7 +4257,7 @@ const vehicleCatalog = [
           {
             "id": "paint-25",
             "name": "마블 그레이",
-            "hex": "#7e858d",
+            "hex": "#4a4c50",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘-마블 그레이.webp"
           },
@@ -4285,14 +4285,14 @@ const vehicleCatalog = [
           {
             "id": "paint-29",
             "name": "아마조니아 그린",
-            "hex": "#476454",
+            "hex": "#697a72",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘-아마조니아 그린.webp"
           },
           {
             "id": "paint-30",
             "name": "울트라 마린",
-            "hex": "#284b69",
+            "hex": "#244073",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘-울트라 마린.webp"
           }
@@ -4327,7 +4327,7 @@ const vehicleCatalog = [
           {
             "id": "paint-32",
             "name": "마블 그레이",
-            "hex": "#7e858d",
+            "hex": "#46474c",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘ev-마블 그레이.webp"
           },
@@ -4341,14 +4341,14 @@ const vehicleCatalog = [
           {
             "id": "paint-34",
             "name": "아마조니아 그린",
-            "hex": "#476454",
+            "hex": "#697a72",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘ev-아마조니아 그린.webp"
           },
           {
             "id": "paint-35",
             "name": "울트라 마린",
-            "hex": "#284b69",
+            "hex": "#244073",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/무쏘ev-울트라 마린.webp"
           }
@@ -4778,7 +4778,7 @@ const vehicleCatalog = [
           {
             "id": "paint-80",
             "name": "아이언 메탈",
-            "hex": "#9da5ae",
+            "hex": "#68686a",
             "border": "#cfd5dc",
             "image": "images/vehicles/KGM/티볼리-아이언 메탈.webp"
           }
@@ -4832,7 +4832,7 @@ const vehicleCatalog = [
           {
             "id": "paint-187",
             "name": "새틴 어반 그레이",
-            "hex": "#7e858d",
+            "hex": "#3b3f42",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/그랑콜레오스-새틴 어반 그레이.webp"
           },
@@ -4846,7 +4846,7 @@ const vehicleCatalog = [
           {
             "id": "paint-189",
             "name": "어반 그레이",
-            "hex": "#7e858d",
+            "hex": "#2e3034",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/그랑콜레오스-어반 그레이.webp"
           },
@@ -4891,7 +4891,7 @@ const vehicleCatalog = [
           {
             "id": "paint-584",
             "name": "새틴 어반 그레이",
-            "hex": "#7e858d",
+            "hex": "#3b3f42",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/그랑콜레오스-새틴 어반 그레이.webp"
           },
@@ -4905,7 +4905,7 @@ const vehicleCatalog = [
           {
             "id": "paint-586",
             "name": "어반 그레이",
-            "hex": "#7e858d",
+            "hex": "#2e3034",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/그랑콜레오스-어반 그레이.webp"
           },
@@ -4946,7 +4946,7 @@ const vehicleCatalog = [
           {
             "id": "paint-193",
             "name": "클라우드 펄",
-            "hex": "#9da5ae",
+            "hex": "#fafafc",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/아르카나-클라우드 펄.webp"
           }
@@ -4980,7 +4980,7 @@ const vehicleCatalog = [
           {
             "id": "paint-590",
             "name": "클라우드 펄",
-            "hex": "#9da5ae",
+            "hex": "#fafafc",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/아르카나-클라우드 펄.webp"
           }
@@ -5024,14 +5024,14 @@ const vehicleCatalog = [
           {
             "id": "paint-197",
             "name": "어반 그레이",
-            "hex": "#7e858d",
+            "hex": "#34383b",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/필랑트-어반 그레이.webp"
           },
           {
             "id": "paint-198",
             "name": "클라우드 펄",
-            "hex": "#9da5ae",
+            "hex": "#d0d2d6",
             "border": "#cfd5dc",
             "image": "images/vehicles/르노/필랑트-클라우드 펄.webp"
           }
@@ -5069,7 +5069,7 @@ const vehicleCatalog = [
           {
             "id": "paint-264",
             "name": "모카치노 베이지",
-            "hex": "#b8a88f",
+            "hex": "#e7e2dd",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트랙스-모카치노 베이지.webp"
           },
@@ -5090,7 +5090,7 @@ const vehicleCatalog = [
           {
             "id": "paint-267",
             "name": "퓨어 화이트",
-            "hex": "#f3f2ed",
+            "hex": "#e6eef2",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트랙스-퓨어 화이트.webp"
           }
@@ -5117,7 +5117,7 @@ const vehicleCatalog = [
           {
             "id": "paint-268",
             "name": "마리나 블루",
-            "hex": "#315d88",
+            "hex": "#55b7e9",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트레일블레이저-마리나 블루.webp"
           },
@@ -5131,21 +5131,21 @@ const vehicleCatalog = [
           {
             "id": "paint-270",
             "name": "모카치노 베이지",
-            "hex": "#b8a88f",
+            "hex": "#e7e2dd",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트레일블레이저-모카치노 베이지.webp"
           },
           {
             "id": "paint-271",
             "name": "스노우 화이트 펄",
-            "hex": "#f3f2ed",
+            "hex": "#f5f5f2",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트레일블레이저-스노우 화이트 펄.webp"
           },
           {
             "id": "paint-272",
             "name": "스털링 그레이",
-            "hex": "#7e858d",
+            "hex": "#4f5454",
             "border": "#cfd5dc",
             "image": "images/vehicles/쉐보레/트레일블레이저-스털링 그레이.webp"
           }
