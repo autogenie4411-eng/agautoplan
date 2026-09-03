@@ -1,9 +1,9 @@
 {
   "source": "https://www.agautoplan.com/review",
-  "generatedAt": "2026-09-01T04:57:35.557Z",
+  "generatedAt": "2026-09-03T04:54:49.309Z",
   "recentDays": 62,
   "order": "board-visible-order-newest-first",
-  "count": 76,
+  "count": 69,
   "reviews": [
     {
       "id": "173575150",
@@ -16,7 +16,7 @@
       "date": "2026-08-28",
       "image": "https://cdn.imweb.me/thumbnail/20260831/9ba1c3634017c.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575150&t=board",
-      "sourceOrder": 0
+      "sourceOrder": 5
     },
     {
       "id": "173575149",
@@ -29,7 +29,7 @@
       "date": "2026-08-28",
       "image": "https://cdn.imweb.me/thumbnail/20260831/0a836babefcc0.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575149&t=board",
-      "sourceOrder": 1
+      "sourceOrder": 6
     },
     {
       "id": "173575148",
@@ -42,7 +42,7 @@
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/7bbe4cbc79211.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575148&t=board",
-      "sourceOrder": 2
+      "sourceOrder": 7
     },
     {
       "id": "173575147",
@@ -55,7 +55,7 @@
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/291459f64aa49.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575147&t=board",
-      "sourceOrder": 3
+      "sourceOrder": 8
     },
     {
       "id": "173575146",
@@ -68,7 +68,7 @@
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/336c4302be5bc.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575146&t=board",
-      "sourceOrder": 4
+      "sourceOrder": 9
     },
     {
       "id": "173575145",
@@ -81,7 +81,7 @@
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/1bd06e3cb1d21.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575145&t=board",
-      "sourceOrder": 5
+      "sourceOrder": 10
     },
     {
       "id": "173575144",
@@ -94,7 +94,7 @@
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/cb006b6692e76.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575144&t=board",
-      "sourceOrder": 6
+      "sourceOrder": 11
     },
     {
       "id": "173575143",
@@ -106,8 +106,8 @@
       "method": "법인사업자 / 렌트",
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/3ea67e1e43d33.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575143&t=board",
-      "sourceOrder": 7
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173575143&t=board",
+      "sourceOrder": 12
     },
     {
       "id": "173575142",
@@ -119,8 +119,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/5cb8c3842babe.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575142&t=board",
-      "sourceOrder": 8
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173575142&t=board",
+      "sourceOrder": 13
     },
     {
       "id": "173575141",
@@ -132,8 +132,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/37ec2315960d0.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575141&t=board",
-      "sourceOrder": 9
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173575141&t=board",
+      "sourceOrder": 14
     },
     {
       "id": "173575140",
@@ -145,8 +145,8 @@
       "method": "개인 / 렌트",
       "date": "2026-08-26",
       "image": "https://cdn.imweb.me/thumbnail/20260831/d96a147b5ad63.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173575140&t=board",
-      "sourceOrder": 10
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173575140&t=board",
+      "sourceOrder": 15
     },
     {
       "id": "173364851",
@@ -158,8 +158,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-08-21",
       "image": "https://cdn.imweb.me/thumbnail/20260824/b19f424376751.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToxOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjt9&bmode=view&idx=173364851&t=board",
-      "sourceOrder": 11
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173364851&t=board",
+      "sourceOrder": 16
     },
     {
       "id": "173364850",
@@ -172,7 +172,7 @@
       "date": "2026-08-21",
       "image": "https://cdn.imweb.me/thumbnail/20260824/407f43d6f6877.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173364850&t=board",
-      "sourceOrder": 12
+      "sourceOrder": 17
     },
     {
       "id": "173364849",
@@ -185,7 +185,7 @@
       "date": "2026-08-21",
       "image": "https://cdn.imweb.me/thumbnail/20260824/2268bf6cbee06.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173364849&t=board",
-      "sourceOrder": 13
+      "sourceOrder": 18
     },
     {
       "id": "173244612",
@@ -198,7 +198,7 @@
       "date": "2026-08-19",
       "image": "https://cdn.imweb.me/thumbnail/20260820/b313c4f45b408.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173244612&t=board",
-      "sourceOrder": 14
+      "sourceOrder": 19
     },
     {
       "id": "173244611",
@@ -211,7 +211,7 @@
       "date": "2026-08-19",
       "image": "https://cdn.imweb.me/thumbnail/20260820/5b31438114aa7.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173244611&t=board",
-      "sourceOrder": 15
+      "sourceOrder": 20
     },
     {
       "id": "173244610",
@@ -224,7 +224,7 @@
       "date": "2026-08-19",
       "image": "https://cdn.imweb.me/thumbnail/20260820/3acb5989ff704.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173244610&t=board",
-      "sourceOrder": 16
+      "sourceOrder": 21
     },
     {
       "id": "173178156",
@@ -237,7 +237,7 @@
       "date": "2026-08-14",
       "image": "https://cdn.imweb.me/thumbnail/20260818/d8a24106bede4.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173178156&t=board",
-      "sourceOrder": 17
+      "sourceOrder": 22
     },
     {
       "id": "173178155",
@@ -250,7 +250,7 @@
       "date": "2026-08-14",
       "image": "https://cdn.imweb.me/thumbnail/20260818/90f0b93b27d60.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173178155&t=board",
-      "sourceOrder": 18
+      "sourceOrder": 23
     },
     {
       "id": "173178154",
@@ -262,8 +262,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-08-14",
       "image": "https://cdn.imweb.me/thumbnail/20260818/53a072d20a920.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173178154&t=board",
-      "sourceOrder": 19
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=173178154&t=board",
+      "sourceOrder": 24
     },
     {
       "id": "173074681",
@@ -275,8 +275,8 @@
       "method": "개인 / 렌트",
       "date": "2026-08-12",
       "image": "https://cdn.imweb.me/thumbnail/20260813/2f548a98fa108.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=173074681&t=board",
-      "sourceOrder": 20
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=173074681&t=board",
+      "sourceOrder": 25
     },
     {
       "id": "172991914",
@@ -288,8 +288,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/a18d92abba83c.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=172991914&t=board",
-      "sourceOrder": 21
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991914&t=board",
+      "sourceOrder": 26
     },
     {
       "id": "172991913",
@@ -301,8 +301,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/a0820858471d2.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=172991913&t=board",
-      "sourceOrder": 22
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991913&t=board",
+      "sourceOrder": 27
     },
     {
       "id": "172991912",
@@ -314,8 +314,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/3af5132037665.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mjt9&bmode=view&idx=172991912&t=board",
-      "sourceOrder": 23
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991912&t=board",
+      "sourceOrder": 28
     },
     {
       "id": "172991911",
@@ -328,7 +328,7 @@
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/a2c5154b82b9e.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991911&t=board",
-      "sourceOrder": 24
+      "sourceOrder": 29
     },
     {
       "id": "172991910",
@@ -341,7 +341,7 @@
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/53049103c46ff.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991910&t=board",
-      "sourceOrder": 25
+      "sourceOrder": 30
     },
     {
       "id": "172991909",
@@ -354,7 +354,7 @@
       "date": "2026-08-10",
       "image": "https://cdn.imweb.me/thumbnail/20260810/0620ef8f24dec.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172991909&t=board",
-      "sourceOrder": 26
+      "sourceOrder": 31
     },
     {
       "id": "172834251",
@@ -367,7 +367,7 @@
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/cd8da5ea7453f.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834251&t=board",
-      "sourceOrder": 27
+      "sourceOrder": 32
     },
     {
       "id": "172834250",
@@ -380,7 +380,7 @@
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/e267e1a3a7a34.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834250&t=board",
-      "sourceOrder": 28
+      "sourceOrder": 33
     },
     {
       "id": "172834249",
@@ -393,7 +393,7 @@
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/5d4b9ff83e33e.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834249&t=board",
-      "sourceOrder": 29
+      "sourceOrder": 34
     },
     {
       "id": "172834248",
@@ -406,7 +406,7 @@
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/4f0d4bb8cf3af.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834248&t=board",
-      "sourceOrder": 30
+      "sourceOrder": 35
     },
     {
       "id": "172834247",
@@ -418,8 +418,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/148253eacff51.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834247&t=board",
-      "sourceOrder": 31
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172834247&t=board",
+      "sourceOrder": 36
     },
     {
       "id": "172834246",
@@ -431,8 +431,8 @@
       "method": "개인사업자 / 리스",
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/f8c8e5916d066.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834246&t=board",
-      "sourceOrder": 32
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172834246&t=board",
+      "sourceOrder": 37
     },
     {
       "id": "172834245",
@@ -444,8 +444,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-31",
       "image": "https://cdn.imweb.me/thumbnail/20260803/acadf9580ab20.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172834245&t=board",
-      "sourceOrder": 33
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172834245&t=board",
+      "sourceOrder": 38
     },
     {
       "id": "172763265",
@@ -457,8 +457,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-07-28",
       "image": "https://cdn.imweb.me/thumbnail/20260730/d09f8754edf76.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172763265&t=board",
-      "sourceOrder": 34
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172763265&t=board",
+      "sourceOrder": 39
     },
     {
       "id": "172763264",
@@ -470,8 +470,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-28",
       "image": "https://cdn.imweb.me/thumbnail/20260730/fa89302b9aba3.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=172763264&t=board",
-      "sourceOrder": 35
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172763264&t=board",
+      "sourceOrder": 40
     },
     {
       "id": "172763263",
@@ -484,7 +484,7 @@
       "date": "2026-07-28",
       "image": "https://cdn.imweb.me/thumbnail/20260730/57554f8379d6a.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172763263&t=board",
-      "sourceOrder": 36
+      "sourceOrder": 41
     },
     {
       "id": "172763262",
@@ -497,7 +497,7 @@
       "date": "2026-07-28",
       "image": "https://cdn.imweb.me/thumbnail/20260730/18fc7b8f89282.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172763262&t=board",
-      "sourceOrder": 37
+      "sourceOrder": 42
     },
     {
       "id": "172682470",
@@ -510,7 +510,7 @@
       "date": "2026-07-24",
       "image": "https://cdn.imweb.me/thumbnail/20260727/f5ae5983c250d.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172682470&t=board",
-      "sourceOrder": 38
+      "sourceOrder": 43
     },
     {
       "id": "172682469",
@@ -523,7 +523,7 @@
       "date": "2026-07-24",
       "image": "https://cdn.imweb.me/thumbnail/20260727/9925f06d69066.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172682469&t=board",
-      "sourceOrder": 39
+      "sourceOrder": 44
     },
     {
       "id": "172682468",
@@ -536,7 +536,7 @@
       "date": "2026-07-24",
       "image": "https://cdn.imweb.me/thumbnail/20260727/bff44f0b06590.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172682468&t=board",
-      "sourceOrder": 40
+      "sourceOrder": 45
     },
     {
       "id": "172597698",
@@ -549,7 +549,7 @@
       "date": "2026-07-22",
       "image": "https://cdn.imweb.me/thumbnail/20260723/79f114d90ba34.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172597698&t=board",
-      "sourceOrder": 41
+      "sourceOrder": 46
     },
     {
       "id": "172597697",
@@ -562,7 +562,7 @@
       "date": "2026-07-22",
       "image": "https://cdn.imweb.me/thumbnail/20260723/1a01752aa4f84.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172597697&t=board",
-      "sourceOrder": 42
+      "sourceOrder": 47
     },
     {
       "id": "172597696",
@@ -574,8 +574,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-22",
       "image": "https://cdn.imweb.me/thumbnail/20260723/828da9e7b8881.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172597696&t=board",
-      "sourceOrder": 43
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172597696&t=board",
+      "sourceOrder": 48
     },
     {
       "id": "172527507",
@@ -587,8 +587,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-16",
       "image": "https://cdn.imweb.me/thumbnail/20260720/c0d107e1f73fb.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172527507&t=board",
-      "sourceOrder": 44
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172527507&t=board",
+      "sourceOrder": 49
     },
     {
       "id": "172527506",
@@ -600,8 +600,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-07-16",
       "image": "https://cdn.imweb.me/thumbnail/20260720/a8858e3c56149.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172527506&t=board",
-      "sourceOrder": 45
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172527506&t=board",
+      "sourceOrder": 50
     },
     {
       "id": "172527505",
@@ -613,8 +613,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-16",
       "image": "https://cdn.imweb.me/thumbnail/20260720/3c78194fdaa3b.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172527505&t=board",
-      "sourceOrder": 46
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172527505&t=board",
+      "sourceOrder": 51
     },
     {
       "id": "172527504",
@@ -626,8 +626,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-16",
       "image": "https://cdn.imweb.me/thumbnail/20260720/cc4f227be8e2e.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NDt9&bmode=view&idx=172527504&t=board",
-      "sourceOrder": 47
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172527504&t=board",
+      "sourceOrder": 52
     },
     {
       "id": "172527503",
@@ -640,7 +640,7 @@
       "date": "2026-07-16",
       "image": "https://cdn.imweb.me/thumbnail/20260720/7b09fc844dd87.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172527503&t=board",
-      "sourceOrder": 48
+      "sourceOrder": 53
     },
     {
       "id": "172466666",
@@ -653,7 +653,7 @@
       "date": "2026-07-15",
       "image": "https://cdn.imweb.me/thumbnail/20260716/4bffa4cecb6cd.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172466666&t=board",
-      "sourceOrder": 49
+      "sourceOrder": 54
     },
     {
       "id": "172466665",
@@ -666,7 +666,7 @@
       "date": "2026-07-15",
       "image": "https://cdn.imweb.me/thumbnail/20260716/c2e8e5c4018c9.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172466665&t=board",
-      "sourceOrder": 50
+      "sourceOrder": 55
     },
     {
       "id": "172466664",
@@ -679,7 +679,7 @@
       "date": "2026-07-15",
       "image": "https://cdn.imweb.me/thumbnail/20260716/beacdc90b4d10.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172466664&t=board",
-      "sourceOrder": 51
+      "sourceOrder": 56
     },
     {
       "id": "172391016",
@@ -692,7 +692,7 @@
       "date": "2026-07-10",
       "image": "https://cdn.imweb.me/thumbnail/20260713/15a920fe8361a.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172391016&t=board",
-      "sourceOrder": 52
+      "sourceOrder": 57
     },
     {
       "id": "172309159",
@@ -705,7 +705,7 @@
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/529cdffd59213.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309159&t=board",
-      "sourceOrder": 53
+      "sourceOrder": 58
     },
     {
       "id": "172309158",
@@ -718,7 +718,7 @@
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/04b61b72b8ea2.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309158&t=board",
-      "sourceOrder": 54
+      "sourceOrder": 59
     },
     {
       "id": "172309157",
@@ -730,8 +730,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/56e41a5f2a67a.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309157&t=board",
-      "sourceOrder": 55
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309157&t=board",
+      "sourceOrder": 60
     },
     {
       "id": "172309156",
@@ -743,8 +743,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/657552b3e8296.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309156&t=board",
-      "sourceOrder": 56
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309156&t=board",
+      "sourceOrder": 61
     },
     {
       "id": "172309155",
@@ -756,8 +756,8 @@
       "method": "개인 / 렌트",
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/66da6fd36e135.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309155&t=board",
-      "sourceOrder": 57
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309155&t=board",
+      "sourceOrder": 62
     },
     {
       "id": "172309154",
@@ -769,8 +769,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/f775acb16cb39.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309154&t=board",
-      "sourceOrder": 58
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309154&t=board",
+      "sourceOrder": 63
     },
     {
       "id": "172309153",
@@ -782,8 +782,8 @@
       "method": "개인사업자 / 렌트",
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/b40a4e375e53f.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309153&t=board",
-      "sourceOrder": 59
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309153&t=board",
+      "sourceOrder": 64
     },
     {
       "id": "172309152",
@@ -796,7 +796,7 @@
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/761c8e14062ce.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309152&t=board",
-      "sourceOrder": 60
+      "sourceOrder": 65
     },
     {
       "id": "172309151",
@@ -809,7 +809,7 @@
       "date": "2026-07-08",
       "image": "https://cdn.imweb.me/thumbnail/20260709/875bd00afb656.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309151&t=board",
-      "sourceOrder": 61
+      "sourceOrder": 66
     },
     {
       "id": "172230647",
@@ -822,7 +822,7 @@
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/d261e646c83db.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230647&t=board",
-      "sourceOrder": 62
+      "sourceOrder": 67
     },
     {
       "id": "172230646",
@@ -835,7 +835,7 @@
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/2e9ecaf9377e5.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230646&t=board",
-      "sourceOrder": 63
+      "sourceOrder": 68
     },
     {
       "id": "172230645",
@@ -848,7 +848,7 @@
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/228b167f12b1a.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230645&t=board",
-      "sourceOrder": 64
+      "sourceOrder": 69
     },
     {
       "id": "172230644",
@@ -861,7 +861,7 @@
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/e7a5ef0c8a358.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230644&t=board",
-      "sourceOrder": 65
+      "sourceOrder": 70
     },
     {
       "id": "172230643",
@@ -874,7 +874,7 @@
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/380a88cc01aa8.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230643&t=board",
-      "sourceOrder": 66
+      "sourceOrder": 71
     },
     {
       "id": "172230642",
@@ -886,8 +886,8 @@
       "method": "법인사업자 / 리스",
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/5ecd3f0c6f60e.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230642&t=board",
-      "sourceOrder": 67
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172230642&t=board",
+      "sourceOrder": 72
     },
     {
       "id": "172230641",
@@ -899,99 +899,8 @@
       "method": "개인 / 리스",
       "date": "2026-07-03",
       "image": "https://cdn.imweb.me/thumbnail/20260706/b13e2bf453b4c.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172230641&t=board",
-      "sourceOrder": 68
-    },
-    {
-      "id": "172150869",
-      "title": "G80 법인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "G80",
-      "manager": "강호진 차장 ❤️❤️",
-      "color": "(외장) 마칼루그레이 / (내장) 옵시디언 블랙",
-      "method": "법인 / 렌트",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/bac4855e3d4ed.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172150869&t=board",
-      "sourceOrder": 69
-    },
-    {
-      "id": "172150868",
-      "title": "테슬라 모델 Y 개인 리스 출고 후기입니다.",
-      "brand": "테슬라",
-      "model": "테슬라 모델 Y",
-      "manager": "김진욱 차장 ❤️❤️",
-      "color": "(외장) 그레이 / (내장) 블랙",
-      "method": "개인 / 리스",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/dfbb37c1458ea.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172150868&t=board",
-      "sourceOrder": 70
-    },
-    {
-      "id": "172150867",
-      "title": "G80 개인사업자 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "G80",
-      "manager": "박지석 팀장 ❤️❤️",
-      "color": "(외장) 비크블랙 / (내장) 옵시디언블랙모노톤, 레드스티치",
-      "method": "개인사업자 / 렌트",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/2caba03ef32af.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172150867&t=board",
-      "sourceOrder": 71
-    },
-    {
-      "id": "172150866",
-      "title": "모닝 개인사업자 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "모닝 가솔린 프레스티지",
-      "manager": "엄세훈 차장 ❤️❤️",
-      "color": "(외장) 스파클링 실버 / (내장) 브라운",
-      "method": "개인사업자 / 렌트",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/35211fcffeab0.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172150866&t=board",
-      "sourceOrder": 72
-    },
-    {
-      "id": "172150865",
-      "title": "스포티지 하이브리드 개인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "스포티지 HEV 노블레스",
-      "manager": "엄세훈 차장 ❤️❤️",
-      "color": "(외장) 스노우 화이트 / (내장) 라운지 브라운",
-      "method": "개인 / 렌트",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/b6ca3b75baba4.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172150865&t=board",
+      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172230641&t=board",
       "sourceOrder": 73
-    },
-    {
-      "id": "172150864",
-      "title": "봉고3 법인 리스 출고 후기입니다.",
-      "brand": "",
-      "model": "봉고3 1톤 킹캡 초장축",
-      "manager": "이병수 차장 ❤️❤️",
-      "color": "(외장) 클리어화이트 / (내장) 그레이블랙투톤",
-      "method": "법인 / 리스",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/11c4a1d4ff92a.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172150864&t=board",
-      "sourceOrder": 74
-    },
-    {
-      "id": "172150863",
-      "title": "GV70 EV 법인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "GV70 EV",
-      "manager": "정원상 차장 ❤️❤️",
-      "color": "(외장) 우유니 화이트 / (내장) 바닐라 베이지 투톤",
-      "method": "법인 / 렌트",
-      "date": "2026-07-01",
-      "image": "https://cdn.imweb.me/thumbnail/20260702/ea76b61cb949a.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172150863&t=board",
-      "sourceOrder": 75
     }
   ]
 }
