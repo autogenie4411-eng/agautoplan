@@ -279,6 +279,9 @@
     // 날짜로 다시 sort하지 않아 실제 후기 카테고리의 최신 → 과거 순서가 뒤섞이지 않는다.
     const prepared = (items || [])
       .filter(review => Boolean(review?.title))
+      // 국산차 전용 사이트이므로 수입차 후기는 화면에서 제외합니다.
+      // reviews.json 또는 원본 게시판에 수입차 후기가 섞여 있어도 노출되지 않습니다.
+      .filter(review => !isImportReview(review))
       .map((review, inputOrder) => ({ ...review, _inputOrder: inputOrder, _timestamp: reviewTimestamp(review) }))
       .filter(review => review._timestamp >= cutoff.getTime())
       .sort((a, b) => {

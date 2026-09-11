@@ -8,6 +8,18 @@ const MAX_PAGES = 30;
 const MAX_REVIEWS = 120;
 const OUTPUT = path.resolve('data/reviews.json');
 
+const IMPORT_BRANDS = [
+  '벤츠','메르세데스','BMW','비엠더블유','아우디','볼보','폭스바겐','포르쉐',
+  '랜드로버','레인지로버','렉서스','토요타','도요타','미니','MINI','테슬라',
+  '폴스타','지프','포드','링컨','캐딜락','푸조','마세라티','람보르기니','페라리',
+  '벤틀리','롤스로이스','BYD'
+];
+
+function isImportReview(review = {}) {
+  const haystack = `${review.brand || ''} ${review.title || ''} ${review.model || ''}`.toLowerCase();
+  return IMPORT_BRANDS.some(brand => haystack.includes(brand.toLowerCase()));
+}
+
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function koreaToday() {
@@ -736,12 +748,15 @@ try {
     throw new Error(`최신 후기 누락 감지: 첫 저장 후기 sourceOrder=${firstOrder}. 최신 글을 건너뛴 상태라 stale JSON 저장을 중단합니다.`);
   }
 
-  const invalidSavedTitles = unique.filter(review => isInvalidTitle(review.title));
+  // 이 저장소는 국산차 전용 사이트이므로 수입차 후기는 JSON에도 저장하지 않습니다.
+  const domesticOnly = unique.filter(review => !isImportReview(review));
+
+  const invalidSavedTitles = domesticOnly.filter(review => isInvalidTitle(review.title));
   if (invalidSavedTitles.length) {
     throw new Error(`오류 페이지 제목이 ${invalidSavedTitles.length}건 남아 있어 reviews.json 저장을 중단합니다.`);
   }
 
-  const missingImages = unique.filter(review => !review.image);
+  const missingImages = domesticOnly.filter(review => !review.image);
   if (missingImages.length) {
     console.warn(`⚠ 이미지 누락 ${missingImages.length}건: ${missingImages.map(r => `${r.date} #${r.id} ${r.title}`).join(' | ')}`);
   } else {
@@ -757,8 +772,8 @@ try {
       generatedAt: new Date().toISOString(),
       recentDays: RECENT_DAYS,
       order: 'board-visible-order-newest-first',
-      count: unique.length,
-      reviews: unique
+      count: domesticOnly.length,
+      reviews: domesticOnly
     }, null, 2) + '\n',
     'utf8'
   );

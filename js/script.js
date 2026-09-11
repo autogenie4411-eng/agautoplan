@@ -11139,10 +11139,12 @@ const vehicleCatalog = [
     "전북특별자치도", "전라남도", "경상북도", "경상남도", "제주특별자치도"
   ];
 
+  const DEFAULT_MARKET = "domestic";
+
   const state = {
     step: 1,
     maxReachedStep: 1,
-    market: "",
+    market: DEFAULT_MARKET,
     brandName: "",
     carName: "",
     paintId: "",
@@ -11173,7 +11175,7 @@ const vehicleCatalog = [
   function updateReviewPlacement() {
     if (!reviewSection || !reviewParking) return;
 
-    const shouldShowReview = state.step === 1 && !state.market;
+    const shouldShowReview = state.step === 1 && !state.brandName;
     const slot = content.querySelector("[data-review-slot]");
     reviewSection.hidden = !shouldShowReview;
 
@@ -11207,8 +11209,7 @@ const vehicleCatalog = [
   }
 
   function currentBrands() {
-    if (!state.market) return [];
-    return brands.filter(brand => brand.market === state.market);
+    return brands.filter(brand => brand.market === DEFAULT_MARKET);
   }
 
   function getBrandLogoPath(brandName) {
@@ -11348,11 +11349,7 @@ const vehicleCatalog = [
   }
 
   function ensureSelection() {
-    if (!state.market) {
-      state.brandName = "";
-      state.carName = "";
-      return;
-    }
+    state.market = DEFAULT_MARKET;
 
     const list = currentBrands();
 
@@ -11426,46 +11423,35 @@ const vehicleCatalog = [
       <div class="wizard-step step-one">
         <div class="step-heading">
           <span>STEP 01</span>
-          <h2>원하는 차량을 선택해 주세요.</h2>
-          <p>차량 종류부터 색상까지 순서대로 선택할 수 있습니다.</p>
+          <h2>원하는 국산차를 선택해 주세요.</h2>
+          <p>브랜드와 차량, 외장 색상을 순서대로 선택할 수 있습니다.</p>
         </div>
 
-        <fieldset class="option-block" data-option-section="market">
-          <legend><b>1</b> 차량 구분</legend>
-          <div class="segment-control two-column" data-group="market">
-            <button class="${state.market === "domestic" ? "active" : ""}" type="button" data-value="domestic">국산차</button>
-            <button class="${state.market === "import" ? "active" : ""}" type="button" data-value="import">수입차</button>
+        <fieldset class="option-block" data-option-section="brand">
+          <legend><b>1</b> 브랜드 선택</legend>
+          <div class="wizard-brand-grid">
+            ${currentBrands().map(item => {
+              const brandLogoPath = getBrandLogoPath(item.name);
+
+              return `
+              <button class="${item.name === state.brandName ? "active" : ""}" type="button" data-brand="${item.name}">
+                ${brandLogoPath ? `
+                  <span class="brand-logo-box ${isLightBrandLogo(item.name) ? "is-light-logo" : ""}">
+                    <img src="${brandLogoPath}" alt="${item.name} 로고">
+                  </span>
+                  <span class="brand-label">${item.name}</span>
+                ` : `
+                  <small>${item.short}</small>
+                  <span class="brand-label">${item.name}</span>
+                `}
+              </button>
+            `;
+            }).join("")}
           </div>
         </fieldset>
 
-        ${!state.market ? `<div class="review-slot" data-review-slot></div>` : `
-        <fieldset class="option-block" data-option-section="brand">
-          <legend><b>2</b> 브랜드 선택</legend>
-          ${state.market ? `
-            <div class="wizard-brand-grid">
-              ${currentBrands().map(item => {
-                const brandLogoPath = getBrandLogoPath(item.name);
-
-                return `
-                <button class="${item.name === state.brandName ? "active" : ""}" type="button" data-brand="${item.name}">
-                  ${brandLogoPath ? `
-                    <span class="brand-logo-box ${isLightBrandLogo(item.name) ? "is-light-logo" : ""}">
-                      <img src="${brandLogoPath}" alt="${item.name} 로고">
-                    </span>
-                    <span class="brand-label">${item.name}</span>
-                  ` : `
-                    <small>${item.short}</small>
-                    <span class="brand-label">${item.name}</span>
-                  `}
-                </button>
-              `;
-              }).join("")}
-            </div>
-          ` : `<p class="empty-selection-guide">차량 구분을 먼저 선택해 주세요.</p>`}
-        </fieldset>
-
         <fieldset class="option-block ${!state.brandName ? "is-disabled-block sequential-hidden" : ""}" data-option-section="car">
-          <legend><b>3</b> 차량 선택</legend>
+          <legend><b>2</b> 차량 선택</legend>
           ${brand ? `
             <div class="vehicle-card-list" id="carCardList">
               ${brand.cars.map(car => `
@@ -11485,7 +11471,7 @@ const vehicleCatalog = [
 
           <div class="paint-block ${!state.carName ? "is-disabled-block" : ""}" data-option-section="paint">
             <div class="paint-label">
-              <span class="paint-label-title"><b>4</b> 외장 색상${state.carName ? `<em>${paints.length}개</em>` : ""}</span>
+              <span class="paint-label-title"><b>3</b> 외장 색상${state.carName ? `<em>${paints.length}개</em>` : ""}</span>
               ${state.carName ? `<small class="paint-swipe-guide">좌우로 넘겨보세요</small>` : ""}
             </div>
             ${state.carName ? `
@@ -11503,7 +11489,8 @@ const vehicleCatalog = [
             ` : `<p class="empty-selection-guide">차량을 먼저 선택해 주세요.</p>`}
           </div>
         </div>
-        `}
+
+        <div class="review-slot" data-review-slot></div>
 
         <p class="validation-message" id="validationMessage"></p>
       </div>
@@ -12312,14 +12299,16 @@ const vehicleCatalog = [
   const globalVehicleSearchResult = document.getElementById("globalVehicleSearchResult");
   const globalVehicleSearchList = document.getElementById("globalVehicleSearchList");
 
-  const allVehicleSearchItems = vehicleCatalog.flatMap(brandItem =>
-    brandItem.cars.map(carItem => ({
-      market: brandItem.market,
-      brandName: brandItem.name,
-      brandShort: brandItem.short,
-      carName: carItem.name
-    }))
-  );
+  const allVehicleSearchItems = vehicleCatalog
+    .filter(brandItem => brandItem.market === DEFAULT_MARKET)
+    .flatMap(brandItem =>
+      brandItem.cars.map(carItem => ({
+        market: brandItem.market,
+        brandName: brandItem.name,
+        brandShort: brandItem.short,
+        carName: carItem.name
+      }))
+    );
 
   function resetGlobalVehicleSearch() {
     if (!globalVehicleSearch || !globalVehicleSearchClear || !globalVehicleSearchResult || !globalVehicleSearchList) return;
@@ -12358,7 +12347,7 @@ const vehicleCatalog = [
         data-global-brand="${item.brandName}"
         data-global-car="${item.carName}">
         <strong>${item.carName}</strong>
-        <span>${item.brandName} · ${item.market === "domestic" ? "국산차" : "수입차"}</span>
+        <span>${item.brandName}</span>
       </button>
     `).join("");
     globalVehicleSearchList.hidden = results.length === 0;
@@ -12427,7 +12416,7 @@ const vehicleCatalog = [
 
     state.step = 1;
     state.maxReachedStep = 1;
-    state.market = "";
+    state.market = DEFAULT_MARKET;
     state.brandName = "";
     state.carName = "";
     state.paintId = "";
@@ -12564,10 +12553,6 @@ const vehicleCatalog = [
 
   function validateCurrentStep() {
     if (state.step === 1) {
-      if (!state.market) {
-        showValidation("차량 구분을 선택해 주세요.");
-        return false;
-      }
       if (!state.brandName) {
         showValidation("브랜드를 선택해 주세요.");
         return false;

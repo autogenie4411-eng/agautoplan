@@ -101,13 +101,13 @@
         </span>
       </a>
       <button type="button" class="header-caption header-vehicle-search-button" id="openVehicleSearch" aria-haspopup="dialog" aria-controls="vehicleSearchModal">
-        <span class="header-vehicle-search-button__desktop">차량 통합검색</span>
+        <span class="header-vehicle-search-button__desktop">국산차 검색</span>
         <span class="header-vehicle-search-button__mobile">차량 검색</span>
       </button>
     </header>
 
     <section class="wizard-hero">
-      <p>국산·수입 전 차종 비교</p>
+      <p>국산차 전 차종 비교</p>
       <h1>내가 원하는 차량,<br><strong>조건까지 한 번에 선택하세요.</strong></h1>
       <!-- <span>전국 최저가 맞춤 견적을 받아보실 수 있습니다.</span> -->
       <span>초기비용 <span class="wizard-zero">0</span>원, 자동차세 <span class="wizard-zero">0</span>원, 보험료 <span class="wizard-zero">0</span>원</span>
@@ -137,27 +137,17 @@
           <div class="wizard-step step-one wizard-static-fallback">
             <div class="step-heading">
               <span>STEP 01</span>
-              <h2>원하는 차량을 선택해 주세요.</h2>
-              <p>차량 종류부터 색상까지 순서대로 선택할 수 있습니다.</p>
+              <h2>원하는 국산차를 선택해 주세요.</h2>
+              <p>브랜드와 차량, 외장 색상을 순서대로 선택할 수 있습니다.</p>
             </div>
 
             <fieldset class="option-block">
-              <legend><b>1</b> 차량 구분</legend>
-              <div class="segment-control two-column" data-group="market">
-                <button type="button" data-value="domestic">국산차</button>
-                <button type="button" data-value="import">수입차</button>
-              </div>
-            </fieldset>
-
-            <div class="review-slot" data-review-slot></div>
-
-            <fieldset class="option-block is-disabled-block initial-followup-selection" hidden>
-              <legend><b>2</b> 브랜드</legend>
-              <p class="empty-selection-guide">차량 구분을 먼저 선택해 주세요.</p>
+              <legend><b>1</b> 브랜드 선택</legend>
+              <p class="empty-selection-guide">브랜드 목록을 불러오는 중입니다.</p>
             </fieldset>
 
             <fieldset class="option-block is-disabled-block initial-followup-selection" hidden>
-              <legend><b>3</b> 차량</legend>
+              <legend><b>2</b> 차량 선택</legend>
               <p class="empty-selection-guide">브랜드를 먼저 선택해 주세요.</p>
             </fieldset>
 
@@ -174,10 +164,12 @@
               </div>
 
               <div class="paint-block is-disabled-block">
-                <div class="paint-label"><b>4</b> 외장 색상</div>
+                <div class="paint-label"><b>3</b> 외장 색상</div>
                 <p class="empty-selection-guide">차량을 먼저 선택해 주세요.</p>
               </div>
             </div>
+
+            <div class="review-slot" data-review-slot></div>
           </div>
 </div>
 
@@ -233,14 +225,14 @@
     <div class="vehicle-search-modal__panel">
       <div class="vehicle-search-modal__header">
         <div>
-          <h2 id="vehicleSearchModalTitle">차량 통합검색</h2>
-          <p>차량명을 검색하면 차량 구분과 브랜드가 자동으로 선택됩니다.</p>
+          <h2 id="vehicleSearchModalTitle">국산차 검색</h2>
+          <p>차량명을 검색하면 브랜드와 차량이 자동으로 선택됩니다.</p>
         </div>
         <button type="button" class="vehicle-search-modal__close" id="closeVehicleSearch" aria-label="차량 검색 닫기">×</button>
       </div>
       <div class="vehicle-search-modal__body">
         <div class="vehicle-search-field">
-          <input type="search" id="globalVehicleSearch" placeholder="예: 아반떼, 그랑 콜레오스, 모델Y" autocomplete="off" aria-controls="globalVehicleSearchList">
+          <input type="search" id="globalVehicleSearch" placeholder="예: 아반떼, 쏘렌토, 그랑 콜레오스" autocomplete="off" aria-controls="globalVehicleSearchList">
           <button type="button" class="vehicle-search-clear" id="globalVehicleSearchClear" aria-label="검색어 지우기" hidden>×</button>
         </div>
         <p class="vehicle-search-result" id="globalVehicleSearchResult" aria-live="polite">차량명을 입력해 주세요.</p>
