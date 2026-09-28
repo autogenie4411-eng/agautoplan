@@ -1,9 +1,9 @@
 {
   "source": "https://www.agautoplan.com/review",
-  "generatedAt": "2026-09-24T05:13:21.555Z",
+  "generatedAt": "2026-09-28T05:44:30.350Z",
   "recentDays": 62,
   "order": "board-visible-order-newest-first",
-  "count": 62,
+  "count": 59,
   "reviews": [
     {
       "id": "174669824",
@@ -771,45 +771,6 @@
       "image": "https://cdn.imweb.me/thumbnail/20260730/18fc7b8f89282.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172763262&t=board",
       "sourceOrder": 69
-    },
-    {
-      "id": "172682470",
-      "title": "EV6 개인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "EV6",
-      "manager": "노민우 차장 ❤️❤️",
-      "color": "(외장) 블랙 / (내장) 그레이",
-      "method": "개인 / 렌트",
-      "date": "2026-07-24",
-      "image": "https://cdn.imweb.me/thumbnail/20260727/f5ae5983c250d.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172682470&t=board",
-      "sourceOrder": 70
-    },
-    {
-      "id": "172682469",
-      "title": "쏘렌토 하이브리드 개인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "쏘렌토 하이브리드",
-      "manager": "정철희 차장 ❤️❤️",
-      "color": "(외장) 오로라블랙펄 / (내장) 올리브브라운",
-      "method": "개인 / 렌트",
-      "date": "2026-07-24",
-      "image": "https://cdn.imweb.me/thumbnail/20260727/9925f06d69066.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172682469&t=board",
-      "sourceOrder": 71
-    },
-    {
-      "id": "172682468",
-      "title": "그랜저 하이브리드 개인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "그랜저 하이브리드",
-      "manager": "정철희 차장 ❤️❤️",
-      "color": "(외장) 어비스 블랙펄 / (내장) 인디고 브라운 투톤",
-      "method": "개인 / 렌트",
-      "date": "2026-07-24",
-      "image": "https://cdn.imweb.me/thumbnail/20260727/bff44f0b06590.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Nzt9&bmode=view&idx=172682468&t=board",
-      "sourceOrder": 72
     }
   ]
 }
