@@ -8168,3 +8168,36 @@ body.review-dialog-open { overflow: hidden; }
   .review-blog-article .review-original-content { overflow-wrap:break-word; }
   .review-blog-article .review-original-content img { max-width:100% !important; }
 }
+
+/* 후기 상세 팝업: 원본 서식을 유지하면서 사진/문단의 시각적 간격 보완 */
+.review-detail-close {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  font-family: Arial, sans-serif;
+  font-size: 25px;
+  text-align: center;
+}
+.review-blog-article .review-original-content img {
+  display: block;
+  margin: 0 auto;
+}
+.review-blog-article .review-original-content img + img { margin-top: 18px; }
+.review-blog-article .review-original-content figure { margin: 18px auto 26px; }
+.review-blog-article .review-original-content figure + figure { margin-top: 18px; }
+.review-blog-article .review-original-content p:has(> img) { margin-top: 18px; margin-bottom: 22px; }
+.review-blog-article .review-original-content p:has(> img) + p:has(> img) { margin-top: 18px; }
+.review-blog-article .review-original-content p:not(:has(img)) + p:has(img),
+.review-blog-article .review-original-content div:not(:has(img)) + div:has(> img) { margin-top: 24px; }
+.review-blog-article .review-original-content p:has(img) + p:not(:has(img)) { margin-top: 24px; }
+@media (max-width: 600px) {
+  .review-blog-article .review-original-content { font-size: 13px; line-height: 1.75; }
+  .review-blog-article .review-original-content [style*="font-size"] { font-size: 13px !important; }
+  .review-blog-article .review-original-content img + img,
+  .review-blog-article .review-original-content figure + figure { margin-top: 14px; }
+  .review-blog-article .review-original-content p:has(> img) { margin-top: 14px; margin-bottom: 18px; }
+  .review-blog-article .review-original-content p:not(:has(img)) + p:has(img) { margin-top: 20px; }
+  .review-detail-close { font-size: 24px; }
+}

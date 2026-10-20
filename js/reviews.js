@@ -186,6 +186,8 @@
   let renderedReviews = [];
   let reviewDialog = null;
   let reviewDialogReturnFocus = null;
+  let reviewHistoryActive = false;
+  let reviewClosingFromPopstate = false;
   let activeReviewImages = [];
   let activeReviewImageIndex = 0;
   let hiddenAfterBrandSelection = false;
@@ -368,18 +370,39 @@
     reviewDialog.setAttribute('aria-label', '오토지니 출고 후기 상세');
     document.body.appendChild(reviewDialog);
     reviewDialog.addEventListener('click', event => {
-      if (event.target === reviewDialog || event.target.closest('[data-review-close]')) reviewDialog.close();
+      if (event.target === reviewDialog || event.target.closest('[data-review-close]')) closeReviewDialog();
       const direction = event.target.closest('[data-review-image-shift]');
       if (direction) showReviewImage(activeReviewImageIndex + Number(direction.dataset.reviewImageShift));
       const thumb = event.target.closest('[data-review-thumb]');
       if (thumb) showReviewImage(Number(thumb.dataset.reviewThumb));
     });
+    reviewDialog.addEventListener('cancel', event => {
+      event.preventDefault();
+      closeReviewDialog();
+    });
     reviewDialog.addEventListener('close', () => {
       document.body.classList.remove('review-dialog-open');
+      if (reviewHistoryActive && !reviewClosingFromPopstate) {
+        reviewHistoryActive = false;
+        history.back();
+      }
+      reviewClosingFromPopstate = false;
       if (reviewDialogReturnFocus?.isConnected) reviewDialogReturnFocus.focus({preventScroll:true});
     });
     return reviewDialog;
   }
+
+  function closeReviewDialog() {
+    if (reviewDialog?.open) reviewDialog.close();
+  }
+
+  window.addEventListener('popstate', () => {
+    if (reviewHistoryActive && reviewDialog?.open) {
+      reviewHistoryActive = false;
+      reviewClosingFromPopstate = true;
+      reviewDialog.close();
+    }
+  });
 
   // GitHub Actions가 저장한 원본 후기 HTML을 브라우저에서도 한 번 더 제한적으로 정제한다.
   // 텍스트 서식과 빈 줄은 살리되 실행 가능한 태그/속성은 허용하지 않는다.
@@ -474,7 +497,11 @@
       <button type="button" class="review-detail-close" data-review-close aria-label="후기 닫기">×</button></header>
       <div class="review-detail-scroll review-blog-scroll"><article class="review-blog-article">${articleHtml}</article></div>
     </div>`;
-    if (!dialog.open) dialog.showModal();
+    if (!dialog.open) {
+      history.pushState({ ...((history.state && typeof history.state === 'object') ? history.state : {}), autogenieReviewDialog: true }, '', location.href);
+      reviewHistoryActive = true;
+      dialog.showModal();
+    }
     document.body.classList.add('review-dialog-open');
     dialog.querySelector('.review-detail-scroll')?.scrollTo(0, 0);
   }
