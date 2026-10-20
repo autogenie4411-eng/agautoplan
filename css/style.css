@@ -8243,3 +8243,163 @@ body.review-dialog-open { overflow: hidden; }
     padding-top: 12px;
   }
 }
+
+/* 최신 후기 보기: 후기 카드 목록 → 블로그형 상세, 견적 페이지 내에서 이동 */
+.autogenie-review-dialog.autogenie-review-dialog--gallery {
+  width: min(1160px, calc(100% - 48px));
+  max-height: min(90dvh, 980px);
+}
+.review-gallery-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(90dvh, 980px);
+  min-height: 0;
+}
+.review-gallery-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex: none;
+  padding: 26px 30px 20px;
+  border-bottom: 1px solid #e9eef6;
+}
+.review-gallery-head__info { min-width: 0; }
+.review-gallery-head h2 {
+  margin: 0;
+  color: #17273c;
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -.03em;
+}
+.review-gallery-head p {
+  margin: 9px 0 0;
+  font-size: 13px;
+  color: #7b879b;
+  line-height: 1.55;
+}
+.review-gallery-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  padding: 24px 30px 34px;
+}
+.review-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review-gallery-card { min-width: 0; }
+.review-gallery-card__button {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid #e5eaf3;
+  border-radius: 12px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.review-gallery-card__button:hover {
+  border-color: #a6c0ff;
+  box-shadow: 0 8px 24px rgba(25, 64, 132, .09);
+  transform: translateY(-2px);
+}
+.review-gallery-card__button:focus-visible,
+.review-detail-back:focus-visible {
+  outline: 2px solid #326bfa;
+  outline-offset: 2px;
+}
+.review-gallery-card__cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #eef3fb;
+  overflow: hidden;
+}
+.review-gallery-card__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s ease;
+}
+.review-gallery-card__button:hover .review-gallery-card__cover img { transform: scale(1.035); }
+.review-gallery-card__placeholder { padding: 12px; font-size: 12px; color: #8592aa; }
+.review-gallery-card__content { display: flex; flex: 1; flex-direction: column; gap: 8px; padding: 14px 14px 16px; min-width: 0; }
+.review-gallery-card__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #152441;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 800;
+  word-break: keep-all;
+}
+.review-gallery-card__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 12px;
+  color: #6a7890;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.review-gallery-card__date { margin-top: auto; padding-top: 6px; font-size: 11px; color: #8b98ad; }
+.review-gallery-empty { padding: 48px 0; text-align: center; color: #8490a4; }
+.review-detail-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 0 8px;
+  border: 0;
+  background: transparent;
+  color: #326bfa;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 800;
+  cursor: pointer;
+}
+@media (max-width: 900px) and (min-width: 601px) {
+  .review-gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .autogenie-review-dialog.autogenie-review-dialog--gallery {
+    width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0;
+  }
+  .review-gallery-panel { height: 100%; max-height: 100dvh; }
+  .review-gallery-head { gap: 12px; padding: 19px 16px 16px; }
+  .review-gallery-head h2 { font-size: 18px; }
+  .review-gallery-head p { font-size: 12px; }
+  .review-gallery-scroll { padding: 18px 14px 28px; }
+  .review-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; }
+  .review-gallery-card__content { padding: 11px 10px 13px; gap: 6px; }
+  .review-gallery-card__title { font-size: 12.5px; line-height: 1.5; }
+  .review-gallery-card__summary { font-size: 11px; }
+  .review-gallery-card__date { font-size: 10.5px; }
+}
+
+/* 모바일: '최신 후기 보기'를 '오토지니 실제 출고 후기' 제목과 같은 행 중앙에 정렬 */
+@media (max-width: 560px) {
+  .review-section__head { align-items: flex-end; }
+  .review-section__more {
+    margin-top: 0;
+    margin-bottom: 5px;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+}

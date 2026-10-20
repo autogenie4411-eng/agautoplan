@@ -229,6 +229,9 @@
   let reviewDialog = null;
   let reviewDialogReturnFocus = null;
   let reviewHistoryActive = false;
+  let reviewHistoryDepth = 0;
+  let reviewDialogView = null;
+  let reviewGridScrollTop = 0;
   let reviewClosingFromPopstate = false;
   let reviewReturnScroll = null;
   let activeReviewImages = [];
@@ -410,6 +413,86 @@
     requestAnimationFrame(() => window.scrollTo(x, y));
   }
 
+  // 최신 후기 전체 보기는 원본 사이트로 이동하지 않고 모달 안에서 카드형 목록으로 표시한다.
+  function reviewGridTemplate(review) {
+    const title = cleanReviewTitle(review.title);
+    const date = formatReviewDate(review.date);
+    const details = detailLines(review);
+    const cover = String(review.image || '').trim();
+    return `<li class="review-gallery-card">
+      <button type="button" class="review-gallery-card__button" data-review-grid-open="${escapeHtml(review.id)}" aria-label="${escapeHtml(title)} 상세 후기 보기">
+        <span class="review-gallery-card__cover">${cover
+          ? `<img src="${escapeHtml(cover)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+          : `<span class="review-gallery-card__placeholder">후기 이미지 준비 중</span>`}</span>
+        <span class="review-gallery-card__content">
+          <strong class="review-gallery-card__title">${escapeHtml(title)}</strong>
+          ${details.length ? `<span class="review-gallery-card__summary">${escapeHtml(details.slice(0, 2).join(' · '))}</span>` : ''}
+          ${date ? `<time class="review-gallery-card__date" datetime="${escapeHtml(review.date)}">${escapeHtml(date)}</time>` : ''}
+        </span>
+      </button>
+    </li>`;
+  }
+
+  function renderReviewGallery() {
+    const dialog = ensureReviewDialog();
+    reviewDialogView = 'list';
+    dialog.classList.add('autogenie-review-dialog--gallery');
+    dialog.setAttribute('aria-label', '오토지니 최신 출고 후기 목록');
+    dialog.innerHTML = `<div class="review-gallery-panel">
+      <header class="review-gallery-head">
+        <div class="review-gallery-head__info">
+          <span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
+          <h2>오토지니 실제 출고 후기</h2>
+          <p>원하는 후기를 선택하면 자세한 출고 이야기를 볼 수 있습니다.</p>
+        </div>
+        <button type="button" class="review-detail-close" data-review-close aria-label="후기 목록 닫기">×</button>
+      </header>
+      <div class="review-gallery-scroll">
+        ${renderedReviews.length
+          ? `<ul class="review-gallery-grid">${renderedReviews.map(reviewGridTemplate).join('')}</ul>`
+          : '<p class="review-gallery-empty">표시할 출고 후기가 없습니다.</p>'}
+      </div>
+    </div>`;
+    const scrollArea = dialog.querySelector('.review-gallery-scroll');
+    if (scrollArea) scrollArea.scrollTop = reviewGridScrollTop;
+  }
+
+  function beginReviewDialog(view) {
+    const dialog = ensureReviewDialog();
+    if (!dialog.open) {
+      reviewReturnScroll = { x: window.scrollX, y: window.scrollY };
+      reviewDialogReturnFocus = document.activeElement;
+      reviewHistoryDepth = 0;
+      reviewGridScrollTop = 0;
+      dialog.showModal();
+    }
+    history.pushState({ ...((history.state && typeof history.state === 'object') ? history.state : {}),
+      autogenieReviewDialog: true, autogenieReviewView: view }, '', location.href);
+    reviewHistoryDepth += 1;
+    reviewHistoryActive = true;
+    document.body.classList.add('review-dialog-open');
+  }
+
+  function openReviewGallery() {
+    if (!renderedReviews.length) return;
+    const dialog = ensureReviewDialog();
+    if (!dialog.open) beginReviewDialog('list');
+    renderReviewGallery();
+    dialog.querySelector('.review-gallery-scroll')?.scrollTo(0, 0);
+  }
+
+  function returnToReviewGallery() {
+    if (reviewDialogView !== 'detail') return;
+    if (reviewHistoryActive && reviewHistoryDepth > 1) {
+      history.back();
+    } else {
+      // 캐러셀에서 곧장 진입한 경우에는 목록을 새 단계로 보여준다.
+      beginReviewDialog('list');
+      reviewGridScrollTop = 0;
+      renderReviewGallery();
+    }
+  }
+
   function ensureReviewDialog() {
     if (reviewDialog) return reviewDialog;
     reviewDialog = document.createElement('dialog');
@@ -422,6 +505,15 @@
       if (direction) showReviewImage(activeReviewImageIndex + Number(direction.dataset.reviewImageShift));
       const thumb = event.target.closest('[data-review-thumb]');
       if (thumb) showReviewImage(Number(thumb.dataset.reviewThumb));
+      const gridCard = event.target.closest('[data-review-grid-open]');
+      if (gridCard) {
+        const selected = renderedReviews.find(item => String(item.id) === gridCard.dataset.reviewGridOpen);
+        if (selected) {
+          reviewGridScrollTop = reviewDialog.querySelector('.review-gallery-scroll')?.scrollTop || 0;
+          openReview(selected);
+        }
+      }
+      if (event.target.closest('[data-review-list-back]')) returnToReviewGallery();
     });
     reviewDialog.addEventListener('cancel', event => {
       event.preventDefault();
@@ -433,7 +525,7 @@
       restoreReviewScroll();
       // X/ESC/바깥 클릭: 후기 전용 히스토리만 되돌린다.
       // reviewHistoryActive는 popstate에서 해제해야 견적 단계 변경을 막을 수 있다.
-      if (reviewHistoryActive && !reviewClosingFromPopstate) history.back();
+      if (reviewHistoryActive && !reviewClosingFromPopstate) history.go(-Math.max(1, reviewHistoryDepth));
       reviewClosingFromPopstate = false;
     });
     return reviewDialog;
@@ -445,9 +537,16 @@
 
   window.addEventListener('popstate', event => {
     if (!reviewHistoryActive) return;
-    // 견적 스크립트의 popstate가 render() / scrollToEstimate()를 호출하지 않게 차단.
+    // 견적 단계가 다른 스크립트에서 popstate를 받지 못하게 후기 이벤트를 먼저 처리한다.
     event.stopImmediatePropagation();
+    if (event.state?.autogenieReviewDialog && event.state?.autogenieReviewView === 'list' && reviewHistoryDepth > 1) {
+      reviewHistoryDepth = 1;
+      renderReviewGallery();
+      return;
+    }
     reviewHistoryActive = false;
+    reviewHistoryDepth = 0;
+    reviewDialogView = null;
     reviewClosingFromPopstate = true;
     if (reviewDialog?.open) reviewDialog.close();
     else {
@@ -543,8 +642,7 @@
 
   function openReview(review) {
     const dialog = ensureReviewDialog();
-    if (!dialog.open) reviewReturnScroll = { x: window.scrollX, y: window.scrollY };
-    reviewDialogReturnFocus = document.activeElement;
+    const isFromGallery = dialog.open && reviewDialogView === 'list';
     const details = detailLines(review);
     const blocks = Array.isArray(review.contentBlocks) ? review.contentBlocks : [];
     const validBlocks = blocks.filter(block => block && (block.type === 'text' && typeof block.text === 'string' || block.type === 'image' && typeof block.url === 'string' && /^https?:\/\//i.test(block.url)));
@@ -582,18 +680,19 @@
 
     articleHtml = normalizeReviewArticleStart(articleHtml);
 
+    reviewDialogView = 'detail';
+    dialog.classList.remove('autogenie-review-dialog--gallery');
+    dialog.setAttribute('aria-label', '오토지니 출고 후기 상세');
     dialog.innerHTML = `<div class="review-detail-panel review-detail-panel--blog">
-      <header class="review-detail-head"><div><span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
+      <header class="review-detail-head"><div>
+      ${isFromGallery ? '<button type="button" class="review-detail-back" data-review-list-back aria-label="후기 목록으로 돌아가기">← 후기 목록</button>' : ''}
+      <span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
       <h2>${escapeHtml(cleanReviewTitle(review.title))}</h2><time>${escapeHtml(formatReviewDate(review.date))}</time></div>
       <button type="button" class="review-detail-close" data-review-close aria-label="후기 닫기">×</button></header>
       <div class="review-detail-scroll review-blog-scroll"><article class="review-blog-article">${articleHtml}</article></div>
     </div>`;
-    if (!dialog.open) {
-      history.pushState({ ...((history.state && typeof history.state === 'object') ? history.state : {}), autogenieReviewDialog: true }, '', location.href);
-      reviewHistoryActive = true;
-      dialog.showModal();
-    }
-    document.body.classList.add('review-dialog-open');
+    // 상세로 직접 진입한 경우와 목록에서 진입한 경우 각각 브라우저 히스토리를 한 단계 추가한다.
+    beginReviewDialog('detail');
     dialog.querySelector('.review-detail-scroll')?.scrollTo(0, 0);
   }
 
@@ -606,7 +705,7 @@
   });
   document.querySelector('.review-section__more')?.addEventListener('click', event => {
     event.preventDefault();
-    if (renderedReviews.length) openReview(renderedReviews[0]);
+    openReviewGallery();
   });
 
   function destroyReviewSwiper() {
@@ -707,7 +806,7 @@
   function renderReviewList(items) {
     const reviews = prepareReviews(items);
     renderedReviews = reviews;
-
+    if (reviewDialog?.open && reviewDialogView === 'list') renderReviewGallery();
 
     if (hiddenAfterBrandSelection) {
       section.hidden = true;
