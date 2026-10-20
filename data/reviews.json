@@ -3,7 +3,7 @@
   "generatedAt": "2026-09-04T12:26:44.776Z",
   "recentDays": 62,
   "order": "board-visible-order-newest-first",
-  "count": 59,
+  "count": 55,
   "reviews": [
     {
       "id": "173672033",
@@ -264,19 +264,6 @@
       "image": "https://cdn.imweb.me/thumbnail/20260818/53a072d20a920.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=173178154&t=board",
       "sourceOrder": 24
-    },
-    {
-      "id": "173074681",
-      "title": "아토3 개인 렌트 출고 후기입니다.",
-      "brand": "",
-      "model": "아토3",
-      "manager": "고치연 차장 ❤️❤️",
-      "color": "(외장) 그레이 / (내장) 블랙",
-      "method": "개인 / 렌트",
-      "date": "2026-08-12",
-      "image": "https://cdn.imweb.me/thumbnail/20260813/2f548a98fa108.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Mzt9&bmode=view&idx=173074681&t=board",
-      "sourceOrder": 25
     },
     {
       "id": "172991914",
@@ -630,19 +617,6 @@
       "sourceOrder": 55
     },
     {
-      "id": "172466664",
-      "title": "XC60 개인 리스 출고 후기입니다.",
-      "brand": "",
-      "model": "XC60 B5 AWD Ultra Bright",
-      "manager": "김지명 팀장 ❤️❤️",
-      "color": "(외장) 베이퍼 그레이 / (내장) 아이보리 시트",
-      "method": "개인 / 리스",
-      "date": "2026-07-15",
-      "image": "https://cdn.imweb.me/thumbnail/20260716/beacdc90b4d10.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172466664&t=board",
-      "sourceOrder": 56
-    },
-    {
       "id": "172391016",
       "title": "PV5 개인사업자 리스 출고 후기입니다.",
       "brand": "",
@@ -667,19 +641,6 @@
       "image": "https://cdn.imweb.me/thumbnail/20260709/529cdffd59213.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309159&t=board",
       "sourceOrder": 58
-    },
-    {
-      "id": "172309158",
-      "title": "GLS 개인 리스 출고 후기입니다.",
-      "brand": "",
-      "model": "MAYBACH GLS 600 4M",
-      "manager": "김지훈 팀장 ❤️❤️",
-      "color": "(외장) 옵시디언 블랙 / (내장) 브라운 베이지",
-      "method": "개인 / 리스",
-      "date": "2026-07-08",
-      "image": "https://cdn.imweb.me/thumbnail/20260709/04b61b72b8ea2.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6NTt9&bmode=view&idx=172309158&t=board",
-      "sourceOrder": 59
     },
     {
       "id": "172309157",
@@ -745,19 +706,6 @@
       "image": "https://cdn.imweb.me/thumbnail/20260709/b40a4e375e53f.jpg",
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309153&t=board",
       "sourceOrder": 64
-    },
-    {
-      "id": "172309152",
-      "title": "E300 법인 리스 출고 후기입니다.",
-      "brand": "",
-      "model": "E300",
-      "manager": "정철희 차장 ❤️❤️",
-      "color": "(외장) 그라파이트 그레이 / (내장) 통카 브라운",
-      "method": "법인 / 리스",
-      "date": "2026-07-08",
-      "image": "https://cdn.imweb.me/thumbnail/20260709/761c8e14062ce.jpg",
-      "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6Njt9&bmode=view&idx=172309152&t=board",
-      "sourceOrder": 65
     },
     {
       "id": "172309151",

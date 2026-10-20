@@ -6,24 +6,66 @@
 
   const SOURCE = 'https://www.agautoplan.com/review';
   const READER_PREFIX = 'https://r.jina.ai/';
-  const IMPORT_BRANDS = [
-    '벤츠', '메르세데스', 'BMW', '비엠더블유', '아우디', '볼보', '폭스바겐',
-    '포르쉐', '랜드로버', '레인지로버', '렉서스', '토요타', '도요타', '미니', 'MINI',
-    '테슬라', '폴스타', '지프', '포드', '링컨', '캐딜락', '푸조', '마세라티',
-    '람보르기니', '페라리', '벤틀리', '롤스로이스'
-  ];
-
-  const BRAND_ALIASES = [
-    ['메르세데스-벤츠', ['메르세데스', '벤츠', 'mercedes', 'e200', 'e300', 'e450', 'gle', 'glc', 'gls', 'cla', 'cle', 'amg']],
-    ['BMW', ['bmw', '비엠더블유']], ['아우디', ['아우디', 'audi']], ['볼보', ['볼보', 'volvo']],
-    ['폭스바겐', ['폭스바겐', 'volkswagen']], ['포르쉐', ['포르쉐', 'porsche']],
-    ['랜드로버', ['랜드로버', '레인지로버', 'land rover', 'range rover']], ['렉서스', ['렉서스', 'lexus']],
-    ['토요타', ['토요타', '도요타', 'toyota']], ['MINI', ['mini', '미니']],
-    ['테슬라', ['테슬라', 'tesla', 'model y', 'model 3', '모델 y', '모델y', '모델3']], ['폴스타', ['폴스타', 'polestar']],
-    ['지프', ['지프', 'jeep']], ['포드', ['포드', 'ford']], ['링컨', ['링컨', 'lincoln']],
-    ['캐딜락', ['캐딜락', 'cadillac']], ['푸조', ['푸조', 'peugeot']], ['마세라티', ['마세라티', 'maserati']],
-    ['벤틀리', ['벤틀리', 'bentley']], ['롤스로이스', ['롤스로이스', 'rolls-royce', 'rolls royce']]
-  ];
+  // 후기 분류는 메이커 + 국내/수입 차종명을 함께 검사합니다.
+  // 차종명이 단독으로 나오는 E200, 아토3, 모델Y 등의 후기에도 적용합니다.
+  function reviewMarket(review = {}) {
+    const titleModel = `${review.title || ''} ${review.model || ''}`.toLowerCase();
+    const brand = String(review.brand || '').toLowerCase();
+    const importNames = [
+      '메르세데스', '벤츠', 'mercedes', 'maybach', '마이바흐', 'bmw', '비엠더블유',
+      '아우디', 'audi', '볼보', 'volvo', '폭스바겐', 'volkswagen', '포르쉐', 'porsche',
+      '랜드로버', '레인지로버', 'land rover', 'range rover', '재규어', 'jaguar',
+      '렉서스', 'lexus', '토요타', '도요타', 'toyota', '테슬라', 'tesla', '폴스타', 'polestar',
+      '지프', 'jeep', '포드', 'ford', '링컨', 'lincoln', '캐딜락', 'cadillac',
+      '푸조', 'peugeot', '마세라티', 'maserati', '람보르기니', 'lamborghini',
+      '페라리', 'ferrari', '벤틀리', 'bentley', '롤스로이스', 'rolls-royce',
+      'rolls royce', 'byd', '비야디', '미니', 'mini'
+    ];
+    const importModels = [
+      '올로드콰트로', '콰트로', '이트론', 'e-tron', 'etron', 'xc40', 'xc60', 'xc90', 'ex30', 'ex40',
+      'ec40', 's60', 's90', 'v60', 'v90', '티구안', '아테온', '투아렉', '파사트', '제타',
+      '카이엔', '마칸', '파나메라', '타이칸', '911 카레라', '디펜더', '디스커버리', '이보크',
+      '랭글러', '체로키', '레니게이드', '글래디에이터', '익스플로러', '브롱코',
+      '머스탱', '노틸러스', '에비에이터', '코세어', '에스컬레이드', '리릭',
+      '그레칼레', '기블리', '르반떼', '벤테이가', '컨티넨탈', '플라잉스퍼',
+      '컬리넌', '고스트', '팬텀', '스펙터', '우루스', '우라칸', '레부엘토',
+      '아토3', '돌핀', '푸로산게', '라브4', '프리우스', '알파드', '시에나',
+      '컨트리맨', '클럽맨', '에이스맨', '모델y', '모델 y', '모델3', '모델 3',
+      '모델s', '모델 s', '모델x', '모델 x'
+    ];
+    const domesticNames = ['현대', '기아', '제네시스', '르노', 'kgm', 'kg모빌리티', '쉐보레', 'chevrolet'];
+    const domesticModels = [
+      '펠리세이드','pv5','pv7','qm6','sm6','그랜저','아반떼','쏘나타','소나타','싼타페','투싼','팰리세이드','코나',
+      '캐스퍼','스타리아','아이오닉','포터','봉고','모닝','카니발','쏘렌토',
+      '스포티지','셀토스','니로','토레스','액티언','티볼리','렉스턴','코란도',
+      '아르카나','그랑 콜레오스','그랑콜레오스','트랙스','트레일블레이저',
+      '트래버스','콜로라도','타호','이쿼녹스'
+    ];
+    const word = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // 영문 짧은 모델명은 앞뒤 단어 경계를 검사해 오분류를 막는다.
+    const has = (text, keyword) => {
+      if (/[a-z0-9]/i.test(keyword) && keyword.length < 6) {
+        return new RegExp(`(^|[^a-z0-9])${word(keyword)}(?=$|[^a-z0-9])`, 'i').test(text);
+      }
+      if (/^[가-힣]{1,2}$/.test(keyword)) {
+        return new RegExp(`(^|[^가-힣])${word(keyword)}(?=$|[^가-힣])`).test(text);
+      }
+      return text.includes(keyword);
+    };
+    const importShort = [
+      'e200','e220','e250','e300','e350','e450','s350','s400','s450','s500','s580',
+      'c200','c220','c300','eqa','eqb','eqe','eqs','gle','glc','gls','cla','cls','cle','gla','glb','amg',
+      '320i','330i','520i','530i','540i','740i','x1','x2','x3','x4','x5','x6','x7','xm','z4','i4','i5','i7','ix',
+      'a3','a4','a5','a6','a7','a8','q3','q4','q5','q6','q7','q8',
+      'es300','nx','rx','ux','lm','ls','id.4','id.5','atto 3','seal', '씰'
+    ];
+    const domesticShort = ['k3','k5','k8','k9','ev3','ev4','ev5','ev6','ev9','g70','g80','g90','gv60','gv70','gv80','레이'];
+    if (importNames.some(name => has(titleModel, name)) || importModels.some(name => has(titleModel, name)) || importShort.some(name => has(titleModel, name))) return 'import';
+    if (domesticNames.some(name => has(titleModel, name)) || domesticModels.some(name => has(titleModel, name)) || domesticShort.some(name => has(titleModel, name))) return 'domestic';
+    if (importNames.some(name => has(brand, name))) return 'import';
+    if (domesticNames.some(name => has(brand, name))) return 'domestic';
+    return 'unknown';
+  }
 
   const FALLBACK_REVIEWS = [
       {
@@ -209,16 +251,11 @@
 
   function detectBrand(text = '') {
     const lower = String(text).toLowerCase();
-    for (const [label, keywords] of BRAND_ALIASES) {
-      if (keywords.some(keyword => lower.includes(keyword.toLowerCase()))) return label;
-    }
+    const market = reviewMarket({ title: text });
+    if (market === 'import') return '수입차';
+    if (market === 'domestic') return '국산차';
     return '';
   }
-
-  const isImportReview = review => {
-    const haystack = `${review.brand || ''} ${review.title || ''} ${review.model || ''}`.toLowerCase();
-    return IMPORT_BRANDS.some(brand => haystack.includes(brand.toLowerCase())) || Boolean(detectBrand(haystack));
-  };
 
   function parseReviewDate(value) {
     const raw = String(value || '').trim();
@@ -286,9 +323,8 @@
     // 날짜로 다시 sort하지 않아 실제 후기 카테고리의 최신 → 과거 순서가 뒤섞이지 않는다.
     const prepared = (items || [])
       .filter(review => Boolean(review?.title))
-      // 국산차 전용 사이트이므로 수입차 후기는 화면에서 제외합니다.
-      // reviews.json 또는 원본 게시판에 수입차 후기가 섞여 있어도 노출되지 않습니다.
-      .filter(review => !isImportReview(review))
+      // 국산차 전용: 브랜드명 없는 E200/BYD 등 수입 모델도 제외.
+      .filter(review => reviewMarket(review) === 'domestic')
       .map((review, inputOrder) => ({ ...review, _inputOrder: inputOrder, _timestamp: reviewTimestamp(review) }))
       .filter(review => review._timestamp >= cutoff.getTime())
       .sort((a, b) => {
