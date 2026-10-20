@@ -462,10 +462,15 @@ async function parseDetail(page, item) {
       await page.goto(targets[attempt], { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.waitForTimeout(attempt === 0 ? 850 : 1200);
 
-      // lazy-load, IntersectionObserver, background-image 등을 모두 발화시키기 위해 페이지 전체를 비율로 훑는다.
-      for (const ratio of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
-        await page.evaluate(r => window.scrollTo(0, Math.max(0, (document.body.scrollHeight - innerHeight) * r)), ratio);
-        await page.waitForTimeout(260);
+      // 한 화면 단위로 실제 게시글 끝까지 이동해야 지연 로딩된 사진을 빠뜨리지 않는다.
+      const metrics = await page.evaluate(() => ({
+        height: Math.max(document.body.scrollHeight, document.documentElement.scrollHeight),
+        step: Math.max(600, Math.floor(innerHeight * 0.85))
+      }));
+      let visited = 0;
+      for (let y = 0; y < metrics.height && visited < 80; y += metrics.step, visited++) {
+        await page.evaluate(top => window.scrollTo(0, top), y);
+        await page.waitForTimeout(110);
       }
       await page.waitForLoadState('networkidle', { timeout: 2500 }).catch(() => {});
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -474,241 +479,183 @@ async function parseDetail(page, item) {
     }
 
     data = await page.evaluate(() => {
-      const text = document.body?.innerText || '';
-
+      const pageText = document.body?.innerText || '';
+      const trim = value => String(value || '').replace(/\s+/g, ' ').trim();
       const titleCandidates = [
         document.querySelector('.board_view .title')?.textContent,
-        document.querySelector('.board_view [class*="title"]')?.textContent,
         document.querySelector('.board_txt_area h1')?.textContent,
-        document.querySelector('.board_txt_area h2')?.textContent,
-        document.querySelector('.board_txt_area h3')?.textContent,
         document.querySelector('[class*="board_title"]')?.textContent,
         document.querySelector('h1')?.textContent,
-        document.querySelector('h2')?.textContent,
         document.title
-      ].filter(Boolean).map(s => String(s).replace(/\s+/g, ' ').trim());
+      ].filter(Boolean).map(trim);
+      const title = titleCandidates.find(text => /출고\s*후기/.test(text)) || titleCandidates[0] || '';
 
-      const title = titleCandidates.find(t => /출고\s*후기/.test(t)) || titleCandidates[0] || '';
+      // 원본 게시글을 담은 편집기만 선택한다. .board_view 전체를 선택하면
+      // 아임웹의 공통 푸터/결제인증/관련 위젯이 함께 들어오는 경우가 있다.
+      const selectors = [
+        '.board_txt_area .fr-view', '.board_view_body .fr-view',
+        '.board_txt_area .board_view_body', '.board_view_body .board_txt_area',
+        '.board_txt_area', '.board_view_body',
+        '.board_view .fr-view', '.board_view .board-content',
+        '[class*="board_view"] [class*="editor"]',
+        '.board_view'
+      ];
+      const candidates = [...new Set(selectors.flatMap(sel => [...document.querySelectorAll(sel)]))]
+        .filter(el => !el.closest('header,footer,nav') && el.getClientRects().length > 0)
+        .map(el => ({
+          el,
+          text: trim(el.innerText),
+          count: el.querySelectorAll('img,picture,figure').length,
+          size: el.outerHTML.length,
+          // 메인 글의 필수 키워드로 광고/메뉴 블록을 구분한다.
+          detail: /담당자|차량\s*모델명|진행\s*방식/.test(el.innerText || '')
+        }))
+        .filter(item => item.text.length > 25 && (item.count > 0 || item.detail));
+      const editorial = candidates.filter(item => !item.el.matches('.board_view'));
+      // 편집기 영역 중 콘텐츠가 가장 많은 것을 먼저 고르되 같은 분량이면 좁은 영역 우선.
+      // .board_view 최상위 요소는 더 정확한 편집기가 없을 때만 보조로 사용한다.
+      const pool = editorial.length ? editorial : candidates;
+      pool.sort((a, b) => Number(b.detail) - Number(a.detail) || b.count - a.count || b.text.length - a.text.length || a.size - b.size);
+      const root = pool[0]?.el || document.querySelector('.board_txt_area,.board_view_body') || null;
 
-      const roots = [
-        document.querySelector('.board_txt_area'),
-        document.querySelector('.board_view_body'),
-        document.querySelector('.board_view'),
-        document.querySelector('[class*="board_view"]'),
-        document.querySelector('article'),
-        document.querySelector('main')
-      ].filter(Boolean);
-
-      const root = roots[0] || document.body;
-
-      const normalizeUrl = raw => {
+      const urlOf = raw => {
         if (!raw) return '';
-        let value = String(raw).trim();
-        if (!value) return '';
-        if (value.includes(',')) value = value.split(',').pop().trim();
-        value = value.split(/\s+/)[0];
-        try { return new URL(value, location.href).href; } catch { return value; }
+        const value = String(raw).trim().replace(/&amp;/gi, '&').replace(/\\\//g, '/');
+        try {
+          const result = new URL(value, location.href);
+          return /^https?:$/.test(result.protocol) ? result.href : '';
+        } catch { return ''; }
+      };
+      const urlKey = raw => {
+        try {
+          const url = new URL(raw);
+          // 썸네일과 원본은 주소가 다를 수 있지만 같은 파일이다.
+          const parts = url.pathname.split('/').filter(Boolean);
+          return `${url.hostname}/${parts.slice(-2).join('/').toLowerCase()}`;
+        } catch { return String(raw || ''); }
+      };
+      const junkImage = (url, img) => {
+        const details = [url, img?.getAttribute('alt'), img?.getAttribute('title'),
+          img?.closest('a')?.getAttribute('href'), img?.parentElement?.getAttribute('title')].join(' ').toLowerCase();
+        if (/escrow|에스크로|kbes|kb-escrow|안심결제|결제인증|favicon|avatar|profile|placeholder|loading|spinner|blank\.gif|transparent|\/logo[\/_\.]/i.test(details)) return true;
+        const rect = img?.getBoundingClientRect();
+        const width = Math.max(img?.naturalWidth || 0, rect?.width || 0);
+        const height = Math.max(img?.naturalHeight || 0, rect?.height || 0);
+        // 원본 출고 사진은 본문 폭을 사용하는 반면 KB 에스크로 등의 마크는 작다.
+        if (width && height && width < 145 && height < 145) return true;
+        return false;
+      };
+      const findImage = img => {
+        const srcset = img.getAttribute('data-srcset') || img.getAttribute('srcset') || '';
+        const values = [img.getAttribute('data-original'), img.getAttribute('data-original-src'),
+          img.getAttribute('data-lazy-src'), img.getAttribute('data-src'),
+          img.getAttribute('data-image'), img.getAttribute('src'), img.currentSrc,
+          srcset.split(',').map(p => p.trim().split(/\s+/)[0]).filter(Boolean).at(-1)];
+        const candidates = values.map(urlOf).filter(Boolean);
+        return candidates.find(url => !junkImage(url, img)) || '';
       };
 
-      const isJunk = url => {
-        const lower = String(url || '').toLowerCase();
-        return !lower ||
-          /logo|icon|profile|avatar|favicon|loading|spinner|blank|transparent|placeholder/.test(lower) ||
-          /car-img-bg|vehicle-stage-bg/.test(lower) ||
-          lower.startsWith('data:image/svg');
-      };
-
-      const candidates = [];
-
-      for (const img of root.querySelectorAll('img')) {
-        const attrs = [
-          img.currentSrc,
-          img.getAttribute('data-src'),
-          img.getAttribute('data-original'),
-          img.getAttribute('data-lazy-src'),
-          img.getAttribute('data-image'),
-          img.getAttribute('src'),
-          img.getAttribute('data-srcset'),
-          img.getAttribute('srcset')
-        ];
-
-        const urls = [...new Set(attrs.map(normalizeUrl).filter(Boolean))];
-        const rect = img.getBoundingClientRect();
-        const width = Math.max(img.naturalWidth || 0, rect.width || 0, Number(img.getAttribute('width')) || 0);
-        const height = Math.max(img.naturalHeight || 0, rect.height || 0, Number(img.getAttribute('height')) || 0);
-
-        for (const imageUrl of urls) {
-          if (isJunk(imageUrl)) continue;
-
-          let score = Math.min(width * height, 5_000_000);
-          if (/imweb|cdn|upload|files|image/i.test(imageUrl)) score += 500_000;
-          if (width >= 500) score += 400_000;
-          if (height >= 300) score += 300_000;
-          if (img.closest('.board_txt_area,.board_view,.board_view_body,[class*="board_view"]')) score += 1_000_000;
-
-          candidates.push({ url: imageUrl, score });
+      const allowed = new Set(['DIV','SECTION','ARTICLE','P','BR','SPAN','FONT','STRONG','B','EM','I','U','S','SUB','SUP','H1','H2','H3','H4','H5','H6','BLOCKQUOTE','UL','OL','LI','FIGURE','IMG','HR','TABLE','TBODY','THEAD','TR','TD','TH']);
+      const blocked = new Set(['SCRIPT','STYLE','NOSCRIPT','IFRAME','OBJECT','EMBED','SVG','BUTTON','FORM','INPUT','TEXTAREA','SELECT','VIDEO','AUDIO','CANVAS','HEADER','FOOTER','NAV','ASIDE']);
+      const styleRules = [
+        ['font-size', 'fontSize'], ['font-family','fontFamily'], ['font-weight','fontWeight'],
+        ['font-style','fontStyle'], ['line-height','lineHeight'], ['letter-spacing','letterSpacing'],
+        ['text-align','textAlign'], ['text-decoration','textDecorationLine'],
+        ['color','color'], ['white-space','whiteSpace']
+      ];
+      const blockRules = [
+        ['margin-top','marginTop'], ['margin-bottom','marginBottom'],
+        ['padding-top','paddingTop'], ['padding-bottom','paddingBottom'],
+        ['padding-left','paddingLeft'], ['padding-right','paddingRight']
+      ];
+      const safeStyle = (el, tag) => {
+        const css = getComputedStyle(el);
+        const styles = [];
+        for (const [key, prop] of styleRules) {
+          const value = css[prop];
+          if (!value || /url\s*\(|expression\s*\(|javascript:|var\s*\(/i.test(value)) continue;
+          if (key === 'font-family' && value.length > 180) continue;
+          styles.push(`${key}:${value}`);
         }
-      }
-
-      for (const el of root.querySelectorAll('[style*="background"]')) {
-        const bg = getComputedStyle(el).backgroundImage || el.style.backgroundImage || '';
-        const match = bg.match(/url\(["']?(.*?)["']?\)/i);
-        const imageUrl = normalizeUrl(match?.[1] || '');
-        if (!imageUrl || isJunk(imageUrl)) continue;
-
-        const rect = el.getBoundingClientRect();
-        const score = Math.min((rect.width || 0) * (rect.height || 0), 5_000_000) + 600_000;
-        candidates.push({ url: imageUrl, score });
-      }
-
-      // img 태그가 아닌 요소의 data-* / href / content 속성에 원본 이미지가 들어가는 아임웹 스킨 대응.
-      for (const el of document.querySelectorAll('*')) {
-        for (const attr of el.attributes || []) {
-          const raw = attr.value || '';
-          if (!/cdn\.imweb\.me\/(?:upload|thumbnail)\//i.test(raw)) continue;
-          const matches = raw.match(/https?:\/\/cdn\.imweb\.me\/(?:upload|thumbnail)\/[^\"'<>\s)]+/gi) || [];
-          for (const match of matches) {
-            const imageUrl = normalizeUrl(match.replace(/\\\//g, '/'));
-            if (!imageUrl || isJunk(imageUrl)) continue;
-            let score = /\/upload\//i.test(imageUrl) ? 1_350_000 : 950_000;
-            if (/\.(?:jpe?g|png|webp)(?:\?|$)/i.test(imageUrl)) score += 250_000;
-            candidates.push({ url: imageUrl, score });
+        if (['DIV','SECTION','ARTICLE','P','H1','H2','H3','H4','H5','H6','FIGURE','LI','BLOCKQUOTE'].includes(tag)) {
+          for (const [key, prop] of blockRules) {
+            const value = css[prop];
+            if (/^\d+(?:\.\d+)?px$/.test(value) && parseFloat(value) > 0 && parseFloat(value) < 300) styles.push(`${key}:${value}`);
           }
         }
-      }
-
-      candidates.sort((a, b) => b.score - a.score);
-
-      // 후기 본문은 게시판 본문 컨테이너에서만 추출합니다 (사이트 공통 메뉴/푸터 제외).
-      // 가장 바깥 게시판 컨테이너가 아니라 실제 에디터 본문을 우선한다.
-      // 본문 첫 이미지 외에 하단에 연결된 여러 이미지를 함께 포함하는 요소를 선택한다.
-      const editorSelectors = [
-        '.board_view_body .fr-view', '.board_txt_area .fr-view',
-        '.board_view_body', '.board_txt_area .board_view_body',
-        '.board_txt_area', '.board_view .fr-view',
-        '.board_view .board-content', '.board_view'
-      ];
-      const editorCandidates = [...new Set(editorSelectors.flatMap(selector => [...document.querySelectorAll(selector)]))];
-      const editorScore = el => {
-        const imageCount = el.querySelectorAll('img, picture, figure, [data-src], [data-original]').length;
-        const rawText = (el.innerText || '').length;
-        const cls = String(el.className || '');
-        return imageCount * 10000 + Math.min(rawText, 10000) + (/fr-view|board_view_body/.test(cls) ? 200 : 0);
+        return styles.join(';');
       };
-      // 중첩된 후보끼리는 불필요하게 큰 전체 게시판 대신 실제 사진을 가장 많이 포함한 작은 영역 우선.
-      const contentRoot = editorCandidates
-        .filter(el => !el.closest('header,footer,nav'))
-        .sort((a,b) => editorScore(b)-editorScore(a) || a.outerHTML.length-b.outerHTML.length)[0] || root;
-      const body = (contentRoot.innerText || '').replace(/\r/g, '').trim().slice(0, 80000);
-      // 아임웹 게시글의 본문을 문단/사진 순서대로 보존합니다.
-      // 부모 요소에서 innerText를 가져오면 자식 텍스트가 반복되므로 텍스트 노드를 직접 방문합니다.
-      const contentBlocks = [];
       const seenImages = new Set();
-      const appendText = value => {
-        const valueText = String(value || '').replace(/\u00a0/g, ' ').replace(/[ \t]+/g, ' ').trim();
-        if (!valueText) return;
-        const last = contentBlocks[contentBlocks.length - 1];
-        if (last?.type === 'text' && last.text === valueText) return;
-        contentBlocks.push({ type: 'text', text: valueText.slice(0, 12000) });
-      };
-      const appendImage = raw => {
-        const url = normalizeUrl(raw);
-        if (!/^https?:\/\//i.test(url) || isJunk(url) || seenImages.has(url)) return;
-        if (/\/thumbnail\//i.test(url)) {
-          const original = url.replace('/thumbnail/', '/upload/');
-          // 원본 URL은 실제 파일 경로가 다를 수 있으므로 강제 치환하지 않음.
-        }
-        seenImages.add(url);
-        contentBlocks.push({ type: 'image', url });
-      };
-      // 아임웹 편집기 이미지: src뿐 아니라 data-*, srcset, picture/source,
-      // 앵커 원본 이미지, CSS background-image도 DOM 순서대로 읽는다.
-      const extractUrls = (raw, srcset = false) => {
-        if (!raw) return [];
-        const source = String(raw).replace(/&amp;/gi, '&').replace(/\\\//g, '/');
-        if (srcset) return source.split(',').map(piece => piece.trim().split(/\s+/)[0]).filter(Boolean);
-        const matches = source.match(/https?:\/\/[^\s"'<>),]+/gi);
-        if (matches?.length) return matches;
-        return [source];
-      };
-      const addElementImages = el => {
-        if (el.tagName === 'IMG' || el.tagName === 'SOURCE') {
-          // srcset의 여러 해상도는 한 이미지로 취급, 실물 원본에 가까운 주소를 우선.
-          const values = [el.getAttribute('data-original'),el.getAttribute('data-original-src'),
-            el.getAttribute('data-lazy-src'),el.getAttribute('data-src'),el.getAttribute('data-image'),
-            el.getAttribute('data-url'),el.getAttribute('src'),el.currentSrc];
-          const urls = values.flatMap(value => extractUrls(value)).filter(value => /^https?:/i.test(normalizeUrl(value)));
-          if (urls.length) appendImage(urls[0]);
-          else for (const url of extractUrls(el.getAttribute('data-srcset') || el.getAttribute('srcset'), true).slice(-1)) appendImage(url);
+      const articleImages = [];
+      let omittedImages = 0;
+      let duplicates = 0;
+      let visited = 0;
+
+      // HTML을 생으로 저장하지 않고, 텍스트/문단/이미지와 안전한 서식만 복사한다.
+      // <br>, 빈 문단, inline span 서식을 보존하므로 원본의 줄바꿈과 여백이 유지된다.
+      const serialize = (node, outParent) => {
+        if (++visited > 12000) return;
+        if (node.nodeType === Node.TEXT_NODE) {
+          outParent.appendChild(document.createTextNode(node.nodeValue || ''));
           return;
         }
-        if (el.tagName === 'A') {
-          const href = el.getAttribute('href');
-          if (/\.(?:jpe?g|png|webp|gif)(?:[?#]|$)/i.test(href || '') && !el.querySelector('img')) appendImage(href);
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+        const tag = node.tagName;
+        if (blocked.has(tag) || node.matches('[aria-hidden="true"]')) return;
+        if (node.closest('footer,header,nav,aside,.footer,#footer,.site-footer,.footer-wrap')) return;
+        if (tag === 'IMG' || tag === 'SOURCE') {
+          if (tag === 'SOURCE') return;
+          const url = findImage(node);
+          if (!url) { omittedImages++; return; }
+          const key = urlKey(url);
+          if (seenImages.has(key)) { duplicates++; return; }
+          seenImages.add(key);
+          articleImages.push(url);
+          const image = document.createElement('img');
+          image.setAttribute('src', url);
+          image.setAttribute('alt', trim(node.getAttribute('alt')).slice(0, 180));
+          image.setAttribute('loading', 'lazy');
+          image.setAttribute('referrerpolicy', 'no-referrer');
+          const css = getComputedStyle(node);
+          const sourceWidth = Math.max(node.getBoundingClientRect().width || 0, Number(node.getAttribute('width')) || 0);
+          if (sourceWidth >= 150 && sourceWidth <= 2400) image.style.width = `${Math.round(sourceWidth)}px`;
+          if (css.display === 'block') image.style.display = 'block';
+          outParent.appendChild(image);
+          return;
         }
-        for (const key of ['data-background','data-background-image','data-bg','data-bg-src','data-lazy-background']) {
-          const raw = el.getAttribute(key);
-          if (raw) extractUrls(raw).forEach(appendImage);
-        }
-        const style = el.getAttribute('style') || '';
-        const bg = style.match(/background(?:-image)?\s*:[^;]*?url\(["']?(.*?)["']?\)/i);
-        if (bg?.[1]) appendImage(bg[1]);
+        const to = allowed.has(tag) ? document.createElement(tag.toLowerCase()) : document.createElement('span');
+        const styles = safeStyle(node, tag);
+        if (styles) to.setAttribute('style', styles);
+        outParent.appendChild(to);
+        for (const child of node.childNodes) serialize(child, to);
       };
-      const hiddenTags = new Set(['SCRIPT','STYLE','NOSCRIPT','IFRAME','BUTTON','SVG']);
-      const walk = node => {
-        if (contentBlocks.length > 900) return;
-        if (node.nodeType === 3) { appendText(node.nodeValue); return; }
-        if (node.nodeType !== 1) return;
-        const el = node;
-        if (hiddenTags.has(el.tagName) || el.closest('header,footer,nav')) return;
-        addElementImages(el);
-        if (el.tagName === 'IMG' || el.tagName === 'SOURCE') return;
-        if (el.tagName === 'BR') return;
-        for (const child of el.childNodes) walk(child);
-      };
-      walk(contentRoot);
-      // 텍스트 노드가 문장 단위로 쪼개지면 인접 텍스트 블록을 합칩니다.
-      const mergedBlocks = [];
-      for (const block of contentBlocks) {
-        const last = mergedBlocks[mergedBlocks.length - 1];
-        if (block.type === 'text' && last?.type === 'text') last.text += ' ' + block.text;
-        else mergedBlocks.push(block);
+      let articleHtml = '';
+      let body = '';
+      let selected = 'none';
+      let rootTextStyle = '';
+      if (root) {
+        selected = `${root.tagName.toLowerCase()}${root.className && typeof root.className === 'string' ? '.' + root.className.trim().split(/\s+/).join('.') : ''}`.slice(0, 150);
+        body = (root.innerText || '').replace(/\r/g, '').slice(0, 80000);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'review-original-content';
+        rootTextStyle = safeStyle(root, root.tagName);
+        if (rootTextStyle) wrapper.setAttribute('style', rootTextStyle);
+        // 본문 root 자체의 블록 요소 여백은 제외하고 자식 문단 여백을 보존한다.
+        for (const child of root.childNodes) serialize(child, wrapper);
+        articleHtml = wrapper.outerHTML;
       }
-      // HTML에 URL만 남고 img로 렌더링되지 않는 지연 로딩 사진까지 수집.
-      // 이 fallback은 게시글 본문 HTML 안에서만 검색해 메뉴/푸터 이미지를 제외한다.
-      const articleHtml = contentRoot.outerHTML || '';
-      const articleUrls = [...articleHtml.matchAll(/https?:\/\/cdn\.imweb\.me\/(?:upload|thumbnail)\/[^\s\"'<>),]+/gi)]
-        .map(match => match[0].replace(/&amp;/g, '&'));
-      for (const url of articleUrls) {
-        const before = contentBlocks.length;
-        appendImage(url);
-        if (contentBlocks.length > before) mergedBlocks.push(contentBlocks[contentBlocks.length - 1]);
-      }
-      // iframe 이외에 별도 에디터 영역으로 잘린 경우도 대응: 본문 게시판에 있는 이미지를 모두 수집.
-      // DOM 위에서 나타나는 순서로 수집하되 이미 존재하는 블록의 순서는 유지한다.
-      const imageElements = [...document.querySelectorAll('.board_view img, .board_view_body img, .board_txt_area img, .fr-view img')];
-      for (const img of new Set(imageElements)) {
-        const possible = [img.getAttribute('data-original'), img.getAttribute('data-src'), img.getAttribute('data-lazy-src'), img.getAttribute('src'), img.currentSrc];
-        for (const url of possible) { if (url && /^https?:/i.test(normalizeUrl(url))) { appendImage(url); break; } }
-      }
-      const images = [...new Set(contentBlocks.filter(b => b.type === 'image').map(b => b.url))].slice(0, 150);
       return {
-        text, title, image: candidates[0]?.url || '', body,
-        images, contentBlocks: mergedBlocks.concat(contentBlocks.filter(b => b.type === 'image' && !mergedBlocks.some(m => m.type === 'image' && m.url === b.url))).slice(0, 900)
+        text: pageText, title,
+        image: articleImages[0] || '',
+        body, images: articleImages,
+        articleHtml: articleHtml.slice(0, 750000),
+        contentBlocks: [],
+        scrapeLog: { selected, count: articleImages.length, omittedImages, duplicates,
+          textLength: body.length, htmlLength: articleHtml.length }
       };
     });
+    console.log(`[본문 DOM] #${sourceOrder} id=${id} ${JSON.stringify(data.scrapeLog || {})}`);
 
-    // 후기 본문 DOM에 사진이 1장만 잡힌 경우, 이미지 주소가 별도로 저장된 원문을 보충 확인.
-    if ((data.images?.length || 0) < 2) {
-      const html = await page.content().catch(() => '');
-      const articleMatch = html.match(/<(?:div|section)[^>]*class=["'][^"']*(?:board_txt_area|board_view_body|fr-view)[^"']*["'][^>]*>[\s\S]*/i);
-      const extra = extractImwebImagesFromHtml(articleMatch?.[0] || '');
-      for (const url of extra) {
-        if (data.images.includes(url)) continue;
-        data.images.push(url);
-        data.contentBlocks.push({ type: 'image', url });
-      }
-    }
     // DOM 밖의 picture/source, CSS 변수, script JSON, Performance Resource까지 한 번에 훑는다.
     if (!data.image) {
       const runtimeValues = await collectRuntimeImageCandidates(page);
@@ -810,6 +757,7 @@ async function parseDetail(page, item) {
     body: data.body || '',
     images: data.images?.length ? data.images : (image ? [image] : []),
     contentBlocks: data.contentBlocks || [],
+    articleHtml: data.articleHtml || '',
     url,
     sourceOrder
   };

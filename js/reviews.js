@@ -381,6 +381,55 @@
     return reviewDialog;
   }
 
+  // GitHub Actions가 저장한 원본 후기 HTML을 브라우저에서도 한 번 더 제한적으로 정제한다.
+  // 텍스트 서식과 빈 줄은 살리되 실행 가능한 태그/속성은 허용하지 않는다.
+  function safeOriginalReviewHtml(html) {
+    if (typeof html !== 'string' || !html.trim()) return '';
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    const keepTags = new Set(['DIV','SECTION','ARTICLE','P','BR','SPAN','FONT','STRONG','B','EM','I','U','S','SUB','SUP',
+      'H1','H2','H3','H4','H5','H6','BLOCKQUOTE','UL','OL','LI','FIGURE','IMG','HR','TABLE','TBODY','THEAD','TR','TD','TH']);
+    const denyTags = new Set(['SCRIPT','STYLE','NOSCRIPT','IFRAME','OBJECT','EMBED','SVG','BUTTON','FORM','INPUT','TEXTAREA',
+      'SELECT','VIDEO','AUDIO','CANVAS','HEADER','FOOTER','NAV','ASIDE']);
+    const keepCss = new Set(['font-size','font-family','font-weight','font-style','line-height','letter-spacing',
+      'text-align','text-decoration','color','white-space','margin-top','margin-bottom',
+      'padding-top','padding-bottom','padding-left','padding-right','width','display']);
+    const cleanNode = node => {
+      if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.nodeValue || '');
+      if (node.nodeType !== Node.ELEMENT_NODE) return document.createDocumentFragment();
+      const tag = node.tagName;
+      if (denyTags.has(tag)) return document.createDocumentFragment();
+      const out = keepTags.has(tag) ? document.createElement(tag.toLowerCase()) : document.createElement('span');
+      if (tag === 'IMG') {
+        const url = node.getAttribute('src') || '';
+        if (!/^https?:\/\//i.test(url) || /escrow|에스크로|kbes|favicon|avatar|placeholder|\/logo[\/_\.]/i.test(url)) {
+          return document.createDocumentFragment();
+        }
+        out.setAttribute('src', url);
+        out.setAttribute('alt', String(node.getAttribute('alt') || '').slice(0, 180));
+        out.setAttribute('loading', 'lazy');
+        out.setAttribute('decoding', 'async');
+        out.setAttribute('referrerpolicy', 'no-referrer');
+      }
+      if (tag === 'DIV' && node.classList.contains('review-original-content')) out.className = 'review-original-content';
+      const style = document.createElement('span').style;
+      style.cssText = node.getAttribute('style') || '';
+      const allowedStyle = [];
+      for (const property of [...style]) {
+        const value = style.getPropertyValue(property);
+        if (!keepCss.has(property) || !value || /url\s*\(|expression\s*\(|javascript:|var\s*\(/i.test(value)) continue;
+        if (value.length > 200) continue;
+        allowedStyle.push(`${property}:${value}`);
+      }
+      if (allowedStyle.length) out.setAttribute('style', allowedStyle.join(';'));
+      if (tag !== 'IMG') for (const child of node.childNodes) out.appendChild(cleanNode(child));
+      return out;
+    };
+    const host = document.createElement('div');
+    for (const child of [...template.content.childNodes]) host.appendChild(cleanNode(child));
+    return host.innerHTML;
+  }
+
   function openReview(review) {
     const dialog = ensureReviewDialog();
     reviewDialogReturnFocus = document.activeElement;
@@ -392,19 +441,33 @@
     const extraImages = validReviewImages(review).filter(url => !blockImageUrls.has(url));
     const body = String(review.body || '').trim();
     const images = validReviewImages(review);
-    let articleHtml = '';
-    if (validBlocks.length) {
-      articleHtml = validBlocks.map(block => block.type === 'image'
-        ? `<figure class="review-blog-photo"><img src="${escapeHtml(block.url)}" alt="${escapeHtml(cleanReviewTitle(review.title))} 출고 사진" loading="lazy" referrerpolicy="no-referrer"></figure>`
-        : `<p>${escapeHtml(block.text).replace(/\n/g, '<br>')}</p>`).join('');
-      articleHtml += extraImages.map(url => `<figure class="review-blog-photo"><img src="${escapeHtml(url)}" alt="출고 추가 사진" loading="lazy" referrerpolicy="no-referrer"></figure>`).join('');
-    } else {
-      const paragraphs = body ? body.split(/\n{2,}/).map(line => line.trim()).filter(Boolean) : [];
-      const mainText = paragraphs.length ? paragraphs.map(line => `<p>${escapeHtml(line).replace(/\n/g, '<br>')}</p>`).join('') :
-        `<p>출고 차량과 상담 내용을 소개합니다.</p>${details.map(line => `<p>${escapeHtml(line)}</p>`).join('')}`;
-      articleHtml = (images.length ? `<figure class="review-blog-photo"><img src="${escapeHtml(images[0])}" alt="출고 사진" referrerpolicy="no-referrer"></figure>` : '') + mainText +
-        images.slice(1).map(url => `<figure class="review-blog-photo"><img src="${escapeHtml(url)}" alt="출고 추가 사진" loading="lazy" referrerpolicy="no-referrer"></figure>`).join('');
+    let articleHtml = safeOriginalReviewHtml(review.articleHtml);
+    if (!articleHtml) {
+      // 자동 갱신 전 JSON의 구형 블록은 임시로 보여주되, 인증 배지는 표시하지 않는다.
+      const seen = new Set();
+      const isUnwanted = url => /escrow|에스크로|kbes|favicon|avatar|placeholder|\/logo[\/_\.]/i.test(url || '');
+      const identity = url => {
+        try { const u = new URL(url); return `${u.hostname}/${u.pathname.split('/').filter(Boolean).slice(-2).join('/')}`.toLowerCase(); }
+        catch { return String(url || '').toLowerCase(); }
+      };
+      const addPhoto = url => {
+        if (!url || !/^https?:\/\//i.test(url) || isUnwanted(url) || seen.has(identity(url))) return '';
+        seen.add(identity(url));
+        return `<figure class="review-blog-photo"><img src="${escapeHtml(url)}" alt="출고 후기 사진" loading="lazy" referrerpolicy="no-referrer"></figure>`;
+      };
+      if (validBlocks.length) {
+        articleHtml = validBlocks.map(block => block.type === 'image' ? addPhoto(block.url) :
+          `<p>${escapeHtml(block.text).replace(/\n/g, '<br>')}</p>`).join('');
+        // 사진이 하나라도 있으면 목록 썸네일을 마지막에 다시 붙이지 않는다.
+        if (!seen.size) articleHtml = addPhoto(review.image) + articleHtml;
+      } else {
+        const paragraphs = body ? body.split(/\n{2,}/).map(line => line.trim()).filter(Boolean) : [];
+        const mainText = paragraphs.length ? paragraphs.map(line => `<p>${escapeHtml(line).replace(/\n/g, '<br>')}</p>`).join('') :
+          `<p>출고 차량과 상담 내용을 소개합니다.</p>${details.map(line => `<p>${escapeHtml(line)}</p>`).join('')}`;
+        articleHtml = addPhoto(images[0]) + mainText + images.slice(1).map(addPhoto).join('');
+      }
     }
+
     dialog.innerHTML = `<div class="review-detail-panel review-detail-panel--blog">
       <header class="review-detail-head"><div><span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
       <h2>${escapeHtml(cleanReviewTitle(review.title))}</h2><time>${escapeHtml(formatReviewDate(review.date))}</time></div>
