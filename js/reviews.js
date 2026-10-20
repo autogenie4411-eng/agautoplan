@@ -469,6 +469,42 @@
     return host.innerHTML;
   }
 
+  // 원본 후기 첫 사진 위에 남아 있는 빈 줄/빈 래퍼와 상단 마진만 제거한다.
+  // 후기에 포함된 다른 문단과 사진 사이 간격은 건드리지 않는다.
+  function normalizeReviewArticleStart(html) {
+    if (!html || !html.trim()) return html;
+    const host = document.createElement('div');
+    host.innerHTML = html;
+    const isBlank = node => {
+      if (node.nodeType === Node.TEXT_NODE) return !(node.textContent || '').replace(/[\u00a0\u200b\ufeff]/g, ' ').trim();
+      if (node.nodeType !== Node.ELEMENT_NODE) return true;
+      if (node.matches('img, hr, iframe, video, svg') || node.querySelector('img, hr, iframe, video, svg')) return false;
+      return !(node.textContent || '').replace(/[\u00a0\u200b\ufeff]/g, ' ').trim();
+    };
+    const trimBeginning = (parent, depth = 0) => {
+      if (depth > 15) return;
+      while (parent.firstChild && isBlank(parent.firstChild)) parent.firstChild.remove();
+      const first = parent.firstChild;
+      if (first?.nodeType === Node.ELEMENT_NODE && /^(DIV|SECTION|ARTICLE|P|SPAN|FIGURE|TABLE|TBODY|TR|TD)$/i.test(first.tagName)) {
+        trimBeginning(first, depth + 1);
+      }
+    };
+    trimBeginning(host);
+    // 가장 먼저 보이는 콘텐츠가 이미지일 때만 해당 이미지와 그 위쪽 래퍼의 마진을 해제.
+    const walker = document.createTreeWalker(host, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    let node, leadingImage = null;
+    while ((node = walker.nextNode())) {
+      if (node.nodeType === Node.TEXT_NODE && (node.textContent || '').replace(/[\u00a0\u200b\ufeff]/g, ' ').trim()) break;
+      if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'IMG') { leadingImage = node; break; }
+    }
+    if (leadingImage) {
+      for (let el = leadingImage; el && el !== host; el = el.parentElement) {
+        el.classList.add('review-leading-media');
+      }
+    }
+    return host.innerHTML;
+  }
+
   function openReview(review) {
     const dialog = ensureReviewDialog();
     if (!dialog.open) reviewReturnScroll = { x: window.scrollX, y: window.scrollY };
@@ -507,6 +543,8 @@
         articleHtml = addPhoto(images[0]) + mainText + images.slice(1).map(addPhoto).join('');
       }
     }
+
+    articleHtml = normalizeReviewArticleStart(articleHtml);
 
     dialog.innerHTML = `<div class="review-detail-panel review-detail-panel--blog">
       <header class="review-detail-head"><div><span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>

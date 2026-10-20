@@ -8229,3 +8229,17 @@ body.review-dialog-open { overflow: hidden; }
     font-size: 14px !important;
   }
 }
+
+/* 후기 팝업: 제목/날짜 아래 첫 사진과의 간격만 축소 */
+.review-detail-panel--blog .review-blog-scroll {
+  padding-top: 14px;
+}
+.review-blog-article .review-leading-media {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+@media (max-width: 600px) {
+  .review-detail-panel--blog .review-blog-scroll {
+    padding-top: 12px;
+  }
+}
