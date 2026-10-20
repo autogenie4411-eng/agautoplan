@@ -417,7 +417,6 @@
   function reviewGridTemplate(review) {
     const title = cleanReviewTitle(review.title);
     const date = formatReviewDate(review.date);
-    const details = detailLines(review);
     const cover = String(review.image || '').trim();
     return `<li class="review-gallery-card">
       <button type="button" class="review-gallery-card__button" data-review-grid-open="${escapeHtml(review.id)}" aria-label="${escapeHtml(title)} 상세 후기 보기">
@@ -426,7 +425,6 @@
           : `<span class="review-gallery-card__placeholder">후기 이미지 준비 중</span>`}</span>
         <span class="review-gallery-card__content">
           <strong class="review-gallery-card__title">${escapeHtml(title)}</strong>
-          ${details.length ? `<span class="review-gallery-card__summary">${escapeHtml(details.slice(0, 2).join(' · '))}</span>` : ''}
           ${date ? `<time class="review-gallery-card__date" datetime="${escapeHtml(review.date)}">${escapeHtml(date)}</time>` : ''}
         </span>
       </button>
@@ -437,7 +435,7 @@
     const dialog = ensureReviewDialog();
     reviewDialogView = 'list';
     dialog.classList.add('autogenie-review-dialog--gallery');
-    dialog.setAttribute('aria-label', '오토지니 최신 출고 후기 목록');
+    dialog.setAttribute('aria-label', '오토지니 전체 출고 후기 목록');
     dialog.innerHTML = `<div class="review-gallery-panel">
       <header class="review-gallery-head">
         <div class="review-gallery-head__info">
