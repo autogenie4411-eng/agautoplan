@@ -216,8 +216,8 @@
 
   const SWIPER_DELAY = 2200; // 한 카드가 머무는 시간(ms)
   const SWIPER_SPEED = 1000; // 옆으로 스르륵 넘어가는 시간(ms)
-  const MAX_REVIEWS = 120;
-  const RECENT_DAYS = 62;
+  const MAX_REVIEWS = 800; // 연간 후기 전체 목록까지 보존
+  const ROLLING_MONTHS = 3; // 메인 캐러셀은 최근 3개월만 표시
   const MIN_LOCAL_REVIEWS = 20;
   const SOURCE_LIST_PAGES = 30;
   const SOURCE_MAX_DETAIL_FETCHES = 360;
@@ -225,7 +225,8 @@
   const SOURCE_CACHE_TTL = 30 * 60 * 1000;
   const LOCAL_FRESH_DAYS = 14; // 오래된 JSON을 최신 후기처럼 먼저 노출하지 않는다.
 
-  let renderedReviews = [];
+  let renderedReviews = []; // 연간(연초 3개월은 전년도 포함) 전체 후기
+  let rollingReviews = [];  // 메인 화면 최근 3개월
   let reviewDialog = null;
   let reviewDialogReturnFocus = null;
   let reviewHistoryActive = false;
@@ -276,6 +277,28 @@
     return date;
   }
 
+  // 연도 기준과 달력상의 3개월은 한국 날짜로 판정한다.
+  // 1~3월은 신규 후기 부족을 방지하기 위해 전년도 1월부터 함께 표시한다.
+  function koreaYearAndMonth() {
+    const values = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Seoul', year: 'numeric', month: 'numeric', day: 'numeric'
+    }).formatToParts(new Date());
+    const value = type => Number(values.find(p => p.type === type)?.value);
+    return { year: value('year'), month: value('month'), day: value('day') };
+  }
+
+  function galleryStartDate() {
+    const { year, month } = koreaYearAndMonth();
+    return new Date(year - (month <= 3 ? 1 : 0), 0, 1);
+  }
+
+  function rollingStartDate() {
+    const { year, month, day } = koreaYearAndMonth();
+    const first = new Date(year, month - 1 - ROLLING_MONTHS, 1);
+    const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    return new Date(first.getFullYear(), first.getMonth(), Math.min(day, lastDay));
+  }
+
   const reviewTimestamp = review => parseReviewDate(review?.date)?.getTime() || 0;
 
   function newestReviewTimestamp(items = []) {
@@ -317,10 +340,7 @@
   }
 
   function prepareReviews(items) {
-    const now = new Date();
-    const cutoff = new Date(now);
-    cutoff.setDate(cutoff.getDate() - RECENT_DAYS);
-    cutoff.setHours(0, 0, 0, 0);
+    const cutoff = galleryStartDate();
 
     // GitHub Actions가 /review 게시판에서 수집한 순서를 그대로 사용한다.
     // 날짜로 다시 sort하지 않아 실제 후기 카테고리의 최신 → 과거 순서가 뒤섞이지 않는다.
@@ -413,7 +433,7 @@
     requestAnimationFrame(() => window.scrollTo(x, y));
   }
 
-  // 최신 후기 전체 보기는 원본 사이트로 이동하지 않고 모달 안에서 카드형 목록으로 표시한다.
+  // 전체 후기 보기는 올해(1~3월에는 전년도 포함)를 모달 카드 목록으로 표시한다.
   function reviewGridTemplate(review) {
     const title = cleanReviewTitle(review.title);
     const date = formatReviewDate(review.date);
@@ -441,7 +461,7 @@
         <div class="review-gallery-head__info">
           <span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
           <h2>오토지니 실제 출고 후기</h2>
-          <p>원하는 후기를 선택하면 자세한 출고 이야기를 볼 수 있습니다.</p>
+          <p>${(() => { const { year, month } = koreaYearAndMonth(); return month <= 3 ? `${year - 1}~${year}년 출고 후기` : `${year}년 출고 후기`; })()} · 원하는 후기를 선택해 주세요.</p>
         </div>
         <button type="button" class="review-detail-close" data-review-close aria-label="후기 목록 닫기">×</button>
       </header>
@@ -714,7 +734,7 @@
 
   function initReviewSwiper() {
     destroyReviewSwiper();
-    if (!renderedReviews.length || hiddenAfterBrandSelection) return;
+    if (!rollingReviews.length || hiddenAfterBrandSelection) return;
 
     // Swiper가 외부 스크립트 로딩 문제로 없을 경우 카드 목록은 그대로 보이게 둔다.
     if (typeof window.Swiper !== 'function') {
@@ -722,7 +742,7 @@
       return;
     }
 
-    const canMove = renderedReviews.length > 1;
+    const canMove = rollingReviews.length > 1;
     reviewSwiper = new window.Swiper(carousel, {
       slidesPerView: 'auto',
       spaceBetween: 14,
@@ -804,6 +824,7 @@
   function renderReviewList(items) {
     const reviews = prepareReviews(items);
     renderedReviews = reviews;
+    rollingReviews = reviews.filter(review => reviewTimestamp(review) >= rollingStartDate().getTime());
     if (reviewDialog?.open && reviewDialogView === 'list') renderReviewGallery();
 
     if (hiddenAfterBrandSelection) {
@@ -813,7 +834,7 @@
     }
 
     section.hidden = false;
-    track.innerHTML = reviews.map(cardTemplate).join('');
+    track.innerHTML = rollingReviews.length ? rollingReviews.map(cardTemplate).join('') : `<article class="review-card review-card--loading"><div class="review-card__body"><strong>최근 3개월 출고 후기가 없습니다.</strong><p>전체 후기 보기를 누르면 이전 출고 후기도 확인할 수 있습니다.</p></div></article>`;
     bindImageFallbacks();
 
     // DOM 크기가 계산된 다음 Swiper를 초기화해야 slidesPerView:auto가 정확하게 작동한다.

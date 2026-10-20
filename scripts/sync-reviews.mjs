@@ -3,9 +3,9 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const SOURCE = 'https://www.agautoplan.com/review';
-const RECENT_DAYS = 62;
-const MAX_PAGES = 30;
-const MAX_REVIEWS = 120;
+const ROLLING_MONTHS = 3; // 사이트 메인 화면 필터와 동일한 기간
+const MAX_PAGES = 100; // 1년 이상 게시글을 탐색할 수 있도록 확대
+const MAX_REVIEWS = 800; // 연간 후기 상한, 필요 시 추가 확대 가능
 const OUTPUT = path.resolve('data/reviews.json');
 
 // 후기 분류는 메이커 + 국내/수입 차종명을 함께 검사합니다.
@@ -81,6 +81,21 @@ function koreaToday() {
 
   const value = type => Number(parts.find(part => part.type === type)?.value || 0);
   return new Date(value('year'), value('month') - 1, value('day'));
+}
+
+// 한국 날짜 기준. 1~3월에는 전년도 전체 + 올해를 함께 보존한다.
+function galleryStartDate() {
+  const today = koreaToday();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  return new Date(year - (month <= 3 ? 1 : 0), 0, 1);
+}
+
+function rollingStartDate() {
+  const today = koreaToday();
+  const first = new Date(today.getFullYear(), today.getMonth() - ROLLING_MONTHS, 1);
+  const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  return new Date(first.getFullYear(), first.getMonth(), Math.min(today.getDate(), lastDay));
 }
 
 function parseRelativeDate(text = '') {
@@ -347,14 +362,12 @@ async function collectBoardOrder(page) {
 
     if (!items.length) break;
 
-    // 목록에 날짜가 충분히 잡히면 최근 62일을 벗어난 시점에서 더 오래된 페이지 탐색을 중단한다.
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - RECENT_DAYS);
-    cutoff.setHours(0, 0, 0, 0);
+    // 올해 연간 구간(연초 3개월에는 전년도 포함)에 도달할 때까지 탐색한다.
+    const cutoff = galleryStartDate();
 
     const pageDates = items.map(item => parseDate(item.text)).filter(Boolean);
     if (pageDates.length && pageDates.every(date => date < cutoff)) {
-      console.log(`목록 ${pageNo}페이지에서 최근 ${RECENT_DAYS}일 범위를 벗어나 탐색 종료`);
+      console.log(`목록 ${pageNo}페이지에서 전체 후기 시작일 ${isoDate(cutoff)} 이전에 도달하여 탐색 종료`);
       break;
     }
 
@@ -764,9 +777,7 @@ async function parseDetail(page, item) {
     return null;
   }
 
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - RECENT_DAYS);
-  cutoff.setHours(0, 0, 0, 0);
+  const cutoff = galleryStartDate();
 
   if (date < cutoff) {
     return { tooOld: true, date };
@@ -826,20 +837,37 @@ try {
 
   const items = await collectBoardOrder(listPage);
 
-  console.log(`게시판 DOM 순서 기준 후기 ${items.length}개 발견`);
+  console.log(`게시판 DOM 순서 기준 후기 ${items.length}개 발견 (수집 시작일: ${isoDate(galleryStartDate())})`);
 
   if (!items.length) {
     throw new Error('후기 게시글을 찾지 못했습니다.');
   }
 
+  // 이미 수집한 과거 후기는 재활용하여 주 2회 전체 본문을 다시 다운로드하지 않는다.
+  // 사진과 원본 서식 정보가 없는 이전 데이터는 다시 수집한다.
+  let existingReviews = [];
+  try {
+    const previous = JSON.parse(await fs.readFile(OUTPUT, 'utf8'));
+    existingReviews = Array.isArray(previous) ? previous : (previous.reviews || []);
+  } catch { /* 첫 실행 / 데이터 파일 없음 */ }
+  const previousById = new Map(existingReviews.map(r => [String(r.id), r]));
+  const recentCutoff = rollingStartDate();
   const detailPage = await context.newPage();
   const reviews = [];
 
   for (let i = 0; i < items.length && reviews.length < MAX_REVIEWS; i++) {
-    const parsed = await parseDetail(detailPage, items[i]);
+    const item = items[i];
+    const prior = previousById.get(String(item.id));
+    const knownDate = item.listDate || (prior ? parseDate(prior.date) : null);
+    const canReuse = prior && knownDate && knownDate < recentCutoff &&
+      knownDate >= galleryStartDate() && prior.articleHtml && prior.image &&
+      Array.isArray(prior.images) && prior.images.length &&
+      Array.isArray(prior.contentBlocks);
+    const parsed = canReuse ? { ...prior, sourceOrder: item.sourceOrder }
+      : await parseDetail(detailPage, item);
 
     if (parsed?.tooOld) {
-      console.log(`최근 ${RECENT_DAYS}일 범위 종료 지점: ${isoDate(parsed.date)}`);
+      console.log(`전체 후기 범위(${isoDate(galleryStartDate())} 이후) 종료 지점: ${isoDate(parsed.date)}`);
       break;
     }
 
@@ -849,11 +877,11 @@ try {
       console.log(`[${reviews.length}] #${parsed.sourceOrder} ${parsed.date} ${parsed.title} (본문 ${parsed.body?.length || 0}자, 사진 ${parsed.images?.length || 0}장, 블록 ${parsed.contentBlocks?.length || 0}개)`);
     }
 
-    await sleep(180);
+    if (!canReuse) await sleep(180);
   }
 
   if (!reviews.length) {
-    throw new Error('최근 2개월 후기를 한 건도 수집하지 못했습니다.');
+    throw new Error('대상 연도의 출고 후기를 한 건도 수집하지 못했습니다.');
   }
 
   const unique = [];
@@ -893,7 +921,8 @@ try {
     JSON.stringify({
       source: SOURCE,
       generatedAt: new Date().toISOString(),
-      recentDays: RECENT_DAYS,
+      rollingMonths: ROLLING_MONTHS,
+      galleryStartDate: isoDate(galleryStartDate()),
       order: 'board-visible-order-newest-first',
       count: domesticOnly.length,
       reviews: domesticOnly
@@ -901,7 +930,7 @@ try {
     'utf8'
   );
 
-  console.log(`완료: 후기 카테고리 최신 화면 순서 그대로 최근 ${RECENT_DAYS}일 ${unique.length}건 저장`);
+  console.log(`완료: ${isoDate(galleryStartDate())} 이후 국산차 후기 ${domesticOnly.length}건 저장 (메인 롤링은 최근 ${ROLLING_MONTHS}개월)`);
 } finally {
   await browser.close();
 }
