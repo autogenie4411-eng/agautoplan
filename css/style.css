@@ -8201,3 +8201,31 @@ body.review-dialog-open { overflow: hidden; }
   .review-blog-article .review-original-content p:not(:has(img)) + p:has(img) { margin-top: 20px; }
   .review-detail-close { font-size: 24px; }
 }
+
+/* 출고 후기 상세: 원본 문단 서식을 보존하고, 사진 앞뒤에 한 줄 여백 확보 */
+.review-blog-article .review-original-content img {
+  margin-block: 22px !important;
+}
+/* 이미지가 연속될 때에는 여백이 두 배로 늘어나지 않도록 조정 */
+.review-blog-article .review-original-content img + img {
+  margin-top: 0 !important;
+}
+.review-blog-article .review-original-content :is(p, div, figure):has(> img) + :is(p, div, figure):has(> img) > img {
+  margin-top: 0 !important;
+}
+@media (max-width: 600px) {
+  .review-blog-article .review-original-content img {
+    margin-block: 18px !important;
+  }
+}
+
+/* 후기 팝업 - 모바일 글자 크기만 소폭 상향 (13px → 14px) */
+@media (max-width: 600px) {
+  .review-blog-article,
+  .review-blog-article .review-original-content {
+    font-size: 14px;
+  }
+  .review-blog-article .review-original-content [style*="font-size"] {
+    font-size: 14px !important;
+  }
+}

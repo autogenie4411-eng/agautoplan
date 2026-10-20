@@ -188,6 +188,7 @@
   let reviewDialogReturnFocus = null;
   let reviewHistoryActive = false;
   let reviewClosingFromPopstate = false;
+  let reviewReturnScroll = null;
   let activeReviewImages = [];
   let activeReviewImageIndex = 0;
   let hiddenAfterBrandSelection = false;
@@ -363,6 +364,16 @@
     });
   }
 
+  // 팝업을 열기 전 위치를 기억하고 닫힐 때 동일한 위치로 복원한다.
+  // popstate에서 메인 견적 단계의 스크롤 이동 코드가 실행되지 않도록
+  // 후기 전용 히스토리 이벤트는 캡처 단계에서 먼저 처리한다.
+  function restoreReviewScroll() {
+    if (!reviewReturnScroll) return;
+    const { x, y } = reviewReturnScroll;
+    window.scrollTo(x, y);
+    requestAnimationFrame(() => window.scrollTo(x, y));
+  }
+
   function ensureReviewDialog() {
     if (reviewDialog) return reviewDialog;
     reviewDialog = document.createElement('dialog');
@@ -382,12 +393,12 @@
     });
     reviewDialog.addEventListener('close', () => {
       document.body.classList.remove('review-dialog-open');
-      if (reviewHistoryActive && !reviewClosingFromPopstate) {
-        reviewHistoryActive = false;
-        history.back();
-      }
+      if (reviewDialogReturnFocus?.isConnected) reviewDialogReturnFocus.focus({ preventScroll: true });
+      restoreReviewScroll();
+      // X/ESC/바깥 클릭: 후기 전용 히스토리만 되돌린다.
+      // reviewHistoryActive는 popstate에서 해제해야 견적 단계 변경을 막을 수 있다.
+      if (reviewHistoryActive && !reviewClosingFromPopstate) history.back();
       reviewClosingFromPopstate = false;
-      if (reviewDialogReturnFocus?.isConnected) reviewDialogReturnFocus.focus({preventScroll:true});
     });
     return reviewDialog;
   }
@@ -396,13 +407,18 @@
     if (reviewDialog?.open) reviewDialog.close();
   }
 
-  window.addEventListener('popstate', () => {
-    if (reviewHistoryActive && reviewDialog?.open) {
-      reviewHistoryActive = false;
-      reviewClosingFromPopstate = true;
-      reviewDialog.close();
+  window.addEventListener('popstate', event => {
+    if (!reviewHistoryActive) return;
+    // 견적 스크립트의 popstate가 render() / scrollToEstimate()를 호출하지 않게 차단.
+    event.stopImmediatePropagation();
+    reviewHistoryActive = false;
+    reviewClosingFromPopstate = true;
+    if (reviewDialog?.open) reviewDialog.close();
+    else {
+      reviewClosingFromPopstate = false;
+      restoreReviewScroll();
     }
-  });
+  }, true);
 
   // GitHub Actions가 저장한 원본 후기 HTML을 브라우저에서도 한 번 더 제한적으로 정제한다.
   // 텍스트 서식과 빈 줄은 살리되 실행 가능한 태그/속성은 허용하지 않는다.
@@ -455,6 +471,7 @@
 
   function openReview(review) {
     const dialog = ensureReviewDialog();
+    if (!dialog.open) reviewReturnScroll = { x: window.scrollX, y: window.scrollY };
     reviewDialogReturnFocus = document.activeElement;
     const details = detailLines(review);
     const blocks = Array.isArray(review.contentBlocks) ? review.contentBlocks : [];
