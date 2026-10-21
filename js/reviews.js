@@ -237,6 +237,19 @@
   let reviewReturnScroll = null;
   let activeReviewImages = [];
   let activeReviewImageIndex = 0;
+  let activeReviewVehicle = null;
+  let pendingReviewVehicle = null;
+
+  function navigateToPendingReviewVehicle() {
+    if (!pendingReviewVehicle) return;
+    const target = pendingReviewVehicle;
+    pendingReviewVehicle = null;
+    // 닫기/뒤로 가기에서 예약된 위치 복원이 끝난 뒤 차량 목록으로 이동.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.autogenieReviewVehicleBridge?.openVehicleList(target);
+    }));
+  }
+
   let hiddenAfterBrandSelection = false;
   let sourceRefreshStarted = false;
   let reviewSwiper = null;
@@ -589,6 +602,13 @@
           openReview(selected);
         }
       }
+      if (event.target.closest('[data-review-vehicle-go]')) {
+        if (!activeReviewVehicle) return;
+        pendingReviewVehicle = activeReviewVehicle;
+        closeReviewDialog();
+        if (!reviewHistoryActive) navigateToPendingReviewVehicle();
+        return;
+      }
       if (event.target.closest('[data-review-list-back]')) returnToReviewGallery();
     });
     reviewDialog.addEventListener('cancel', event => {
@@ -629,6 +649,7 @@
       reviewClosingFromPopstate = false;
       restoreReviewScroll();
     }
+    navigateToPendingReviewVehicle();
   }, true);
 
   // GitHub Actions가 저장한 원본 후기 HTML을 브라우저에서도 한 번 더 제한적으로 정제한다.
@@ -756,6 +777,18 @@
 
     articleHtml = normalizeReviewArticleStart(articleHtml);
 
+    activeReviewVehicle = window.autogenieReviewVehicleBridge?.findReviewVehicle(review) || null;
+    const reviewVehicleCta = activeReviewVehicle ? `
+      <div class="review-vehicle-link" role="group" aria-label="후기 차량 보러가기">
+        <p class="review-vehicle-link__eyebrow">REVIEW TO VEHICLE</p>
+        <strong class="review-vehicle-link__title">후기 속 차량이 궁금하신가요?</strong>
+        <span class="review-vehicle-link__desc">${escapeHtml(activeReviewVehicle.brandName)} ${escapeHtml(activeReviewVehicle.carName)} 차량을 확인해 보세요.</span>
+        <button type="button" class="review-vehicle-link__button" data-review-vehicle-go>
+          <span>${escapeHtml(activeReviewVehicle.carName)} 차량 보러가기</span>
+          <span class="review-vehicle-link__arrow" aria-hidden="true">→</span>
+        </button>
+      </div>` : '';
+
     reviewDialogView = 'detail';
     dialog.classList.remove('autogenie-review-dialog--gallery');
     dialog.setAttribute('aria-label', '오토지니 출고 후기 상세');
@@ -765,7 +798,7 @@
       <span class="review-detail-eyebrow">REAL DELIVERY REVIEW</span>
       <h2>${escapeHtml(cleanReviewTitle(review.title))}</h2><time>${escapeHtml(formatReviewDate(review.date))}</time></div>
       <button type="button" class="review-detail-close" data-review-close aria-label="후기 닫기">×</button></header>
-      <div class="review-detail-scroll review-blog-scroll"><article class="review-blog-article">${articleHtml}</article></div>
+      <div class="review-detail-scroll review-blog-scroll"><article class="review-blog-article">${articleHtml}</article>${reviewVehicleCta}</div>
     </div>`;
     // 상세로 직접 진입한 경우와 목록에서 진입한 경우 각각 브라우저 히스토리를 한 단계 추가한다.
     beginReviewDialog('detail');

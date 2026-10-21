@@ -10620,6 +10620,94 @@ const vehicleCatalog = [
     cars: brand.cars.map(car => car.name)
   }));
 
+  // 출고 후기 → STEP 01 차량 목록 연결. 현재 등록된 차량만 연결하고,
+  // 후기의 모델명/제목을 함께 확인해 일반/하이브리드/전기 모델 혼선을 방지합니다.
+  const reviewVehicleNormalize = text => String(text || "")
+    .toLocaleLowerCase("ko-KR")
+    .replace(/h[.\s-]*e[.\s-]*v\b|hybrid/gi, "하이브리드")
+    .replace(/[^a-z0-9가-힣]/g, "");
+
+  function findVehicleFromReview(review) {
+    if (!review || typeof review !== "object") return null;
+    const modelText = reviewVehicleNormalize(review.model);
+    const titleText = reviewVehicleNormalize(review.title);
+    const both = `${modelText} ${titleText}`;
+    if (!modelText && !titleText) return null;
+
+    const wantsHybrid = /하이브리드|hev|hybrid|e[-\s]?tech/i.test(`${review.model || ""} ${review.title || ""}`);
+    const wantsElectric = /(?:\bEV\b|일렉트릭|일렉트리파이드|전동화|전기차|EVX)/i.test(`${review.model || ""} ${review.title || ""}`);
+    let best = null;
+
+    for (const brand of vehicleCatalog.filter(item => item.market === DEFAULT_MARKET)) {
+      for (const car of brand.cars) {
+        const name = car.name;
+        const hybrid = /하이브리드/.test(name);
+        const electric = /(?:\sEV$|\sEVX$|일렉트릭|일렉트리파이드)/i.test(name);
+        if (hybrid !== wantsHybrid || electric !== wantsElectric) continue;
+
+        const exact = reviewVehicleNormalize(name);
+        const base = reviewVehicleNormalize(name
+          .replace(/\s+하이브리드(?:\s+E-Tech)?$/i, "")
+          .replace(/\s+(?:EV|EVX|일렉트릭)$/i, "")
+          .replace(/^일렉트리파이드\s+/i, ""));
+        const extraAliases = {
+          "포터2": ["포터"],
+          "렉스턴 뉴 아레나": ["렉스턴"],
+          "트랙스 크로스오버": ["트랙스"]
+        };
+        const aliases = [exact, base, ...(extraAliases[name] || []).map(reviewVehicleNormalize)]
+          .filter(word => word.length >= 2);
+        let score = 0;
+        for (const word of aliases) {
+          if (modelText.includes(word)) score = Math.max(score, 100 + word.length * 2 + (word === exact ? 30 : 0));
+          else if (titleText.includes(word)) score = Math.max(score, 60 + word.length * 2 + (word === exact ? 15 : 0));
+        }
+        if (!score) continue;
+        // 짧은 차종명(G80, K5 등)이 타 브랜드 모델명 안에서 우연히 겹치지 않도록 조정.
+        const explicitBrand = reviewVehicleNormalize(review.brand);
+        const registeredBrand = reviewVehicleNormalize(brand.name);
+        const isSameBrand = !explicitBrand || explicitBrand.includes(registeredBrand) ||
+          registeredBrand.includes(explicitBrand) ||
+          (brand.name === "KGM" && ["kg모빌리티", "쌍용", "쌍용자동차"].some(alias => explicitBrand.includes(alias)));
+        if (!isSameBrand) continue;
+        if (!best || score > best.score) best = { brandName: brand.name, carName: name, score };
+      }
+    }
+    return best ? { brandName: best.brandName, carName: best.carName } : null;
+  }
+
+  function openReviewVehicleList(vehicle) {
+    if (!vehicle || typeof vehicle !== "object") return;
+    const brand = vehicleCatalog.find(item => item.name === vehicle.brandName && item.market === DEFAULT_MARKET);
+    if (!brand || !brand.cars.some(car => car.name === vehicle.carName)) return;
+
+    state.step = 1;
+    state.market = DEFAULT_MARKET;
+    state.brandName = brand.name;
+    state.carName = ""; // 상세 화면으로 건너뛰지 않고 해당 브랜드의 차량 목록 표시
+    state.paintId = "";
+    resetSelectionsAfterVehicleChange();
+    rememberWizardStep();
+    render();
+
+    const selectedCard = [...content.querySelectorAll("[data-car-card]")]
+      .find(button => button.dataset.carCard === vehicle.carName);
+    if (!selectedCard) return;
+    selectedCard.classList.add("review-vehicle-target");
+    selectedCard.setAttribute("aria-label", `${vehicle.carName}, 출고 후기 속 차량`);
+
+    // 해당 차량이 목록 중간이나 하단에 있어도 곧바로 보이도록 스크롤합니다.
+    const header = document.querySelector(".wizard-header") || document.querySelector(".site-header");
+    const headerHeight = header?.getBoundingClientRect().height || 0;
+    const topOffset = Math.max(105, headerHeight + 34);
+    scrollToNextSelection(".vehicle-card-item.review-vehicle-target", "start", topOffset);
+  }
+
+  window.autogenieReviewVehicleBridge = {
+    findReviewVehicle: findVehicleFromReview,
+    openVehicleList: openReviewVehicleList
+  };
+
   const fallbackImage = "images/g_g90.png";
 
   /* ==============================
