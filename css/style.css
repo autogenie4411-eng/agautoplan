@@ -8281,6 +8281,7 @@ body.review-dialog-open { overflow: hidden; }
 }
 .review-gallery-scroll {
   overflow-y: auto;
+  scroll-behavior: auto; /* 사용자 지정 스크롤 애니메이션과 충돌 방지 */
   overscroll-behavior: contain;
   min-height: 0;
   padding: 24px 30px 34px;
@@ -8482,5 +8483,86 @@ body.review-dialog-open { overflow: hidden; }
   .autogenie-review-dialog .review-detail-close {
     top: 18px !important;
     right: 16px !important;
+  }
+}
+
+/* 모바일 최초 진입 로딩 화면: 주소창 축소/확대 시 중앙 콘텐츠 점프 방지 */
+@media (max-width: 767px) {
+    body.loader-active .landing-loader {
+        top: 0;
+        bottom: auto;
+        height: 100vh; /* 구형 브라우저 대체값 */
+        min-height: 0;
+        height: 100svh;
+        max-height: 100svh;
+        overflow: hidden;
+    }
+
+    body.loader-active .landing-loader .loader-content {
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+    }
+}
+
+/* 전체 후기 목록 전용: 회색 맨 위로 버튼 */
+.review-gallery-panel,
+.review-all-panel {
+  position: relative;
+}
+.autogenie-review-dialog .review-scroll-top {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #326bfa;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 4px 15px rgba(50, 107, 250, .22);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 글리프의 시각적 중심을 원형 버튼의 중앙보다 살짝 위로 정렬 */
+.autogenie-review-dialog .review-scroll-top > span {
+  display: inline-block;
+  transform: translateY(-3px);
+}
+.autogenie-review-dialog .review-scroll-top[hidden] {
+  display: none !important;
+}
+.autogenie-review-dialog .review-scroll-top:hover {
+  background: #2459df;
+}
+.autogenie-review-dialog .review-scroll-top:focus:not(:focus-visible) {
+  outline: none;
+}
+.autogenie-review-dialog .review-scroll-top:focus-visible {
+  outline: 2px solid #8592a5;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .autogenie-review-dialog .review-scroll-top {
+    right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 24px;
   }
 }
