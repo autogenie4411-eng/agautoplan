@@ -10620,7 +10620,7 @@ const vehicleCatalog = [
     cars: brand.cars.map(car => car.name)
   }));
 
-  // 출고 후기 → STEP 01 차량 목록 연결. 현재 등록된 차량만 연결하고,
+  // 출고 후기 → STEP 01 실제 차량 선택 연결. 현재 등록된 차량만 연결하고,
   // 후기의 모델명/제목을 함께 확인해 일반/하이브리드/전기 모델 혼선을 방지합니다.
   const reviewVehicleNormalize = text => String(text || "")
     .toLocaleLowerCase("ko-KR")
@@ -10681,26 +10681,20 @@ const vehicleCatalog = [
     const brand = vehicleCatalog.find(item => item.name === vehicle.brandName && item.market === DEFAULT_MARKET);
     if (!brand || !brand.cars.some(car => car.name === vehicle.carName)) return;
 
+    // 후기 버튼을 누르면 목록에서 다시 클릭하지 않아도 해당 차량의
+    // 이미지 및 외장 색상 선택 단계가 바로 열리도록 합니다.
     state.step = 1;
     state.market = DEFAULT_MARKET;
     state.brandName = brand.name;
-    state.carName = ""; // 상세 화면으로 건너뛰지 않고 해당 브랜드의 차량 목록 표시
-    state.paintId = "";
+    state.carName = vehicle.carName;
+    state.paintId = ""; // 후기의 외장 색상을 임의로 선택하지 않습니다.
     resetSelectionsAfterVehicleChange();
     rememberWizardStep();
     render();
 
-    const selectedCard = [...content.querySelectorAll("[data-car-card]")]
-      .find(button => button.dataset.carCard === vehicle.carName);
-    if (!selectedCard) return;
-    selectedCard.classList.add("review-vehicle-target");
-    selectedCard.setAttribute("aria-label", `${vehicle.carName}, 출고 후기 속 차량`);
-
-    // 해당 차량이 목록 중간이나 하단에 있어도 곧바로 보이도록 스크롤합니다.
-    const header = document.querySelector(".wizard-header") || document.querySelector(".site-header");
-    const headerHeight = header?.getBoundingClientRect().height || 0;
-    const topOffset = Math.max(105, headerHeight + 34);
-    scrollToNextSelection(".vehicle-card-item.review-vehicle-target", "start", topOffset);
+    // 일반 차량 카드 클릭 시와 같은 위치로 이동해 차량 이미지와
+    // 외장 색상 버튼을 함께 보여 줍니다(하단 고정 버튼은 기존 그대로).
+    scrollToNextSelection(".wizard-car-card", "start", 76);
   }
 
   window.autogenieReviewVehicleBridge = {
