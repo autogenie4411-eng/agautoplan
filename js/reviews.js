@@ -737,77 +737,95 @@
     return host.innerHTML;
   }
 
-  // 2026-09-18 이전 후기 끝에 공통으로 붙었던 광고 이미지 제외.
-  // 메인사이트의 CSS 숨김 처리는 기존에 수집된 reviews.json에는 반영되지 않으므로
-  // 실제 후기 사진을 남긴 채 팝업에 그릴 때 마지막 광고 이미지만 걸러낸다.
+  // 이전 후기 하단 광고는 날짜/이미지 순서만으로 판별하지 않습니다.
+  // 같은 이미지가 여러 개의 서로 다른 과거 후기 *마지막*에 반복되는 경우에만 광고로 인식합니다.
+  // 이를 통해 마지막 차량 출고 사진과 그 아래 후기 문장을 그대로 보존합니다.
   const LEGACY_REVIEW_AD_CUTOFF = '2026-09-18';
+  let legacyReviewAdImageKeys = new Set();
+  const explicitAdImagePattern = /(?:^|[\\/_?&.=-])(?:advertis(?:e|ement|ing)?|banner|promotion|promo|광고|배너)(?:[\\/_?&.=-]|$)/i;
+
+  function reviewImageKey(raw) {
+    try {
+      const url = new URL(String(raw || '').replace(/&amp;/gi, '&'), location.href);
+      if (!/^https?:$/.test(url.protocol)) return '';
+      const parts = url.pathname.split('/').filter(Boolean);
+      return `${url.hostname}/${parts.slice(-2).join('/')}`.toLowerCase();
+    } catch { return ''; }
+  }
+
+  function legacyReviewDate(review) {
+    const date = String(review?.date || '').slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) && date < LEGACY_REVIEW_AD_CUTOFF;
+  }
+
+  function reviewArticleImageList(review) {
+    const html = String(review?.articleHtml || '');
+    if (html) {
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      const urls = [...container.querySelectorAll('img[src]')]
+        .map(img => img.getAttribute('src') || '').filter(src => Boolean(reviewImageKey(src)));
+      if (urls.length) return urls;
+    }
+    const images = Array.isArray(review?.images) ? review.images.filter(src => Boolean(reviewImageKey(src))) : [];
+    if (images.length) return images;
+    return Array.isArray(review?.contentBlocks)
+      ? review.contentBlocks.filter(block => block?.type === 'image').map(block => block.url).filter(src => Boolean(reviewImageKey(src)))
+      : [];
+  }
+
+  function refreshLegacyReviewAdImageKeys(reviews) {
+    const imageToReviewIds = new Map();
+    for (const review of reviews) {
+      if (!legacyReviewDate(review)) continue;
+      const images = reviewArticleImageList(review);
+      if (images.length < 2) continue;
+      const key = reviewImageKey(images[images.length - 1]);
+      if (!key) continue;
+      if (!imageToReviewIds.has(key)) imageToReviewIds.set(key, new Set());
+      imageToReviewIds.get(key).add(String(review.id || review.url || review.title || ''));
+    }
+    // 최소 서로 다른 3개 후기 끝에서 발견되는 동일한 파일만 공통 광고로 처리합니다.
+    legacyReviewAdImageKeys = new Set([...imageToReviewIds]
+      .filter(([, reviewIds]) => reviewIds.size >= 3)
+      .map(([key]) => key));
+  }
 
   function reviewWithoutTrailingAd(review) {
-    const date = String(review?.date || '').slice(0, 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date >= LEGACY_REVIEW_AD_CUTOFF || review?.legacyAdRemoved) {
-      return review;
+    if (!legacyReviewDate(review) || review?.legacyAdRemoved) return review;
+    const articleImages = reviewArticleImageList(review);
+    if (articleImages.length < 2) return review;
+    const lastUrl = articleImages[articleImages.length - 1];
+    const lastKey = reviewImageKey(lastUrl);
+    if (!lastKey || (!legacyReviewAdImageKeys.has(lastKey) && !explicitAdImagePattern.test(lastUrl))) {
+      return review; // 광고로 확인되지 않은 마지막 차량 사진은 반드시 유지
     }
 
     let articleHtml = String(review.articleHtml || '');
-    const images = Array.isArray(review.images) ? [...review.images] : [];
-    const contentBlocks = Array.isArray(review.contentBlocks) ? [...review.contentBlocks] : [];
-    let removedSrc = '';
-    let removed = false;
-
     if (articleHtml) {
       const container = document.createElement('div');
       container.innerHTML = articleHtml;
-      const photos = [...container.querySelectorAll('img[src]')].filter(img =>
-        /^https?:\/\//i.test(img.getAttribute('src') || '')
-      );
-      // 차량 사진까지 제거하지 않도록 본문에 이미지가 2장 이상인 경우에만 적용.
-      if (photos.length > 1) {
-        const lastPhoto = photos[photos.length - 1];
-        removedSrc = lastPhoto.getAttribute('src') || '';
-        let parent = lastPhoto.parentElement;
-        lastPhoto.remove();
-        // 광고만 담긴 빈 p/figure/div를 같이 제거해 큰 공백이 남지 않게 처리.
-        while (parent && parent !== container && /^(P|FIGURE|DIV|SPAN)$/.test(parent.tagName) &&
-          !(parent.textContent || '').replace(/[\u00a0\u200b\ufeff]/g, ' ').trim() &&
-          !parent.querySelector('img, hr, br, iframe, video, svg')) {
-          const next = parent.parentElement;
-          parent.remove();
-          parent = next;
-        }
-        articleHtml = container.innerHTML;
-        removed = true;
+      const images = [...container.querySelectorAll('img[src]')];
+      const lastImage = images.at(-1);
+      if (!lastImage || reviewImageKey(lastImage.getAttribute('src')) !== lastKey) return review;
+      // 마지막 광고 이미지만 제거하며, 다른 사진이나 이미지 뒤의 글은 삭제하지 않습니다.
+      // 빈 이미지 전용 래퍼만 정리하여 불필요한 공백을 방지합니다.
+      let parent = lastImage.parentElement;
+      lastImage.remove();
+      while (parent && parent !== container && /^(P|FIGURE|DIV|SPAN)$/.test(parent.tagName) &&
+        !(parent.textContent || '').replace(/[\u00a0\u200b\ufeff]/g, ' ').trim() &&
+        !parent.querySelector('img, hr, br, iframe, video, svg')) {
+        const next = parent.parentElement;
+        parent.remove();
+        parent = next;
       }
-    } else if (images.length > 1) {
-      removedSrc = images[images.length - 1];
-      removed = true;
-    } else if (contentBlocks.filter(block => block?.type === 'image').length > 1) {
-      const lastImageBlock = contentBlocks.filter(block => block?.type === 'image').at(-1);
-      removedSrc = lastImageBlock?.url || '';
-      removed = Boolean(removedSrc);
+      articleHtml = container.innerHTML;
     }
 
-    if (!removed) return review;
-
-    const imageKey = src => {
-      try {
-        const url = new URL(src, location.href);
-        return url.pathname.split('/').filter(Boolean).slice(-2).join('/').toLowerCase();
-      } catch { return String(src || '').toLowerCase(); }
-    };
-    const key = imageKey(removedSrc);
-    // 원본 HTML과 별도로 저장된 이미지 배열/블록에도 광고가 남지 않게 제거.
-    let imageIndex = images.findLastIndex(src => imageKey(src) === key);
-    if (imageIndex < 0 && images.length > 1) imageIndex = images.length - 1;
-    if (imageIndex >= 0) images.splice(imageIndex, 1);
-    const blockIndex = contentBlocks.findLastIndex(block =>
-      block?.type === 'image' && imageKey(block.url) === key
-    );
-    if (blockIndex >= 0) contentBlocks.splice(blockIndex, 1);
-    else if (!articleHtml && contentBlocks.filter(block => block?.type === 'image').length > 1) {
-      const lastIndex = contentBlocks.findLastIndex(block => block?.type === 'image');
-      contentBlocks.splice(lastIndex, 1);
-    }
-
+    const images = Array.isArray(review.images) ? review.images.filter(src => reviewImageKey(src) !== lastKey) : review.images;
+    const contentBlocks = Array.isArray(review.contentBlocks)
+      ? review.contentBlocks.filter(block => block?.type !== 'image' || reviewImageKey(block.url) !== lastKey)
+      : review.contentBlocks;
     return { ...review, articleHtml, images, contentBlocks, legacyAdRemoved: true };
   }
 
@@ -989,6 +1007,7 @@
 
   function renderReviewList(items) {
     const reviews = prepareReviews(items);
+    refreshLegacyReviewAdImageKeys(reviews);
     renderedReviews = reviews;
     rollingReviews = reviews.filter(review => reviewTimestamp(review) >= rollingStartDate().getTime());
     if (reviewDialog?.open && reviewDialogView === 'list') renderReviewGallery();
