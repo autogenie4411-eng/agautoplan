@@ -11094,12 +11094,7 @@ const vehicleCatalog = [
       visitSessionId: autojiniVisitSessionId,
       deviceType: getDeviceType(),
       browserName: getBrowserName(),
-      trafficSource: window.autogenieAttribution?.source || "unknown",
-      trafficMedium: window.autogenieAttribution?.medium || "unknown",
-      trafficSearchTerm: window.autogenieAttribution?.searchTerm || "",
-      trafficKeyword: window.autogenieAttribution?.keyword || "",
-      trafficSearchTermType: window.autogenieAttribution?.searchTermType || "unavailable",
-      trafficCampaign: window.autogenieAttribution?.campaign || ""
+      ...window.AutoGenieTraffic?.getFields()
     });
 
     if (success) {
@@ -12932,13 +12927,9 @@ const vehicleCatalog = [
 
       // 방문로그와 같은 방문자 ID를 사용해 고객이름을 연결합니다.
       visitorId: securityData.visitorId || "확인 불가",
+      visitSessionId: getOrCreateAutojiniVisitSessionId(),
       elapsedSeconds: String(securityData.elapsedSeconds || 0),
-      trafficSource: window.autogenieAttribution?.source || "unknown",
-      trafficMedium: window.autogenieAttribution?.medium || "unknown",
-      trafficSearchTerm: window.autogenieAttribution?.searchTerm || "",
-      trafficKeyword: window.autogenieAttribution?.keyword || "",
-      trafficSearchTermType: window.autogenieAttribution?.searchTermType || "unavailable",
-      trafficCampaign: window.autogenieAttribution?.campaign || ""
+      ...window.AutoGenieTraffic?.getFields()
     });
 
     await fetch(GOOGLE_APPS_SCRIPT_URL, {
@@ -13006,8 +12997,7 @@ const vehicleCatalog = [
 
     try {
       await submitEstimateToGoogle();
-      // no-cors 응답은 서버 저장 성공을 확인할 수 없으므로 "시도" 이벤트로만 집계합니다.
-      window.autogenieTrackQuoteAttempt?.();
+      window.AutoGenieTraffic?.trackConversion();
       state.submitted = true;
       render();
       scrollToEstimate();
