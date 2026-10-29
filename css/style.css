@@ -3175,11 +3175,14 @@ body:has(.wizard-page) {
 .loader-status:after {
     vertical-align: bottom;
     content: "...";
+    /* 점 3개의 공간을 항상 확보해 문구 줄바꿈과 세로 흔들림 방지 */
     width: 16px;
     margin-left: 2px;
-    animation: 1.1s steps(4, end) infinite loaderEllipsis;
+    animation: 1.1s steps(3, end) infinite loaderEllipsis;
     display: inline-block;
     overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
 }
 @keyframes loaderPulse {
     0%,
@@ -3203,12 +3206,8 @@ body:has(.wizard-page) {
     }
 }
 @keyframes loaderEllipsis {
-    0% {
-        width: 0;
-    }
-    to {
-        width: 16px;
-    }
+    0% { clip-path: inset(0 100% 0 0); }
+    100% { clip-path: inset(0 0 0 0); }
 }
 @keyframes loaderExit {
     0% {
