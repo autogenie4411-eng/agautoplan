@@ -11379,7 +11379,13 @@ const vehicleCatalog = [
   const reviewSection = document.getElementById("reviewSection");
   const reviewParking = document.getElementById("reviewParking");
 
-  // STEP 02: 트림 설명을 먼저 열고, 고객이 확인한 경우에만 subTrim에 반영합니다.
+  // [트림 상세 팝업 사용 여부]
+  // false: 트림 버튼 클릭 시 설명 팝업 없이 즉시 선택 (기본 동작)
+  // true : 기존처럼 트림 설명 팝업을 열고 확인 버튼을 눌러 선택
+  // 할인율 배지와 차단 경고·견적 신청 기능에는 영향을 주지 않습니다.
+  const ENABLE_TRIM_DETAIL = false;
+
+  // STEP 02: 상세 팝업을 사용할 때만 확인 후 subTrim에 반영합니다.
   const trimDetailModal = document.getElementById("trimDetailModal");
   const confirmTrimSelectionButton = document.getElementById("confirmTrimSelection");
   let pendingSubTrim = "";
@@ -11401,6 +11407,14 @@ const vehicleCatalog = [
     if (!trimName || state.step !== 2 || !state.trim) return;
     const modelGroup = currentVehicle()?.detailModels?.find(group => group.name === state.trim);
     if (!modelGroup || !modelGroup.trims.includes(trimName)) return;
+
+    // 팝업 일시 중단: 현재 트림을 바로 확정하고 기존 선택 UI를 갱신합니다.
+    // 이 경로에서는 모달·모바일 히스토리·트림 설명 데이터를 사용하지 않습니다.
+    if (!ENABLE_TRIM_DETAIL) {
+      pendingSubTrim = trimName;
+      commitTrimSelection();
+      return;
+    }
 
     const descriptionKey = [state.brandName, state.carName, state.trim, trimName].join("|");
     // 차종 단위 공통 이미지 대신 반드시 차종 + 실제 선택한 트림을 기준으로 매핑합니다.
@@ -12000,7 +12014,7 @@ const vehicleCatalog = [
                   ${isActive ? `
                     <div class="sub-trim-list" data-option-section="sub-trim">
                       ${group.trims.map(item => `
-                        <button class="sub-trim-item ${item === state.subTrim ? "active" : ""}" type="button" data-sub-trim="${item}" aria-haspopup="dialog" aria-controls="trimDetailModal" aria-pressed="${item === state.subTrim}">
+                        <button class="sub-trim-item ${item === state.subTrim ? "active" : ""}" type="button" data-sub-trim="${item}" ${ENABLE_TRIM_DETAIL ? 'aria-haspopup="dialog" aria-controls="trimDetailModal"' : ''} aria-pressed="${item === state.subTrim}">
                           <span class="radio-ui ${item === state.subTrim ? "checked" : ""}" aria-hidden="true"></span>
                           <strong>${item}</strong>
                         </button>
