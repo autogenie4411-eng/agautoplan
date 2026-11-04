@@ -13522,7 +13522,43 @@ const vehicleCatalog = [
     state.maxReachedStep = 1;
   }
 
-  applyVehicleDeepLink();
+
+  // 차량별 링크로 진입할 때: 로딩 화면이 사라진 후 색상 선택 칸으로 이동합니다.
+  // 로딩 중 body.loader-active가 스크롤을 막기 때문에 load 직후 이동하면 안 됩니다.
+  function scrollDeepLinkedVehicleToPaint() {
+    const target = content.querySelector('[data-option-section="paint"]');
+    if (!target || !state.carName || state.step !== 1) return;
+
+    const header = document.querySelector(".wizard-header") || document.querySelector(".site-header");
+    const headerHeight = header?.getBoundingClientRect().height || 0;
+    // 색상 영역 위로 차량 이미지의 아래쪽도 일부 보이게 여유를 둡니다.
+    const topOffset = Math.max(headerHeight + 18, Math.min(210, window.innerHeight * 0.24));
+    const destination = window.scrollY + target.getBoundingClientRect().top - topOffset;
+    window.scrollTo({ top: Math.max(0, destination), left: 0, behavior: "auto" });
+  }
+
+  function scheduleDeepLinkedPaintScroll() {
+    const moveAfterLoader = () => {
+      if (document.body.classList.contains("loader-active")) {
+        window.setTimeout(moveAfterLoader, 100);
+        return;
+      }
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(scrollDeepLinkedVehicleToPaint);
+      });
+    };
+    if (document.readyState === "complete") {
+      moveAfterLoader();
+    } else {
+      window.addEventListener("load", moveAfterLoader, { once: true });
+    }
+  }
+
+  const vehicleLinkSelected = Boolean(new URL(window.location.href).searchParams.get("car")) && (() => {
+    applyVehicleDeepLink();
+    return Boolean(state.carName && state.step === 1);
+  })();
   render();
   rememberWizardStep();
+  if (vehicleLinkSelected) scheduleDeepLinkedPaintScroll();
 })();
