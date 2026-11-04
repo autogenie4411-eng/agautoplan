@@ -30,6 +30,19 @@
     <link rel="stylesheet" href="css/layer.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="css/style.css?v=20261103-delivery-event-01">
+  <!-- 차량별 직접 링크는 준비 완료 전까지 로딩 커버를 유지합니다. -->
+  <script>
+    if (new URLSearchParams(location.search).has("car")) {
+      document.documentElement.classList.add("vehicle-deeplink-entry");
+    }
+  </script>
+  <style>
+    html.vehicle-deeplink-entry .landing-loader {
+      animation: none !important;
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
 </head>
 <body>
 
@@ -374,7 +387,7 @@
 
   <script src="js/traffic-tracker.js?v=20261027"></script>
   <script src="js/trim-reference-data.js?v=20261029-kia5-upgrade-ui-02"></script>
-  <script src="js/script.js?v=20261103-delivery-event-01"></script>
+  <script src="js/script.js?v=20261104-deeplink-intro-fix-01"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="js/reviews.js?v=20261022-review-full-ad-safe-v2"></script>
 

@@ -87,10 +87,15 @@
         // 로딩 커버가 아직 보이는 동안 스크롤 잠금을 풀고 즉시 위치를 맞춥니다.
         // 커버가 사라진 다음 스크롤하는 방식은 눈에 보이는 화면 이동을 유발합니다.
         document.body.classList.remove("loader-active");
+        // 로더를 완전히 덮어둔 상태에서 실제 스크롤 좌표부터 맞춥니다.
         scrollDeepLinkedVehicleToCard();
         window.requestAnimationFrame(() => {
+          // 스크롤 잠금 해제 후 브라우저 레이아웃 변경까지 반영합니다.
+          scrollDeepLinkedVehicleToCard();
           window.requestAnimationFrame(() => {
-            landingLoader.setAttribute("aria-hidden", "true");
+            scrollDeepLinkedVehicleToCard();
+            // 위치 조정이 끝난 다음에만 로더를 제거합니다.
+            landingLoader.remove();
           });
         });
       } else {
