@@ -76,15 +76,27 @@
       return relativePath;
     }
   }
+  // URL 전용 진입은 로더 뒤에서 원하는 위치를 미리 완성합니다.
+  let deepLinkedVehicleReady = false;
   const landingLoader = document.getElementById("landingLoader");
   if (landingLoader) {
     document.body.classList.add("loader-active");
 
     window.setTimeout(() => {
-      landingLoader.setAttribute("aria-hidden", "true");
+      if (deepLinkedVehicleReady) {
+        // 로딩 커버가 아직 보이는 동안 스크롤 잠금을 풀고 즉시 위치를 맞춥니다.
+        // 커버가 사라진 다음 스크롤하는 방식은 눈에 보이는 화면 이동을 유발합니다.
+        document.body.classList.remove("loader-active");
+        scrollDeepLinkedVehicleToCard();
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            landingLoader.setAttribute("aria-hidden", "true");
+          });
+        });
+      } else {
+        landingLoader.setAttribute("aria-hidden", "true");
+      }
 
-      // 로더가 사라진 뒤에는 현재 스크롤 위치를 건드리지 않습니다.
-      // 사용자가 빠르게 차량 구분을 선택한 경우에도 맨 위로 튀지 않습니다.
       window.setTimeout(() => {
         document.body.classList.remove("loader-active");
         landingLoader.remove();
@@ -13523,35 +13535,20 @@ const vehicleCatalog = [
   }
 
 
-  // 차량별 링크로 진입할 때: 로딩 화면이 사라진 후 색상 선택 칸으로 이동합니다.
-  // 로딩 중 body.loader-active가 스크롤을 막기 때문에 load 직후 이동하면 안 됩니다.
-  function scrollDeepLinkedVehicleToPaint() {
-    const target = content.querySelector('[data-option-section="paint"]');
-    if (!target || !state.carName || state.step !== 1) return;
-
-    const header = document.querySelector(".wizard-header") || document.querySelector(".site-header");
-    const headerHeight = header?.getBoundingClientRect().height || 0;
-    // 색상 영역 위로 차량 이미지의 아래쪽도 일부 보이게 여유를 둡니다.
-    const topOffset = Math.max(headerHeight + 18, Math.min(210, window.innerHeight * 0.24));
-    const destination = window.scrollY + target.getBoundingClientRect().top - topOffset;
-    window.scrollTo({ top: Math.max(0, destination), left: 0, behavior: "auto" });
-  }
-
-  function scheduleDeepLinkedPaintScroll() {
-    const moveAfterLoader = () => {
-      if (document.body.classList.contains("loader-active")) {
-        window.setTimeout(moveAfterLoader, 100);
-        return;
-      }
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(scrollDeepLinkedVehicleToPaint);
-      });
-    };
-    if (document.readyState === "complete") {
-      moveAfterLoader();
-    } else {
-      window.addEventListener("load", moveAfterLoader, { once: true });
-    }
+  // 차량 리스트를 직접 클릭했을 때와 동일한 위치(카드 상단 76px)로 이동합니다.
+  // 로더가 보이는 동안 위치를 맞춰 사용자에게 스크롤 애니메이션이 보이지 않습니다.
+  function scrollDeepLinkedVehicleToCard() {
+    if (!state.carName || state.step !== 1) return;
+    const target = content.querySelector(".wizard-car-card");
+    if (!target) return;
+    const oldHtmlBehavior = document.documentElement.style.scrollBehavior;
+    const oldBodyBehavior = document.body.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = "auto";
+    document.body.style.scrollBehavior = "auto";
+    const destination = window.scrollY + target.getBoundingClientRect().top - 76;
+    window.scrollTo({ top: Math.max(0, destination), left: 0, behavior: "instant" });
+    document.documentElement.style.scrollBehavior = oldHtmlBehavior;
+    document.body.style.scrollBehavior = oldBodyBehavior;
   }
 
   const vehicleLinkSelected = Boolean(new URL(window.location.href).searchParams.get("car")) && (() => {
@@ -13560,5 +13557,8 @@ const vehicleCatalog = [
   })();
   render();
   rememberWizardStep();
-  if (vehicleLinkSelected) scheduleDeepLinkedPaintScroll();
+  deepLinkedVehicleReady = vehicleLinkSelected;
+  if (vehicleLinkSelected && !landingLoader) {
+    window.requestAnimationFrame(scrollDeepLinkedVehicleToCard);
+  }
 })();

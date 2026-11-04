@@ -250,7 +250,8 @@
     }));
   }
 
-  let hiddenAfterBrandSelection = false;
+  // 초기 URL 차량 선택도 일반 차량 클릭과 동일하게 후기 숨김 상태를 유지합니다.
+  let hiddenAfterBrandSelection = section.hidden;
   let sourceRefreshStarted = false;
   let reviewSwiper = null;
 
@@ -325,7 +326,7 @@
   }
 
   function showReviewLoading() {
-    section.hidden = false;
+    section.hidden = hiddenAfterBrandSelection;
     destroyReviewSwiper();
     track.innerHTML = `<article class="review-card review-card--loading">
       <div class="review-card__body">
@@ -1240,7 +1241,7 @@
     if (reviews.length) {
       renderReviewList(reviews);
     } else {
-      section.hidden = false;
+      section.hidden = hiddenAfterBrandSelection;
       destroyReviewSwiper();
       track.innerHTML = `<article class="review-card review-card--loading">
         <div class="review-card__body">
