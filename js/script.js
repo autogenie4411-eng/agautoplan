@@ -13513,7 +13513,10 @@ const vehicleCatalog = [
   const homeLogo = document.querySelector(".brand-mark");
   homeLogo?.addEventListener("click", event => {
     event.preventDefault();
-    resetWizardToStart();
+    // 로고 클릭은 스크롤 이동이 아닌 전체 견적 초기화입니다.
+    // 차량 딥링크(?car=...&brand=...)도 제거하고 처음 로딩 화면부터 재진입합니다.
+    // 기존 단계/선택/후기 상태는 새 페이지 로딩 시 초기값으로 복원됩니다.
+    window.location.replace(window.location.origin + window.location.pathname);
   });
 
   // 차량별 광고·배너용 딥링크: ?car=코나 또는 ?brand=현대&car=코나
