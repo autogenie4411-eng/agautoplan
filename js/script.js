@@ -13351,6 +13351,23 @@ const vehicleCatalog = [
 
     // Apps Script의 e.parameter에서 각 값을 안정적으로 읽을 수 있도록
     // application/x-www-form-urlencoded 형식으로 명시적으로 구성합니다.
+    // 신청출처는 광고 유입경로와 별도로 실제 견적 사이트 도메인에서 판별합니다.
+    // 네이버카페 전용 페이지는 기존처럼 window.AUTOGENIE_SUBMISSION_SOURCE = "naver_cafe"로 지정할 수 있습니다.
+    const currentHost = location.hostname.toLowerCase();
+    const sourceByDomain = {
+      "autogenie.agautoplan.com": { code: "", label: "오토지니" },
+      "kcar.agautoplan.com": { code: "google", label: "구글" },
+      "nkcar.agautoplan.com": { code: "naver_banner", label: "네이버배너" }
+    };
+    const explicitSource = String(window.AUTOGENIE_SUBMISSION_SOURCE || "").trim();
+    const explicitMap = {
+      naver_cafe: { code: "naver_cafe", label: "네이버카페" },
+      google: { code: "google", label: "구글" },
+      naver_banner: { code: "naver_banner", label: "네이버배너" }
+    };
+    const estimateSource = sourceByDomain[currentHost] || explicitMap[explicitSource] ||
+      { code: "", label: "오토지니" };
+
     const body = new URLSearchParams({
       submittedAt: payload.submittedAt || "",
       vehicleType: payload.vehicleType || "",
@@ -13367,6 +13384,12 @@ const vehicleCatalog = [
       customerName: payload.customerName || "",
       customerPhone: payload.customerPhone || "",
       contactMethod: payload.contactMethod || "",
+
+      // 서버(Apps Script)에서 코드별로 출처와 이메일 제목을 구분합니다.
+      submissionSource: estimateSource.code,
+      applicationSource: estimateSource.label,
+      siteSource: estimateSource.label,
+      siteDomain: location.hostname,
 
       // 방문로그와 같은 방문자 ID를 사용해 고객이름을 연결합니다.
       visitorId: securityData.visitorId || "확인 불가",
