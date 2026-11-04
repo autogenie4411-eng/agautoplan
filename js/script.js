@@ -13499,6 +13499,30 @@ const vehicleCatalog = [
     resetWizardToStart();
   });
 
+  // 차량별 광고·배너용 딥링크: ?car=코나 또는 ?brand=현대&car=코나
+  // 차량 선택 UI가 있는 STEP 01(외장 색상 영역)을 그대로 사용합니다.
+  function applyVehicleDeepLink() {
+    const params = new URL(window.location.href).searchParams;
+    const carName = (params.get("car") || "").trim();
+    const brandName = (params.get("brand") || "").trim();
+    if (!carName) return;
+
+    const matches = vehicleCatalog.filter(brand =>
+      (!brandName || brand.name === brandName) &&
+      brand.cars.some(car => car.name === carName) &&
+      currentBrands().some(available => available.name === brand.name)
+    );
+    if (matches.length !== 1) return;
+
+    state.market = DEFAULT_MARKET;
+    state.brandName = matches[0].name;
+    state.carName = carName;
+    state.paintId = ""; // 외장 색상은 방문자가 직접 선택
+    state.step = 1;
+    state.maxReachedStep = 1;
+  }
+
+  applyVehicleDeepLink();
   render();
   rememberWizardStep();
 })();
