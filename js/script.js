@@ -12049,6 +12049,11 @@ const vehicleCatalog = [
     `;
   }
 
+  // 포터·봉고 화물차는 장기렌트 선택을 제공하지 않습니다.
+  function isLeaseOnlyTruck() {
+    return ["포터2", "포터2 일렉트릭", "봉고3"].includes(state.carName);
+  }
+
   function renderStepThree() {
     return `
       <div class="wizard-step">
@@ -12063,7 +12068,7 @@ const vehicleCatalog = [
           <legend><b>1</b> 이용 방식 선택</legend>
           <div class="segment-control three-column usage-row" data-group="usage">
             ${["장기렌트", "리스", "상담 후 결정"].map(value => `
-              <button class="${state.usage === value ? "active" : ""}" type="button" data-value="${value}">${value}</button>
+              <button class="${state.usage === value ? "active" : ""}" type="button" data-value="${value}" ${isLeaseOnlyTruck() && value === "장기렌트" ? 'disabled aria-disabled="true" title="해당 차량은 장기렌트를 이용할 수 없습니다."' : ""}>${value}</button>
             `).join("")}
           </div>
         </fieldset>
@@ -12287,6 +12292,13 @@ const vehicleCatalog = [
   }
 
   function render(options = {}) {
+    // 이전 단계/브라우저 뒤로가기로 남은 장기렌트 선택도 무효화합니다.
+    if (isLeaseOnlyTruck() && state.usage === "장기렌트") {
+      state.usage = "";
+      state.initialCost = "";
+      state.rate = "";
+      state.mileage = "";
+    }
     const preserveScroll = options.preserveScroll === true;
     const preservedScrollY = preserveScroll ? window.scrollY : 0;
     const preservedContentHeight = preserveScroll ? content.offsetHeight : 0;
@@ -12607,6 +12619,7 @@ const vehicleCatalog = [
 
         const key = group.dataset.group;
         const value = button.dataset.value;
+        if (key === "usage" && value === "장기렌트" && isLeaseOnlyTruck()) return;
 
         // 재렌더링으로 선택 버튼이 사라지기 전에 포커스를 해제해
         // 브라우저가 이전 버튼 위치로 스크롤을 되돌리지 않게 합니다.
