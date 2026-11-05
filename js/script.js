@@ -12066,9 +12066,9 @@ const vehicleCatalog = [
 
         <fieldset class="option-block" data-option-section="usage">
           <legend><b>1</b> 이용 방식 선택</legend>
-          <div class="segment-control three-column usage-row" data-group="usage">
-            ${["장기렌트", "리스", "상담 후 결정"].map(value => `
-              <button class="${state.usage === value ? "active" : ""}" type="button" data-value="${value}" ${isLeaseOnlyTruck() && value === "장기렌트" ? 'disabled aria-disabled="true" title="해당 차량은 장기렌트를 이용할 수 없습니다."' : ""}>${value}</button>
+          <div class="segment-control ${isLeaseOnlyTruck() ? "two-column" : "three-column"} usage-row" data-group="usage">
+            ${(isLeaseOnlyTruck() ? ["리스", "상담 후 결정"] : ["장기렌트", "리스", "상담 후 결정"]).map(value => `
+              <button class="${state.usage === value ? "active" : ""}" type="button" data-value="${value}">${value}</button>
             `).join("")}
           </div>
         </fieldset>
