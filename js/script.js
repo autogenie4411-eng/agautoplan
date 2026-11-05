@@ -11889,7 +11889,7 @@ const vehicleCatalog = [
     const useOwnBackground = Boolean(brand?.ownBackground && state.carName);
     // 현재 월 기준 외장 색상 할인 안내 (최대 10%)
     const discountMonth = getCurrentDiscountMonth();
-    const discountRate = 10;
+    const discountRate = 20;
 
     const carTitleMarkup = `<div class="wizard-car-title ${useOwnBackground ? "wizard-car-title--overlay" : ""}">
         <div>
@@ -12125,7 +12125,7 @@ const vehicleCatalog = [
             <div><dt>세부모델</dt><dd>${state.trim || "상담 후 결정"}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
             <div><dt>이용조건</dt><dd>${state.usage || "상담 후 결정"} · ${state.initialCost || "상담 후 결정"}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
             <div><dt>주행거리</dt><dd>${state.mileage || "상담 후 결정"}</dd></div>
-            <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 10%</dd></div>
+            <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 20%</dd></div>
             <div class="delivery-event" role="group" aria-label="출고이벤트 혜택">
               <dt class="delivery-event__ticket">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -12262,7 +12262,7 @@ const vehicleCatalog = [
               <div><dt>이용 방식</dt><dd>${usageText}</dd></div>
               <div><dt>초기비용</dt><dd>${initialCostText}</dd></div>
               <div><dt>주행거리</dt><dd>${mileageText}</dd></div>
-              <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 10%</dd></div>
+              <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 20%</dd></div>
               <div><dt>보조금 지역</dt><dd>${subsidyRegionText}</dd></div>
             </dl>
           </div>
