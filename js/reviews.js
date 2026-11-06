@@ -933,6 +933,15 @@
     reviewSwiper = null;
   }
 
+  function carouselCardMarkup(items) {
+    if (!items.length) return '';
+    // 후기 2~소수 건일 때 Swiper 11의 loop가 끝에서 멈추지 않도록,
+    // 실제 후기를 순서대로 반복해서 PC/모바일 모두 충분한 슬라이드를 확보한다.
+    // 상세보기/전체보기 원본 데이터는 중복하지 않는다.
+    const repeatCount = items.length > 1 ? Math.ceil(16 / items.length) : 1;
+    return items.map(cardTemplate).join('').repeat(repeatCount);
+  }
+
   function initReviewSwiper() {
     destroyReviewSwiper();
     if (!rollingReviews.length || hiddenAfterBrandSelection) return;
@@ -1036,7 +1045,7 @@
     }
 
     section.hidden = false;
-    track.innerHTML = rollingReviews.length ? rollingReviews.map(cardTemplate).join('') : `<article class="review-card review-card--loading"><div class="review-card__body"><strong>최근 3개월 출고 후기가 없습니다.</strong><p>전체 후기 보기를 누르면 이전 출고 후기도 확인할 수 있습니다.</p></div></article>`;
+    track.innerHTML = rollingReviews.length ? carouselCardMarkup(rollingReviews) : `<article class="review-card review-card--loading"><div class="review-card__body"><strong>최근 3개월 출고 후기가 없습니다.</strong><p>전체 후기 보기를 누르면 이전 출고 후기도 확인할 수 있습니다.</p></div></article>`;
     bindImageFallbacks();
 
     // DOM 크기가 계산된 다음 Swiper를 초기화해야 slidesPerView:auto가 정확하게 작동한다.
