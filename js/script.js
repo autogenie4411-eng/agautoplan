@@ -3,6 +3,36 @@
 
   const currentMonth = new Date().getMonth() + 1;
 
+  /* =========================================================
+     차량 리스트 할인 배지 관리 (이곳에서만 수정)
+     - enabled: true 표시 / false 숨김
+     - brand: 브랜드 선택 화면의 이름 (예: "제네시스", "현대", "기아")
+     - car: 차량 리스트의 정확한 차량명 (예: "G80", "그랜저")
+     - amount: 할인금액 (단위: 만원, 숫자)
+     - 같은 차량에 여러 배지를 넣으려면 항목을 추가하면 됩니다.
+     - 할인 종료 시 항목을 삭제하지 않고 enabled: false로 변경하세요.
+     - 실제 할인 조건은 별도로 확인 후 안내해 주세요.
+  ========================================================= */
+  const VEHICLE_DISCOUNT_BADGES = [
+    { enabled: true,  brand: "제네시스", car: "G80", amount: 600 },
+
+    // 아래는 추가 방법 예시입니다. 사용 시 앞의 //를 제거하고 금액을 변경하세요.
+    // { enabled: true, brand: "제네시스", car: "GV70", amount: 300 },
+    // { enabled: true, brand: "현대", car: "그랜저", amount: 250 },
+    // { enabled: true, brand: "기아", car: "쏘렌토", amount: 200 },
+    // { enabled: false, brand: "제네시스", car: "G80", amount: 100 },
+  ];
+
+  // 배지 문구에는 등록한 숫자만 사용하여 HTML 삽입을 방지합니다.
+  function getVehicleDiscountBadges(brand, car) {
+    return VEHICLE_DISCOUNT_BADGES
+      .filter(item => item.enabled === true && item.brand === brand && item.car === car)
+      .map(item => Number(item.amount))
+      .filter(amount => Number.isFinite(amount) && amount > 0)
+      .map(amount => `<span class="vehicle-card-item__promo">차량가 최대 ${amount.toLocaleString("ko-KR")}만원 할인</span>`)
+      .join("");
+  }
+
   // 현재 월은 화면 렌더링 시마다 계산합니다.
   // 탭을 오래 열어둔 상태에서 월이 바뀌어도 월별 할인 표시를 갱신합니다.
   function getCurrentDiscountMonth() {
@@ -11889,7 +11919,7 @@ const vehicleCatalog = [
     const useOwnBackground = Boolean(brand?.ownBackground && state.carName);
     // 현재 월 기준 외장 색상 할인 안내 (최대 10%)
     const discountMonth = getCurrentDiscountMonth();
-    const discountRate = 20;
+    const discountRate = 10;
 
     const carTitleMarkup = `<div class="wizard-car-title ${useOwnBackground ? "wizard-car-title--overlay" : ""}">
         <div>
@@ -11951,7 +11981,10 @@ const vehicleCatalog = [
             <div class="vehicle-card-list" id="carCardList">
               ${brand.cars.map(car => `
                 <button class="vehicle-card-item ${car === state.carName ? "active" : ""}" type="button" data-car-card="${car}" data-brand="${state.brandName}" aria-pressed="${car === state.carName ? "true" : "false"}">
-                  <span class="vehicle-card-item__name">${car}</span>
+                  <span class="vehicle-card-item__info">
+                    <span class="vehicle-card-item__name">${car}</span>
+                    ${getVehicleDiscountBadges(state.brandName, car)}
+                  </span>
                   <span class="vehicle-card-item__thumb">
                     <img src="${getCarPreviewImage(state.brandName, car)}" alt="${state.brandName} ${car}">
                   </span>
@@ -12125,7 +12158,7 @@ const vehicleCatalog = [
             <div><dt>세부모델</dt><dd>${state.trim || "상담 후 결정"}${state.subTrim ? ` · ${state.subTrim}` : ""}</dd></div>
             <div><dt>이용조건</dt><dd>${state.usage || "상담 후 결정"} · ${state.initialCost || "상담 후 결정"}${!["초기비용 0원", "상담 후 결정"].includes(state.initialCost) && state.rate ? ` ${state.rate}` : ""}</dd></div>
             <div><dt>주행거리</dt><dd>${state.mileage || "상담 후 결정"}</dd></div>
-            <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 20%</dd></div>
+            <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 10%</dd></div>
             <div class="delivery-event" role="group" aria-label="출고이벤트 혜택">
               <dt class="delivery-event__ticket">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -12262,7 +12295,7 @@ const vehicleCatalog = [
               <div><dt>이용 방식</dt><dd>${usageText}</dd></div>
               <div><dt>초기비용</dt><dd>${initialCostText}</dd></div>
               <div><dt>주행거리</dt><dd>${mileageText}</dd></div>
-              <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 20%</dd></div>
+              <div class="discount-rate"><dt>${currentMonth}월 할인율</dt><dd>최대 10%</dd></div>
               <div><dt>보조금 지역</dt><dd>${subsidyRegionText}</dd></div>
             </dl>
           </div>

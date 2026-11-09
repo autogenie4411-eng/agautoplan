@@ -10365,3 +10365,41 @@ body.review-dialog-open {
     cursor: not-allowed;
     opacity: 1;
 }
+
+/* 차량별 할인 배지: PC 차량명 옆 / 모바일 차량명 아래 */
+.vehicle-card-item__info {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.vehicle-card-item__promo {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    border: 1px solid #ffd2d2;
+    border-radius: 999px;
+    padding: 6px 10px;
+    background: #fff1f1;
+    color: #d92d20;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+@media (max-width: 640px) {
+    .vehicle-card-item__info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .vehicle-card-item__promo {
+        font-size: 11px;
+        padding: 5px 9px;
+    }
+}
