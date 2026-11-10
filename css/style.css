@@ -1726,6 +1726,13 @@ body:has(.wizard-page) {
 }
 
 /* 제네시스 */
+.vehicle-card-item[data-brand="제네시스"][data-car-card="GV90"]
+    .vehicle-card-item__thumb
+    img {
+    --list-car-scale-add: 0.05;
+    --list-car-x-add: -2px;
+    --list-car-y-add: 7px;
+}
 .vehicle-card-item[data-brand="제네시스"][data-car-card="G70"]
     .vehicle-card-item__thumb
     img {
@@ -5375,6 +5382,11 @@ body.loader-active {
 /* =========================================================
    제네시스
 ========================================================= */
+.car-adjust[data-brand="제네시스"][data-car="GV90"] {
+    --car-scale-add: -0.02;
+    --car-x-add: -0.5%;
+    --car-y-add: 7%;
+}
 .car-adjust[data-brand="제네시스"][data-car="G70"] {
     --car-scale-add: -0.05;
     --car-x-add: 0%;

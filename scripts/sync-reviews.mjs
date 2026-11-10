@@ -916,6 +916,16 @@ try {
 
   await fs.mkdir(path.dirname(OUTPUT), { recursive: true });
 
+  // Only write an archive if review content changed; generatedAt alone is not a change.
+  const oldPayload = await fs.readFile(OUTPUT, 'utf8').then(JSON.parse).catch(() => null);
+  const contentUnchanged = oldPayload &&
+    oldPayload.source === SOURCE &&
+    oldPayload.galleryStartDate === isoDate(galleryStartDate()) &&
+    JSON.stringify(oldPayload.reviews || []) === JSON.stringify(domesticOnly);
+
+  if (contentUnchanged) {
+    console.log('후기 내용 변경 없음: 기존 JSON 유지');
+  } else {
   await fs.writeFile(
     OUTPUT,
     JSON.stringify({
@@ -929,6 +939,7 @@ try {
     }, null, 2) + '\n',
     'utf8'
   );
+  }
 
   console.log(`완료: ${isoDate(galleryStartDate())} 이후 국산차 후기 ${domesticOnly.length}건 저장 (메인 롤링은 최근 ${ROLLING_MONTHS}개월)`);
 } finally {

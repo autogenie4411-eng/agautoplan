@@ -15,6 +15,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="원하는 차량을 선택하고 오토지니에서 장기렌트·리스 조건을 빠르게 비교해 보세요.">
   <title>오토지니 KOREA | 국산차 장기렌트·리스 전 차종 비교</title>
+  <!-- 국산차 4개 도메인 공통 원본: 파일명 변경 없이 접속 도메인으로 타이틀과 신청출처를 구분 -->
+  <script>
+    (function () {
+      const sites = Object.freeze({
+        "autogenie.agautoplan.com": { title: "오토지니 KOREA | 국산차 장기렌트·리스 전 차종 비교", code: "", label: "오토지니" },
+        "kcar.agautoplan.com": { title: "오토지니 KOREA G | 국산차 장기렌트·리스 전 차종 비교", code: "google", label: "구글" },
+        "cafenaver.agautoplan.com": { title: "오토지니 KOREA C | 국산차 장기렌트·리스 전 차종 비교", code: "naver_cafe", label: "네이버카페" },
+        "nkcar.agautoplan.com": { title: "오토지니 KOREA N | 국산차 장기렌트·리스 전 차종 비교", code: "naver_banner", label: "네이버배너" }
+      });
+      const host = window.location.hostname.toLowerCase().replace(/\.$/, "");
+      const site = sites[host] || sites["autogenie.agautoplan.com"];
+      window.AUTOGENIE_SITE_CONFIG = site;
+      document.title = site.title;
+    })();
+  </script>
 
   <script>
     if ("scrollRestoration" in history) {
@@ -387,19 +402,19 @@
     <div class="estimate-block-modal__content">
       <div class="estimate-block-modal__symbol" aria-hidden="true">!</div>
       <h2 id="estimateBlockTitle">견적 신청이 제한되었습니다</h2>
-      <p class="estimate-block-modal__reason" id="estimateBlockDescription">반복적인 허위 견적 신청 및 서비스 이용 방해 행위가 확인되어 견적 신청이 제한되었습니다.</p>
+      <p class="estimate-block-modal__reason" id="estimateBlockDescription">AI 실시간 IP 추적 및 매크로 프로그램 <br> 감지 시스템이 가동 중입니다.</p>
       <div class="estimate-block-modal__warning">
         <strong>⚠ 법적 조치 안내</strong>
-        <p>동일한 행위가 지속될 경우 관련 법령에 따라 법적 조치가 취해질 수 있습니다.</p>
+        <p>악의적인 광고 클릭 행위는 형법 제314조(업무방해죄) 및 제366조(재물손괴 등)에 의거하여 5년 이하의 징역 또는 1,500만 원 이하의 벌금에 처해질 수 있습니다.</p>
       </div>
       <p class="estimate-block-modal__support">정상적인 상담을 원하시는 경우 고객센터로 문의해 주세요.</p>
-      <button class="estimate-block-modal__confirm" type="button" data-estimate-block-close>확인</button>
+      <button class="estimate-block-modal__confirm" type="button" data-estimate-block-close="">확인</button>
     </div>
   </dialog>
 
   <script src="js/traffic-tracker.js?v=20261027"></script>
   <script src="js/trim-reference-data.js?v=20261029-kia5-upgrade-ui-02"></script>
-  <script src="js/script.js?v=20261104-deeplink-intro-fix-01"></script>
+  <script src="js/script.js?v=20261110-trim-toggle-unified-01"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="js/reviews.js?v=20261106-review-loop-v1"></script>
 
