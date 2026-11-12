@@ -11334,14 +11334,31 @@ const vehicleCatalog = [
           void syncAutojiniVisitIp(); // 방문 기록 확인과 무관하게 먼저 후속 업데이트 시도
         } else if (remainingRetries > 0 && document.visibilityState !== "hidden") {
           window.setTimeout(() => attemptLookup(remainingRetries - 1), 5000);
+        } else {
+          void reportAutojiniVisitIpFailure();
         }
       }).catch(() => {
         if (remainingRetries > 0 && document.visibilityState !== "hidden") {
           window.setTimeout(() => attemptLookup(remainingRetries - 1), 5000);
+        } else {
+          void reportAutojiniVisitIpFailure();
         }
       });
     };
     attemptLookup(1);
+  }
+
+  // 모든 IP 조회 시도가 실패했을 때 임시 상태를 최종 실패로 변경합니다.
+  // 실제 IP가 확인된 기록을 서버에서 덮어쓰지 않도록 방어합니다.
+  async function reportAutojiniVisitIpFailure() {
+    if (autojiniIsValidIp(autojiniVisitResolvedIp)) return;
+    const sessionId = autojiniVisitSessionId || getOrCreateAutojiniVisitSessionId();
+    const failure = {requestType: "page_visit_update", visitSessionId: sessionId, ipAddress: "조회 실패"};
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      if (autojiniIsValidIp(autojiniVisitResolvedIp)) return;
+      await postAutojiniVisitData(failure);
+      if (attempt < 2) await new Promise(resolve => window.setTimeout(resolve, 2500 * (attempt + 1)));
+    }
   }
 
   function syncAutojiniVisitIp() {
