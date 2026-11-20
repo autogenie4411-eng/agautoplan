@@ -9516,6 +9516,20 @@ body.review-dialog-open {
     }
 }
 
+/* 색상명 위치는 유지하고, 트림 안내만 할인 이미지 하단에 맞춥니다. */
+@media (min-width: 341px) {
+    .wizard-car-card[data-brand="쉐보레"] .paint-block.has-monthly-discount .chosen-paint {
+        align-self: stretch;
+        padding-top: 11px;
+    }
+    .wizard-car-card[data-brand="쉐보레"] .paint-block.has-monthly-discount .chosen-paint small {
+        margin-top: auto;
+    }
+    .wizard-car-card[data-brand="쉐보레"] .monthly-discount-sticker {
+        align-self: end;
+    }
+}
+
 /* =========================================================
    STEP 02 | 트림 선택 확인 팝업 (국산차)
    주요 파일: index.html / js/script.js / css/style.css
@@ -10413,5 +10427,37 @@ body.review-dialog-open {
     .vehicle-card-item__promo {
         font-size: 11px;
         padding: 5px 9px;
+    }
+}
+
+
+/* 할부 파일 기준: 4개 차종의 색상 위치, 배지 위치를 동일하게 적용 */
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block.has-monthly-discount {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "paint-label paint-label" "paint-swatches paint-swatches" "paint-choice paint-discount";
+    align-items: start;
+}
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block .paint-label { grid-area: paint-label; }
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block .wizard-paints { grid-area: paint-swatches; width: 100%; min-width: 0; }
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block .chosen-paint {
+    grid-area: paint-choice;
+    align-self: stretch;
+    justify-content: flex-start;
+    min-width: 0;
+    margin-top: 0;
+    padding-top: 11px;
+}
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block .monthly-discount-sticker { grid-area: paint-discount; align-self: end; }
+:is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) > .paint-trim-guide {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 19px 12px;
+    border-top: 1px solid #1028451a;
+    color: #7a8493;
+}
+@media (max-width: 340px) {
+    :is(.wizard-car-card[data-brand="현대"][data-car="아반떼"], .wizard-car-card[data-brand="현대"][data-car="아반떼 하이브리드"], .wizard-car-card[data-brand="쉐보레"][data-car="트랙스 크로스오버"], .wizard-car-card[data-brand="쉐보레"][data-car="트레일블레이저"]) .paint-block.has-monthly-discount {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "paint-label" "paint-swatches" "paint-choice" "paint-discount";
     }
 }
