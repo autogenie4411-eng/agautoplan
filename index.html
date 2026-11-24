@@ -45,7 +45,7 @@
     <link rel="stylesheet" href="css/layer.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <link rel="stylesheet" href="css/style.css?v=20261120-installment-colors">
-    <link rel="stylesheet" href="css/mobile-call.css?v=20261124-circle-label-v3">
+    <link rel="stylesheet" href="css/mobile-actions.css?v=20261124-full-row">
   <!-- 차량별 직접 링크는 준비 완료 전까지 로딩 커버를 유지합니다. -->
   <script>
     if (new URLSearchParams(location.search).has("car")) {
@@ -255,11 +255,12 @@
           <div class="wizard-actions__group" id="actionGroup">
             <button class="consult-button" id="consultButton" type="button" hidden>바로 견적신청</button>
             <button class="next-button" id="nextButton" type="button">
-              다음 단계
+              세부모델 선택
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 12h14M14 7l5 5-5 5"></path>
               </svg>
             </button>
+            <a class="wizard-call-button" href="tel:1600-3481" aria-label="전화상담 1600-3481로 전화 연결">전화상담</a>
           </div>
         </div>
       </form>
@@ -413,14 +414,9 @@
     </div>
   </dialog>
 
-  <a class="mobile-call" href="tel:1600-3481" aria-label="전화상담 1600-3481로 전화 연결">
-    <img class="mobile-call__icon" src="images/mobile-call-phone.png" width="28" height="28" alt="" aria-hidden="true">
-    <span class="mobile-call__label">전화상담</span>
-  </a>
-
   <script src="js/traffic-tracker.js?v=20261118-attribution-v2"></script>
   <script src="js/trim-reference-data.js?v=20261119-avante-new-trims-v1"></script>
-  <script src="js/script.js?v=20261120-installment-colors"></script>
+  <script src="js/script.js?v=20261124-step-labels"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script src="js/reviews.js?v=20261106-review-loop-v1"></script>
 

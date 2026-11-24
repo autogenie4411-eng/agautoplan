@@ -1,0 +1,77 @@
+/* Mobile wizard: primary action above estimate and telephone shortcuts. */
+.wizard-call-button {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .wizard-actions {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr);
+        align-items: flex-start;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .wizard-actions__group {
+        display: contents;
+    }
+
+    .wizard-actions .next-button {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        height: 58px;
+        font-size: var(--font-17);
+    }
+
+    .wizard-actions .back-button {
+        grid-column: 1;
+        grid-row: 1;
+        width: 54px;
+        height: 58px;
+    }
+
+    .back-button:not([hidden]) + .wizard-actions__group .next-button {
+        grid-column: 2;
+    }
+
+    .wizard-actions .consult-button {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-self: start;
+        width: calc(50% - 4px);
+        height: 48px;
+        font-size: var(--font-14);
+        font-weight: 600;
+    }
+
+    .wizard-call-button {
+        display: flex;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-self: end;
+        width: calc(50% - 4px);
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        height: 48px;
+        border-radius: 11px;
+        background: var(--navy-800);
+        color: #fff;
+        font-size: var(--font-14);
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .consult-button[hidden] ~ .wizard-call-button {
+        width: 100%;
+    }
+
+    .wizard-call-button:focus-visible {
+        outline: 3px solid var(--blue);
+        outline-offset: 3px;
+    }
+
+    .wizard-call-button:active {
+        background: var(--navy-900);
+    }
+}
