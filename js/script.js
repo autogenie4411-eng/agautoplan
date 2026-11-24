@@ -19914,6 +19914,14 @@ const vehicleCatalog = [
     moveToConsultStep();
   });
 
+  document.getElementById("mobileEstimateButton")?.addEventListener("click", () => {
+    if (state.step === 4 || state.submitted) {
+      scrollToEstimate();
+      return;
+    }
+    moveToConsultStep();
+  });
+
   nextButton.addEventListener("click", async () => {
     if (!validateCurrentStep()) return;
 
