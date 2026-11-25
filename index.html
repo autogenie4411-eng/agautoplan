@@ -435,6 +435,26 @@
     </a>
   </nav>
 
+  <script>
+    (function () {
+      if (window.AUTOGENIE_SITE_CONFIG?.code !== "naver_cafe") return;
+
+      const phone = "01028702605";
+      const displayPhone = "010-2870-2605";
+      const desktopPhone = document.querySelector(".customer-care__channel-copy b");
+      const desktopChannel = desktopPhone?.closest(".customer-care__channel");
+      if (desktopPhone) desktopPhone.textContent = displayPhone;
+      if (desktopChannel) desktopChannel.setAttribute("aria-label", `전화 상담 ${displayPhone}`);
+
+      const mobilePhone = document.querySelector(".mobile-contact-bar__phone");
+      if (mobilePhone) {
+        mobilePhone.href = `tel:${phone}`;
+        mobilePhone.setAttribute("aria-label", `전화상담 ${displayPhone}로 전화 연결`);
+        const mobileNumber = mobilePhone.querySelector("small");
+        if (mobileNumber) mobileNumber.textContent = displayPhone;
+      }
+    })();
+  </script>
   <script src="js/traffic-tracker.js?v=20261124-cache-04"></script>
   <script src="js/trim-reference-data.js?v=20261124-cache-04"></script>
   <script src="js/script.js?v=20261124-cache-04">
