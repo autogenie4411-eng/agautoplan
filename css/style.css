@@ -10462,15 +10462,7 @@ body.review-dialog-open {
     }
 }
 
-/* ===== 할부 완성본과 동기화: 유료 외장색 및 트림별 색상 제한 ===== */
-.wizard-car-card .chosen-paint .paint-surcharge {
-    margin-left: 5px;
-    color: #3267ff;
-    font-size: inherit;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.paint-surcharge--header { display: none; }
+/* ===== 할부 완성본과 동기화: 트림별 색상 제한 ===== */
 .wizard-car-card .paint-trim-guide {
     padding-top: 4px;
     overflow-wrap: anywhere;
@@ -10499,16 +10491,6 @@ body.review-dialog-open {
     line-height: 1.5;
 }
 @media (max-width: 600px) {
-    .wizard-car-card .chosen-paint .paint-surcharge { display: none; }
-    .wizard-car-card .paint-label .paint-surcharge--header:not([hidden]) {
-        display: block;
-        margin-left: auto;
-        color: #3267ff;
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-    .wizard-car-card .paint-block.has-paint-surcharge .paint-swipe-guide { display: none; }
     .wizard-car-card .paint-trim-guide span { font-size: 10px; }
 }
 
