@@ -17975,10 +17975,12 @@ const vehicleCatalog = [
     if (shouldShowReview && slot) {
       slot.appendChild(reviewSection);
       window.requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+      document.dispatchEvent(new CustomEvent("autogenie:review-placement", { detail: { visible: true } }));
       return;
     }
 
     reviewParking.appendChild(reviewSection);
+    document.dispatchEvent(new CustomEvent("autogenie:review-placement", { detail: { visible: false } }));
   }
 
 

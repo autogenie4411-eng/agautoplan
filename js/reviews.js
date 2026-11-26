@@ -254,6 +254,19 @@
   let hiddenAfterBrandSelection = section.hidden;
   let sourceRefreshStarted = false;
   let reviewSwiper = null;
+  let reviewInitFrame = 0;
+  let lastReviewMotion = 0;
+  let reviewPointerDown = false;
+
+  function scheduleReviewInit() {
+    cancelAnimationFrame(reviewInitFrame);
+    reviewInitFrame = requestAnimationFrame(() => {
+      reviewInitFrame = requestAnimationFrame(() => {
+        reviewInitFrame = 0;
+        if (!section.hidden && carousel.isConnected && carousel.clientWidth > 0) initReviewSwiper();
+      });
+    });
+  }
 
   const escapeHtml = value => String(value ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -944,7 +957,11 @@
 
   function initReviewSwiper() {
     destroyReviewSwiper();
-    if (!rollingReviews.length || hiddenAfterBrandSelection) return;
+    if (!rollingReviews.length || hiddenAfterBrandSelection || section.hidden || !carousel.isConnected || !carousel.clientWidth) return;
+    // Swiper loop can reorder existing nodes; always rebuild in original order.
+    track.innerHTML = carouselCardMarkup(rollingReviews);
+    bindImageFallbacks();
+    lastReviewMotion = performance.now();
 
     // Swiper가 외부 스크립트 로딩 문제로 없을 경우 카드 목록은 그대로 보이게 둔다.
     if (typeof window.Swiper !== 'function') {
@@ -982,7 +999,7 @@
         delay: SWIPER_DELAY,
         disableOnInteraction: false,
         pauseOnMouseEnter: false,
-        waitForTransition: true,
+        waitForTransition: false,
         stopOnLastSlide: false
       } : false,
       breakpoints: {
@@ -1003,6 +1020,9 @@
         }
       },
       on: {
+        slideChange() { lastReviewMotion = performance.now(); },
+        touchStart() { reviewPointerDown = true; },
+        touchEnd() { reviewPointerDown = false; lastReviewMotion = performance.now(); },
         init(swiper) {
           swiper.wrapperEl.style.setProperty('--review-swiper-speed', `${SWIPER_SPEED}ms`);
         }
@@ -1021,14 +1041,7 @@
 
     section.hidden = false;
 
-    // 브랜드 선택 시 파괴했던 Swiper를 초기 화면으로 돌아올 때 다시 생성합니다.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        initReviewSwiper();
-        reviewSwiper?.slideToLoop?.(0, 0, false);
-        reviewSwiper?.autoplay?.start?.();
-      });
-    });
+    scheduleReviewInit();
   }
 
   function renderReviewList(items) {
@@ -1045,11 +1058,12 @@
     }
 
     section.hidden = false;
+    destroyReviewSwiper();
     track.innerHTML = rollingReviews.length ? carouselCardMarkup(rollingReviews) : `<article class="review-card review-card--loading"><div class="review-card__body"><strong>최근 3개월 출고 후기가 없습니다.</strong><p>전체 후기 보기를 누르면 이전 출고 후기도 확인할 수 있습니다.</p></div></article>`;
     bindImageFallbacks();
 
     // DOM 크기가 계산된 다음 Swiper를 초기화해야 slidesPerView:auto가 정확하게 작동한다.
-    requestAnimationFrame(() => requestAnimationFrame(initReviewSwiper));
+    scheduleReviewInit();
   }
 
   function bindImageFallbacks() {
@@ -1274,11 +1288,38 @@
   // 로고 클릭/처음부터 다시하기 등 견적이 초기 상태로 돌아가면 후기도 다시 노출한다.
   document.addEventListener('autogenie:wizard-reset', restoreReviewSection);
 
-  // 탭이 다시 활성화됐을 때 자동재생이 자연스럽게 이어지도록 한다.
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden || hiddenAfterBrandSelection || !reviewSwiper?.autoplay) return;
-    reviewSwiper.autoplay.start();
+  // The wizard moves the section between DOM containers on every render.
+  document.addEventListener('autogenie:review-placement', event => {
+    hiddenAfterBrandSelection = !event.detail.visible;
+    if (hiddenAfterBrandSelection) {
+      cancelAnimationFrame(reviewInitFrame);
+      destroyReviewSwiper();
+      return;
+    }
+    if (rollingReviews.length) scheduleReviewInit();
   });
+
+  function recoverReviewPlayback() {
+    if (document.hidden || hiddenAfterBrandSelection || section.hidden || !carousel.isConnected || !carousel.clientWidth || rollingReviews.length < 2 || reviewPointerDown) return;
+    if (!reviewSwiper || reviewSwiper.destroyed) {
+      scheduleReviewInit();
+      return;
+    }
+    // Recover even if a transitionend event was lost during DOM relocation.
+    if (performance.now() - lastReviewMotion > (SWIPER_DELAY + SWIPER_SPEED) * 2 + 1000) {
+      scheduleReviewInit();
+    } else if (!reviewSwiper.autoplay?.running) {
+      reviewSwiper.autoplay?.start();
+    }
+  }
+  window.addEventListener('pointerup', () => { reviewPointerDown = false; });
+  window.addEventListener('pointercancel', () => { reviewPointerDown = false; });
+  document.addEventListener('visibilitychange', () => {
+    reviewPointerDown = false;
+    if (!document.hidden) recoverReviewPlayback();
+  });
+  window.addEventListener('pageshow', recoverReviewPlayback);
+  window.setInterval(recoverReviewPlayback, 2000);
 
   loadReviews();
 })();
