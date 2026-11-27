@@ -19508,7 +19508,8 @@ const vehicleCatalog = [
     }
 
     ensureSelection();
-    if (!state.submitted && state.step > 1 && (!state.carName || !currentPaint())) {
+    // 바로 견적신청으로 진입하는 정보입력 단계는 차량 선택 없이도 허용합니다.
+    if (!state.submitted && state.step > 1 && state.step < 4 && (!state.carName || !currentPaint())) {
       state.step = 1;
       state.maxReachedStep = 1;
       state.trim = "";
