@@ -3,7 +3,7 @@
   "generatedAt": "2026-11-26T08:49:33.252Z",
   "rollingMonths": 3,
   "galleryStartDate": "2026-01-01",
-  "order": "board-visible-order-newest-first",
+  "order": "date-descending-archive-order-for-ties",
   "count": 137,
   "reviews": [
     {
@@ -3454,5 +3454,31 @@
       "url": "https://www.agautoplan.com/review/?q=YToyOntzOjEyOiJrZXl3b3JkX3R5cGUiO3M6MzoiYWxsIjtzOjQ6InBhZ2UiO2k6MTM7fQ%3D%3D&bmode=view&idx=172108179&t=board",
       "sourceOrder": 167
     }
+  ],
+  "excludedReviewIds": [
+    "172309158",
+    "172466664",
+    "172834246",
+    "172834247",
+    "172991912",
+    "173074681",
+    "173244612",
+    "173575141",
+    "173575142",
+    "173575144",
+    "173672030",
+    "173947780",
+    "174207920",
+    "174566229",
+    "174566230",
+    "174967877",
+    "175102071",
+    "175161017",
+    "175215196",
+    "175318710",
+    "175372643",
+    "175669197",
+    "175906680",
+    "175906681"
   ]
 }
