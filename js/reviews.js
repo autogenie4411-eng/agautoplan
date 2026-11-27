@@ -60,6 +60,8 @@
       'es300','nx','rx','ux','lm','ls','id.4','id.5','atto 3','seal', '씰'
     ];
     const domesticShort = ['k3','k5','k8','k9','ev3','ev4','ev5','ev6','ev9','g70','g80','g90','gv60','gv70','gv80','레이'];
+    // 벤츠 모델의 플러그인 하이브리드/디젤 접미사(e, de, d)까지 정확히 인식합니다.
+    if (/(?:^|[^a-z0-9])(?:[ec]\s*(?:200|220|250|300|350|400|450)|s\s*(?:350|400|450|500|580))\s*-?\s*(?:de|e|d)(?=$|[^a-z0-9])/i.test(titleModel)) return 'import';
     if (importNames.some(name => has(titleModel, name)) || importModels.some(name => has(titleModel, name)) || importShort.some(name => has(titleModel, name))) return 'import';
     if (domesticNames.some(name => has(titleModel, name)) || domesticModels.some(name => has(titleModel, name)) || domesticShort.some(name => has(titleModel, name))) return 'domestic';
     if (importNames.some(name => has(brand, name))) return 'import';
@@ -225,6 +227,9 @@
   const SOURCE_CACHE_TTL = 30 * 60 * 1000;
   const LOCAL_FRESH_DAYS = 14; // 오래된 JSON을 최신 후기처럼 먼저 노출하지 않는다.
 
+  const REVIEW_ARCHIVE_CACHE_KEY = `autogenie-review-archive-v2:국산차:${new URL('.', location.href).pathname}`;
+  let activeReviewArchive = null;
+  let reviewArchiveSignature = '';
   let renderedReviews = []; // 연간(연초 3개월은 전년도 포함) 전체 후기
   let rollingReviews = [];  // 메인 화면 최근 3개월
   let reviewDialog = null;
@@ -377,11 +382,7 @@
       .filter(review => reviewMarket(review) === 'domestic')
       .map((review, inputOrder) => ({ ...review, _inputOrder: inputOrder, _timestamp: reviewTimestamp(review) }))
       .filter(review => review._timestamp >= cutoff.getTime())
-      .sort((a, b) => {
-        const ao = Number.isFinite(Number(a.sourceOrder)) ? Number(a.sourceOrder) : a._inputOrder;
-        const bo = Number.isFinite(Number(b.sourceOrder)) ? Number(b.sourceOrder) : b._inputOrder;
-        return ao - bo;
-      });
+      .sort((a, b) => activeReviewArchive?.order === "date-descending-archive-order-for-ties" ? b._timestamp - a._timestamp || a._inputOrder - b._inputOrder : (Number.isFinite(Number(a.sourceOrder)) ? Number(a.sourceOrder) : a._inputOrder) - (Number.isFinite(Number(b.sourceOrder)) ? Number(b.sourceOrder) : b._inputOrder));
 
     const seen = new Set();
     const unique = [];
@@ -1244,34 +1245,85 @@
     }
   }
 
-  async function loadReviews() {
-    let localItems = [];
+  function validateReviewArchive(payload) {
+    if (!payload || !Array.isArray(payload.reviews) || !payload.reviews.length) return null;
+    const items = payload.reviews;
+    if (payload.count !== undefined && payload.count !== items.length) return null;
+    const ids = new Set();
+    for (const item of items) {
+      const id = String(item?.id ?? '');
+      if (!id || ids.has(id) || typeof item.title !== 'string' || !item.title.trim() || !parseReviewDate(item.date)) return null;
+      ids.add(id);
+    }
+    return payload;
+  }
+
+  function readEmbeddedReviewArchive() {
     try {
-      const response = await fetch(`data/reviews.json?v=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const payload = await response.json();
-      localItems = Array.isArray(payload) ? payload : payload.reviews || [];
-    } catch (error) {
-      console.warn('reviews.json을 불러오지 못했습니다.', error);
+      return validateReviewArchive(JSON.parse(document.getElementById('autogenieReviewSnapshot')?.textContent || 'null'));
+    } catch { return null; }
+  }
+
+  function readLastGoodReviewArchive() {
+    try {
+      return validateReviewArchive(JSON.parse(localStorage.getItem(REVIEW_ARCHIVE_CACHE_KEY) || 'null'));
+    } catch { return null; }
+  }
+
+  function saveLastGoodReviewArchive(payload) {
+    try {
+      const serialized = JSON.stringify(payload);
+      // 큰 상세 HTML 때문에 브라우저 저장 한도를 넘겨도 배포본 내장 데이터로 정상 표시합니다.
+      if (serialized.length <= 2_000_000) localStorage.setItem(REVIEW_ARCHIVE_CACHE_KEY, serialized);
+    } catch { /* 저장소 차단/용량 초과 시 내장 스냅샷을 사용 */ }
+  }
+
+  function archiveRevision(payload) {
+    return Date.parse(payload?.generatedAt || '') || 0;
+  }
+
+  function applyReviewArchive(payload) {
+    if (!payload) return false;
+    // 배포 전환 중 이전 JSON이 응답하더라도 최신 정상 후기를 되돌리지 않습니다.
+    if (activeReviewArchive && archiveRevision(payload) < archiveRevision(activeReviewArchive)) return false;
+    const previous = activeReviewArchive;
+    activeReviewArchive = payload;
+    const prepared = prepareReviews(payload.reviews);
+    if (renderedReviews.length && !prepared.length) { activeReviewArchive = previous; return false; }
+    if (rollingReviews.length && !prepared.some(review => reviewTimestamp(review) >= rollingStartDate().getTime())) { activeReviewArchive = previous; return false; }
+    const signature = JSON.stringify([payload.order, payload.reviews]);
+    if (signature !== reviewArchiveSignature) {
+      renderReviewList(payload.reviews);
+      reviewArchiveSignature = signature;
+    }
+    activeReviewArchive = payload;
+    saveLastGoodReviewArchive(payload);
+    return true;
+  }
+
+  async function loadReviews() {
+    // 네트워크 요청을 기다리지 않고, 현재 배포본 또는 더 최신의 마지막 정상 아카이브부터 표시합니다.
+    const embedded = readEmbeddedReviewArchive();
+    const cached = readLastGoodReviewArchive();
+    const first = cached && (!embedded || archiveRevision(cached) > archiveRevision(embedded)) ? cached : embedded;
+    const second = first === cached ? embedded : cached;
+    if (!applyReviewArchive(first) && !applyReviewArchive(second)) {
+      renderReviewList(FALLBACK_REVIEWS);
     }
 
-    // GitHub Actions가 갱신한 reviews.json을 최우선으로 표시한다.
-    // 다만 첫 배포/네트워크 오류/Actions 실행 전처럼 JSON을 읽지 못한 경우에도
-    // 후기 영역 자체가 사라지지 않도록 기존 확보 후기(FALLBACK)를 즉시 표시한다.
-    const localReviews = prepareReviews(localItems);
-    const reviews = localReviews.length ? localReviews : prepareReviews(FALLBACK_REVIEWS);
-
-    if (reviews.length) {
-      renderReviewList(reviews);
-    } else {
-      section.hidden = hiddenAfterBrandSelection;
-      destroyReviewSwiper();
-      track.innerHTML = `<article class="review-card review-card--loading">
-        <div class="review-card__body">
-          <strong>출고 후기를 준비하고 있습니다.</strong>
-          <p>다음 자동 갱신에서 최신 후기가 표시됩니다.</p>
-        </div>
-      </article>`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(`data/reviews.json?v=${Date.now()}`, { cache: 'no-store', signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = validateReviewArchive(await response.json());
+      if (!payload) throw new Error('유효하지 않은 후기 아카이브');
+      // 성공한 최신 데이터만 교체. 같은 내용이면 Swiper와 현재 카드를 유지합니다.
+      applyReviewArchive(payload);
+    } catch (error) {
+      console.warn('후기 갱신 실패: 기존 정상 후기를 유지합니다.', error);
+    } finally {
+      clearTimeout(timer);
     }
   }
 

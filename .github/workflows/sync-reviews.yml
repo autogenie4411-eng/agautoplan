@@ -3,6 +3,19 @@ name: Sync AUTOGENIE Reviews
 # Monday and Thursday 09:30 KST; review collection never runs merely from git push.
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'incremental: 신규만 / repair: 누락 상세 보강 / refresh: 특정 후기 갱신'
+        type: choice
+        options:
+          - incremental
+          - repair
+          - refresh
+        default: incremental
+      review_id:
+        description: 'refresh 선택 시 원본 후기 URL의 idx 숫자'
+        type: string
+        required: false
   schedule:
     - cron: '30 0 * * 1,4'
 
@@ -32,11 +45,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p data
-          if git fetch --no-tags --depth=1 origin refs/heads/review-data:refs/remotes/origin/review-data; then
+          # Only use the bundled archive if the remote branch truly does not exist.
+          if git ls-remote --exit-code --heads origin refs/heads/review-data > /tmp/autogenie-review-branch; then
+            git fetch --no-tags --depth=1 origin refs/heads/review-data:refs/remotes/origin/review-data
             git show refs/remotes/origin/review-data:data/reviews.json > /tmp/autogenie-prior-reviews.json
             mv /tmp/autogenie-prior-reviews.json data/reviews.json
             echo 'Restored preserved reviews before collecting new reviews.'
           else
+            status=$?
+            if [ "$status" -ne 2 ]; then
+              echo 'Could not verify the review-data branch; stopping to protect existing reviews.' >&2
+              exit "$status"
+            fi
             echo 'First sync: using the initial reviews.json packaged with this site.'
           fi
       - name: Setup Node.js
@@ -48,6 +68,9 @@ jobs:
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Collect latest reviews
+        env:
+          REVIEW_SYNC_MODE: ${{ inputs.mode || 'incremental' }}
+          REVIEW_SYNC_ID: ${{ inputs.review_id || '' }}
         run: node scripts/sync-reviews.mjs
       - name: Save reviews only in this repository's review-data branch
         id: archive
@@ -56,7 +79,10 @@ jobs:
           set -euo pipefail
           # Never push an empty or malformed archive into the published website.
           node --input-type=module -e 'import fs from "node:fs"; const p = JSON.parse(fs.readFileSync("data/reviews.json", "utf8")); if (!Array.isArray(p.reviews) || p.reviews.length === 0) throw new Error("Missing review records");'
+          publish=true
           if git show-ref --verify --quiet refs/remotes/origin/review-data; then
+            git show refs/remotes/origin/review-data:data/reviews.json > /tmp/autogenie-compare-reviews.json
+            if node --input-type=module -e 'import fs from "node:fs"; const a=JSON.parse(fs.readFileSync("/tmp/autogenie-compare-reviews.json","utf8")); const b=JSON.parse(fs.readFileSync("data/reviews.json","utf8")); process.exit(JSON.stringify(a.reviews)===JSON.stringify(b.reviews)?0:1);'; then publish=false; fi
             prior=$(git show refs/remotes/origin/review-data:data/reviews.json | sha256sum | cut -d' ' -f1)
             latest=$(sha256sum data/reviews.json | cut -d' ' -f1)
             if [ "$prior" = "$latest" ]; then
@@ -84,7 +110,7 @@ jobs:
             git commit -m 'chore: sync AUTOGENIE reviews'
           fi
           git push origin HEAD:refs/heads/review-data
-          echo 'changed=true' >> "$GITHUB_OUTPUT"
+          echo "changed=$publish" >> "$GITHUB_OUTPUT"
 
   publish-reviews:
     needs: sync-reviews

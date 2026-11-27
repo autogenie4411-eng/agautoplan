@@ -5,8 +5,15 @@ import { chromium } from 'playwright';
 const SOURCE = 'https://www.agautoplan.com/review';
 const ROLLING_MONTHS = 3; // 사이트 메인 화면 필터와 동일한 기간
 const MAX_PAGES = 100; // 1년 이상 게시글을 탐색할 수 있도록 확대
-const MAX_REVIEWS = 800; // 연간 후기 상한, 필요 시 추가 확대 가능
 const OUTPUT = path.resolve('data/reviews.json');
+const MODE = process.env.REVIEW_SYNC_MODE || 'incremental';
+const TARGET_ID = String(process.env.REVIEW_SYNC_ID || '').trim();
+const MAX_DETAIL_FETCHES_PER_RUN = 70;
+const MAX_CONSECUTIVE_ERRORS = 8;
+const SITE_MARKET = 'domestic';
+if (!['incremental', 'repair', 'refresh'].includes(MODE)) throw new Error(`Unsupported mode: ${MODE}`);
+if (MODE === 'refresh' && !/^\d+$/.test(TARGET_ID)) throw new Error('refresh 모드에서는 게시글 ID(idx)를 입력하세요.');
+
 
 // 후기 분류는 메이커 + 국내/수입 차종명을 함께 검사합니다.
 // 차종명이 단독으로 나오는 E200, 아토3, 모델Y 등의 후기에도 적용합니다.
@@ -62,6 +69,8 @@ function reviewMarket(review = {}) {
     'es300','nx','rx','ux','lm','ls','id.4','id.5','atto 3','seal', '씰'
   ];
   const domesticShort = ['k3','k5','k8','k9','ev3','ev4','ev5','ev6','ev9','g70','g80','g90','gv60','gv70','gv80','레이'];
+  // 벤츠 모델의 플러그인 하이브리드/디젤 접미사(e, de, d)까지 정확히 인식합니다.
+  if (/(?:^|[^a-z0-9])(?:[ec]\s*(?:200|220|250|300|350|400|450)|s\s*(?:350|400|450|500|580))\s*-?\s*(?:de|e|d)(?=$|[^a-z0-9])/i.test(titleModel)) return 'import';
   if (importNames.some(name => has(titleModel, name)) || importModels.some(name => has(titleModel, name)) || importShort.some(name => has(titleModel, name))) return 'import';
   if (domesticNames.some(name => has(titleModel, name)) || domesticModels.some(name => has(titleModel, name)) || domesticShort.some(name => has(titleModel, name))) return 'domestic';
   if (importNames.some(name => has(brand, name))) return 'import';
@@ -188,7 +197,7 @@ function guessBrand(text='') {
     '벤틀리','롤스로이스','BYD'
   ];
   const lower = String(text).toLowerCase();
-  return brands.find(b => lower.includes(b.toLowerCase())) || '';
+  return brands.find(b => lower.includes(b.toLowerCase())) || (/(?:^|[^a-z0-9])(?:[ec]\s*(?:200|220|250|300|350|400|450)|s\s*(?:350|400|450|500|580))\s*-?\s*(?:de|e|d)(?=$|[^a-z0-9])/i.test(lower) ? '벤츠' : '');
 }
 
 function isInvalidTitle(value='') {
@@ -332,10 +341,11 @@ async function collectBoardOrder(page) {
   const ordered = [];
   const seen = new Set();
 
-  await page.goto(SOURCE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  const listResponse = await page.goto(SOURCE, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  if (!listResponse?.ok()) throw new Error(`목록 HTTP ${listResponse?.status() || 'no response'}`);
   await page.waitForTimeout(2400);
 
-  for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
+  for (let pageNo = 1; pageNo <= (MODE === 'incremental' ? Math.min(MAX_PAGES, 12) : MAX_PAGES); pageNo++) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);
 
@@ -521,7 +531,8 @@ async function parseDetail(page, item) {
 
     // 목록 URL에 검색 파라미터가 붙어 있거나 첫 로딩이 불완전한 경우를 대비해 canonical URL까지 재시도한다.
     for (let attempt = 0; attempt < targets.length; attempt += 1) {
-      await page.goto(targets[attempt], { waitUntil: 'domcontentloaded', timeout: 30000 });
+      const response = await page.goto(targets[attempt], { waitUntil: 'domcontentloaded', timeout: 30000 });
+      if (!response?.ok()) throw new Error(`HTTP ${response?.status() || 'no response'}`);
       await page.waitForTimeout(attempt === 0 ? 850 : 1200);
 
       // 한 화면 단위로 실제 게시글 끝까지 이동해야 지연 로딩된 사진을 빠뜨리지 않는다.
@@ -753,6 +764,7 @@ async function parseDetail(page, item) {
     }
   } catch (error) {
     console.warn(`[상세 보조] ${id} 상세페이지 로드 실패: ${error.message}`);
+    return null;
   } finally {
     page.off('request', onRequest);
     page.off('response', onResponse);
@@ -803,6 +815,7 @@ async function parseDetail(page, item) {
   // 목록 카드 썸네일을 우선 사용하고, 없거나 비정상일 때 상세페이지 이미지를 사용한다.
   const listImage = normalizeImageCandidate(item.image || '');
   const image = !isJunkImageUrl(listImage) ? listImage : (data.image || '');
+  if (!image || !(clean(data.body) || data.articleHtml || data.images?.length || data.contentBlocks?.length)) return null;
 
   return {
     id: String(id),
@@ -823,125 +836,93 @@ async function parseDetail(page, item) {
   };
 }
 
-const browser = await chromium.launch({ headless: true });
-
-try {
-  const context = await browser.newContext({
-    locale: 'ko-KR',
-    viewport: { width: 1440, height: 1800 }
-  });
-
-  const listPage = await context.newPage();
-
-  console.log('오토지니 후기 게시판 최신 목록 순서 수집 시작');
-
-  const items = await collectBoardOrder(listPage);
-
-  console.log(`게시판 DOM 순서 기준 후기 ${items.length}개 발견 (수집 시작일: ${isoDate(galleryStartDate())})`);
-
-  if (!items.length) {
-    throw new Error('후기 게시글을 찾지 못했습니다.');
-  }
-
-  // 이미 수집한 과거 후기는 재활용하여 주 2회 전체 본문을 다시 다운로드하지 않는다.
-  // 사진과 원본 서식 정보가 없는 이전 데이터는 다시 수집한다.
-  let existingReviews = [];
-  try {
-    const previous = JSON.parse(await fs.readFile(OUTPUT, 'utf8'));
-    existingReviews = Array.isArray(previous) ? previous : (previous.reviews || []);
-  } catch { /* 첫 실행 / 데이터 파일 없음 */ }
-  const previousById = new Map(existingReviews.map(r => [String(r.id), r]));
-  const recentCutoff = rollingStartDate();
-  const detailPage = await context.newPage();
-  const reviews = [];
-
-  for (let i = 0; i < items.length && reviews.length < MAX_REVIEWS; i++) {
-    const item = items[i];
-    const prior = previousById.get(String(item.id));
-    const knownDate = item.listDate || (prior ? parseDate(prior.date) : null);
-    const canReuse = prior && knownDate && knownDate < recentCutoff &&
-      knownDate >= galleryStartDate() && prior.articleHtml && prior.image &&
-      Array.isArray(prior.images) && prior.images.length &&
-      Array.isArray(prior.contentBlocks);
-    const parsed = canReuse ? { ...prior, sourceOrder: item.sourceOrder }
-      : await parseDetail(detailPage, item);
-
-    if (parsed?.tooOld) {
-      console.log(`전체 후기 범위(${isoDate(galleryStartDate())} 이후) 종료 지점: ${isoDate(parsed.date)}`);
-      break;
-    }
-
-    if (parsed) {
-      parsed.title = normalizeReviewTitle(parsed.title) || parsed.title;
-      reviews.push(parsed);
-      console.log(`[${reviews.length}] #${parsed.sourceOrder} ${parsed.date} ${parsed.title} (본문 ${parsed.body?.length || 0}자, 사진 ${parsed.images?.length || 0}장, 블록 ${parsed.contentBlocks?.length || 0}개)`);
-    }
-
-    if (!canReuse) await sleep(180);
-  }
-
-  if (!reviews.length) {
-    throw new Error('대상 연도의 출고 후기를 한 건도 수집하지 못했습니다.');
-  }
-
-  const unique = [];
-  const seen = new Set();
-
-  for (const review of reviews) {
-    if (seen.has(review.id)) continue;
-    seen.add(review.id);
-    unique.push(review);
-  }
-
-  const firstOrder = unique[0]?.sourceOrder;
-
-  if (firstOrder !== 0) {
-    throw new Error(`최신 후기 누락 감지: 첫 저장 후기 sourceOrder=${firstOrder}. 최신 글을 건너뛴 상태라 stale JSON 저장을 중단합니다.`);
-  }
-
-  // 이 저장소는 국산차 전용 사이트이므로 수입차 후기는 JSON에도 저장하지 않습니다.
-  const domesticOnly = unique.filter(review => reviewMarket(review) === 'domestic');
-
-  const invalidSavedTitles = domesticOnly.filter(review => isInvalidTitle(review.title));
-  if (invalidSavedTitles.length) {
-    throw new Error(`오류 페이지 제목이 ${invalidSavedTitles.length}건 남아 있어 reviews.json 저장을 중단합니다.`);
-  }
-
-  const missingImages = domesticOnly.filter(review => !review.image);
-  if (missingImages.length) {
-    console.warn(`⚠ 이미지 누락 ${missingImages.length}건: ${missingImages.map(r => `${r.date} #${r.id} ${r.title}`).join(' | ')}`);
-  } else {
-    console.log('이미지 누락 0건');
-  }
-
-  await fs.mkdir(path.dirname(OUTPUT), { recursive: true });
-
-  // Only write an archive if review content changed; generatedAt alone is not a change.
-  const oldPayload = await fs.readFile(OUTPUT, 'utf8').then(JSON.parse).catch(() => null);
-  const contentUnchanged = oldPayload &&
-    oldPayload.source === SOURCE &&
-    oldPayload.galleryStartDate === isoDate(galleryStartDate()) &&
-    JSON.stringify(oldPayload.reviews || []) === JSON.stringify(domesticOnly);
-
-  if (contentUnchanged) {
-    console.log('후기 내용 변경 없음: 기존 JSON 유지');
-  } else {
-  await fs.writeFile(
-    OUTPUT,
-    JSON.stringify({
-      source: SOURCE,
-      generatedAt: new Date().toISOString(),
-      rollingMonths: ROLLING_MONTHS,
-      galleryStartDate: isoDate(galleryStartDate()),
-      order: 'board-visible-order-newest-first',
-      count: domesticOnly.length,
-      reviews: domesticOnly
-    }, null, 2) + '\n',
-    'utf8'
-  );
-  }
-
-  console.log(`완료: ${isoDate(galleryStartDate())} 이후 국산차 후기 ${domesticOnly.length}건 저장 (메인 롤링은 최근 ${ROLLING_MONTHS}개월)`);
-} finally {
-  await browser.close();
+// Keep previous successful review objects unchanged; only manual modes may update them.
+const raw = await fs.readFile(OUTPUT, 'utf8');
+const previousPayload = JSON.parse(raw);
+const archivedReviews = Array.isArray(previousPayload) ? previousPayload : previousPayload.reviews;
+if (!Array.isArray(archivedReviews) || !archivedReviews.length) throw new Error('기존 후기 아카이브가 비어 있습니다. 저장 중단.');
+const archivedIds = new Set();
+for (const r of archivedReviews) {
+  const id = String(r?.id ?? '');
+  if (!/^\d+$/.test(id) || archivedIds.has(id) || !r.title || !parseDate(r.date)) throw new Error('기존 후기 ID/날짜 오류: 기존 파일 유지');
+  archivedIds.add(id);
 }
+const cutoff = galleryStartDate();
+const oldReviews = archivedReviews.filter(r => !parseDate(r.date) || parseDate(r.date) >= cutoff);
+const oldById = new Map(oldReviews.map(r => [String(r.id), r]));
+// Record successfully classified off-market posts so they are not downloaded again.
+const previousExcluded = Array.isArray(previousPayload.excludedReviewIds) ? previousPayload.excludedReviewIds.map(String).filter(id => /^\d+$/.test(id)) : [];
+const excluded = new Set(previousExcluded);
+const allowed = market => market !== 'unknown' && (SITE_MARKET === 'both' || market === SITE_MARKET);
+const needsRepair = r => r.pendingFullSync || !r.image || !r.articleHtml || !r.images?.length;
+const browser = await chromium.launch({ headless: true });
+try {
+  const context = await browser.newContext({ locale: 'ko-KR', viewport: { width: 1440, height: 1800 } });
+  const listPage = await context.newPage();
+  const items = MODE === 'refresh' ? [] : await collectBoardOrder(listPage);
+  if (MODE !== 'refresh' && !items.length) throw new Error('후기 목록 수집 실패: 기존 파일 유지');
+  const listedById = new Map(items.map(item => [String(item.id), item]));
+  const toItem = r => listedById.get(String(r.id)) || { id: String(r.id), href: r.url, title: r.title, text: r.date, listDate: parseDate(r.date), image: r.image, sourceOrder: r.sourceOrder };
+  const newItems = items.filter(item => !archivedIds.has(String(item.id)) && !excluded.has(String(item.id)) && (!item.listDate || item.listDate >= cutoff));
+  let targets = newItems;
+  if (MODE === 'repair') targets = [...newItems, ...oldReviews.filter(needsRepair).map(toItem)];
+  if (MODE === 'refresh') targets = [oldById.has(TARGET_ID) ? toItem(oldById.get(TARGET_ID)) : { id: TARGET_ID, href: `${SOURCE}/?bmode=view&idx=${TARGET_ID}`, sourceOrder: 0 }];
+  console.log(`모드 ${MODE} / 기존 ${oldReviews.length}건 / 목록 ${items.length}건 / 신규 후보 ${newItems.length}건 / 상세 대상 ${targets.length}건`);
+  const detailPage = targets.length ? await context.newPage() : null;
+  const fresh = [];
+  const failed = [];
+  const unclassified = [];
+  let errors = 0, attempts = 0;
+  for (const item of targets) {
+    if (attempts >= MAX_DETAIL_FETCHES_PER_RUN) break;
+    const id = String(item.id), old = oldById.get(id);
+    attempts++;
+    let parsed;
+    try { parsed = await parseDetail(detailPage, item); }
+    catch (error) { console.warn(`[상세 실패] ${id}: ${error.message}`); }
+    if (parsed?.tooOld) { errors = 0; continue; }
+    if (!parsed || isInvalidTitle(parsed.title) || !parsed.image || !(parsed.body || parsed.articleHtml || parsed.contentBlocks?.length)) {
+      failed.push(id);
+      if (++errors >= MAX_CONSECUTIVE_ERRORS) break;
+      continue;
+    }
+    errors = 0;
+    const market = reviewMarket(parsed);
+    if (!allowed(market)) {
+      if (market !== 'unknown' && !old) excluded.add(id);
+      else if (market === 'unknown') unclassified.push(id);
+      console.log(`[분류 제외 ${market}] ${id}`);
+      continue;
+    }
+    excluded.delete(id);
+    parsed.title = normalizeReviewTitle(parsed.title) || parsed.title;
+    if (old) {
+      const merged = { ...old, ...parsed, sourceOrder: old.sourceOrder, image: parsed.image || old.image, body: parsed.body || old.body, articleHtml: parsed.articleHtml || old.articleHtml || '', images: parsed.images?.length ? parsed.images : old.images, contentBlocks: parsed.contentBlocks?.length ? parsed.contentBlocks : old.contentBlocks };
+      delete merged.pendingFullSync;
+      fresh.push(merged);
+    } else fresh.push(parsed);
+    console.log(`[${old ? '수동 갱신' : '신규 추가'} ${market}] ${id} ${parsed.date} ${parsed.title}`);
+    await sleep(180);
+  }
+  if (MODE === 'refresh' && !fresh.length) throw new Error(`지정 후기 ${TARGET_ID} 갱신 실패: 기존 파일 유지`);
+  if (failed.length && !fresh.length && excluded.size === previousExcluded.length) throw new Error('신규 상세 수집 실패: 기존 파일 유지');
+  const updates = new Map(fresh.map(r => [String(r.id), r]));
+  const newReviews = fresh.filter(r => !oldById.has(String(r.id)));
+  // New entries first for same-date ties; old entries keep their relative order and all original fields.
+  const merged = [...newReviews, ...oldReviews.map(r => updates.get(String(r.id)) || r)];
+  const siteReviews = fresh.length ? merged.sort((a,b) => (parseDate(b.date)?.getTime() || 0) - (parseDate(a.date)?.getTime() || 0)) : merged;
+  if (!siteReviews.length) throw new Error('빈 후기 아카이브 저장 금지');
+  if (failed.length || attempts < targets.length) console.warn(`::warning::수집 미완료 ${failed.length}건 / 미시도 ${targets.length-attempts}건 / ID ${failed.join(', ')}`);
+  if (unclassified.length) console.warn(`::warning::분류 미확정 ${unclassified.length}건: 다음 실행에서 재시도. ID: ${unclassified.join(', ')}`);
+  const excludedReviewIds = [...excluded].sort();
+  const reviewsChanged = JSON.stringify(archivedReviews) !== JSON.stringify(siteReviews);
+  const exclusionsChanged = JSON.stringify([...new Set(previousExcluded)].sort()) !== JSON.stringify(excludedReviewIds);
+  if (reviewsChanged || exclusionsChanged) {
+    const metadata = Array.isArray(previousPayload) ? {} : previousPayload;
+    const payload = { ...metadata, source: SOURCE, generatedAt: reviewsChanged ? new Date().toISOString() : metadata.generatedAt, galleryStartDate: isoDate(cutoff), rollingMonths: ROLLING_MONTHS, order: 'date-descending-archive-order-for-ties', count: siteReviews.length, reviews: siteReviews, excludedReviewIds };
+    const temp = `${OUTPUT}.tmp`;
+    await fs.writeFile(temp, JSON.stringify(payload, null, 2) + '\n', 'utf8');
+    await fs.rename(temp, OUTPUT);
+  } else console.log('후기 변경 없음: 기존 JSON 그대로 유지');
+  console.log(`완료: 신규 ${newReviews.length}건 / 수동 갱신 ${fresh.length-newReviews.length}건 / 전체 ${siteReviews.length}건 / 상세 요청 ${attempts}건`);
+} finally { await browser.close(); }
